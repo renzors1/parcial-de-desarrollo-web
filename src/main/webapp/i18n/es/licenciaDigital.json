@@ -1,0 +1,33 @@
+{
+  "ejemplo01App": {
+    "licenciaDigital": {
+      "home": {
+        "title": "Licencia Digitals",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Licencia Digital",
+        "createOrEditLabel": "Crear o editar Licencia Digital",
+        "notFound": "Ningún Licencia Digitals encontrado"
+      },
+      "created": "Un nuevo Licencia Digital ha sido creado con el identificador {{ param }}",
+      "updated": "Un Licencia Digital ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Licencia Digital ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Licencia Digital {{ id }}?"
+      },
+      "detail": {
+        "title": "Licencia Digital"
+      },
+      "id": "ID",
+      "codigoLicencia": "Codigo Licencia",
+      "enlaceDescarga": "Enlace Descarga",
+      "fechaAsignacion": "Fecha Asignacion",
+      "estado": "Estado",
+      "usuarioCreacion": "Usuario Creacion",
+      "fechaCreacion": "Fecha Creacion",
+      "usuarioModificacion": "Usuario Modificacion",
+      "fechaModificacion": "Fecha Modificacion",
+      "libro": "Libro",
+      "detalleVenta": "Detalle Venta"
+    }
+  }
+}

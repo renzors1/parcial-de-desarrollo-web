@@ -1,0 +1,36 @@
+{
+  "ejemplo01App": {
+    "venta": {
+      "home": {
+        "title": "Ventas",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Venta",
+        "createOrEditLabel": "Crear o editar Venta",
+        "notFound": "Ningún Ventas encontrado"
+      },
+      "created": "Un nuevo Venta ha sido creado con el identificador {{ param }}",
+      "updated": "Un Venta ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Venta ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Venta {{ id }}?"
+      },
+      "detail": {
+        "title": "Venta"
+      },
+      "id": "ID",
+      "numeroComprobante": "Numero Comprobante",
+      "fechaVenta": "Fecha Venta",
+      "subtotalVenta": "Subtotal Venta",
+      "totalDescuento": "Total Descuento",
+      "igv": "Igv",
+      "totalVenta": "Total Venta",
+      "usuarioCreacion": "Usuario Creacion",
+      "fechaCreacion": "Fecha Creacion",
+      "usuarioModificacion": "Usuario Modificacion",
+      "fechaModificacion": "Fecha Modificacion",
+      "calificacionesCliente": "Calificaciones Cliente",
+      "detalles": "Detalles",
+      "cliente": "Cliente"
+    }
+  }
+}

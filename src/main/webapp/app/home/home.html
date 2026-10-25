@@ -1,0 +1,102 @@
+<div class="tienda-container">
+  <!-- ======================================================== -->
+  <!-- HERO BANNER Y MÉTRICAS DE PLATAFORMA                     -->
+  <!-- ======================================================== -->
+  <jhi-hero-banner
+    [account]="account()"
+    [librosCount]="libros().length"
+    [categoriasCount]="categorias().length"
+    [promocionesCount]="promociones().length"
+    (loginRequested)="login()"
+  ></jhi-hero-banner>
+
+  <!-- ======================================================== -->
+  <!-- VOUCHER / ALERTA DE COMPRA EXITOSA                      -->
+  <!-- ======================================================== -->
+  @if (ultimaCompra(); as compra) {
+    <jhi-compra-alerta [compra]="compra" (cerrarAlerta)="cerrarAlertaCompra()"></jhi-compra-alerta>
+  }
+
+  <!-- Mensaje de error controlado -->
+  @if (mensajeError(); as error) {
+    <div class="alert alert-danger alert-dismissible mb-4 p-4 rounded-4 shadow-sm" role="alert">
+      <div class="d-flex align-items-center">
+        <fa-icon icon="ban" class="text-danger fs-4 me-2"></fa-icon>
+        <div>
+          <strong class="fs-6">Error en la operación:</strong>
+          <div class="text-muted">{{ error }}</div>
+        </div>
+      </div>
+      <button type="button" class="btn-close" (click)="mensajeError.set(null)" aria-label="Close"></button>
+    </div>
+  }
+
+  <!-- ======================================================== -->
+  <!-- BANNER DE PROMOCIÓN DESTACADA                           -->
+  <!-- ======================================================== -->
+  @if (promociones().length > 0) {
+    <jhi-promo-banner [promocion]="promociones()[0]"></jhi-promo-banner>
+  }
+
+  <!-- ======================================================== -->
+  <!-- CONTROLES DE FILTRADO Y BÚSQUEDA EN TIEMPO REAL         -->
+  <!-- ======================================================== -->
+  <jhi-catalogo-filtros
+    [texto]="filtroTexto()"
+    [categorias]="categorias()"
+    [categoriaSeleccionadaId]="categoriaSeleccionada()"
+    (textoChange)="onFiltroTextoChange($event)"
+    (categoriaSelect)="onCategoriaSelect($event)"
+  ></jhi-catalogo-filtros>
+
+  <!-- ======================================================== -->
+  <!-- CATÁLOGO DE LIBROS Y TARJETAS RESPONSIVE                -->
+  <!-- ======================================================== -->
+  <section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="d-flex align-items-center gap-2">
+        <fa-icon icon="book" class="text-primary fs-3"></fa-icon>
+        <h2 class="fw-bold mb-0 text-dark">Títulos Disponibles ({{ librosFiltrados().length }})</h2>
+      </div>
+      @if (cargando()) {
+        <div class="d-flex align-items-center text-primary gap-2">
+          <span class="spinner-border spinner-border-sm" role="status"></span>
+          <span class="fw-semibold small">Actualizando catálogo...</span>
+        </div>
+      }
+    </div>
+
+    @if (librosFiltrados().length === 0 && !cargando()) {
+      <div class="card p-5 text-center shadow-sm rounded-4 border bg-white">
+        <div class="mb-3">
+          <fa-icon icon="search" class="fs-1 text-muted"></fa-icon>
+        </div>
+        <h4 class="text-muted fw-bold">No se encontraron títulos que coincidan con los criterios de búsqueda.</h4>
+        <p class="text-secondary mb-4 fs-6">Puedes restablecer los filtros o registrar nuevas publicaciones en la plataforma.</p>
+        <div>
+          <button type="button" class="btn btn-outline-secondary btn-lg me-2 px-4" (click)="limpiarFiltros()">Restablecer Filtros</button>
+          <a class="btn btn-primary btn-lg px-4" routerLink="/libro/new">
+            <fa-icon icon="plus" class="me-1"></fa-icon> Registrar Nuevo Libro
+          </a>
+        </div>
+      </div>
+    }
+
+    <div class="row g-4">
+      @for (libro of librosFiltrados(); track libro.id) {
+        <div class="col-12 col-md-6 col-lg-4">
+          <jhi-libro-card
+            [libro]="libro"
+            [isProcesando]="procesandoCompraId() === libro.id"
+            (comprar)="comprarLicencia($event)"
+          ></jhi-libro-card>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- ACCESO RÁPIDO A MÓDULOS DE GESTIÓN (BASE DE DATOS)       -->
+  <!-- ======================================================== -->
+  <jhi-modulos-grid></jhi-modulos-grid>
+</div>

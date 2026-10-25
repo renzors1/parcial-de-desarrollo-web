@@ -1,0 +1,187 @@
+<div>
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <h2 id="page-heading" data-cy="PromocionHeading" class="fw-bold mb-1">
+        <span jhiTranslate="ejemplo01App.promocion.home.title">Promociones</span>
+      </h2>
+      <div class="text-muted small">Campañas comerciales, cupones de descuento y cupos por temporada</div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" (click)="load()" [disabled]="isLoading()">
+        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
+        <span class="d-none d-sm-inline ms-1" jhiTranslate="ejemplo01App.promocion.home.refreshListLabel">Refrescar</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-dark btn-sm jh-create-entity create-promocion"
+        [routerLink]="['/promocion/new']"
+      >
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.promocion.home.createLabel">Nueva Promoción</span>
+      </button>
+    </div>
+  </div>
+
+  <jhi-alert-error />
+  <jhi-alert />
+
+  @if (promocions().length === 0) {
+    <div class="editorial-empty-state" id="no-result">
+      <div class="empty-state-icon">
+        <fa-icon icon="tags" />
+      </div>
+      <h4 jhiTranslate="ejemplo01App.promocion.home.notFound">Ninguna Promoción encontrada</h4>
+      <p>Actualmente no hay campañas de descuento activas en la tienda.</p>
+      <button class="btn btn-dark btn-sm" [routerLink]="['/promocion/new']">
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.promocion.home.createLabel">Crear primera Promoción</span>
+      </button>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span jhiTranslate="global.field.id">ID</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="nombre">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.promocion.nombre">Nombre</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="porcentajeDescuento">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.promocion.porcentajeDescuento">Descuento</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="cantidadDisponible">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.promocion.cantidadDisponible">Cupos Disp.</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaInicio">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.promocion.fechaInicio">Inicio</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaFin">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.promocion.fechaFin">Fin</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="activo">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.promocion.activo">Activo</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="descripcion" class="d-none d-lg-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.promocion.descripcion">Descripción</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="usuarioCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.promocion.usuarioCreacion">Usuario Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.promocion.fechaCreacion">Fecha Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (promocion of promocions(); track trackId(promocion)) {
+            <tr data-cy="entityTable">
+              <td class="tabular-nums">
+                <a [routerLink]="['/promocion', promocion.id, 'view']" class="fw-semibold text-primary">#{{ promocion.id }}</a>
+              </td>
+              <td class="fw-semibold text-dark">{{ promocion.nombre }}</td>
+              <td class="tabular-nums">
+                <span class="badge-soft-warning"> {{ promocion.porcentajeDescuento }}% OFF </span>
+              </td>
+              <td class="tabular-nums fw-semibold text-dark">{{ promocion.cantidadDisponible }} / {{ promocion.cantidadDefinida }}</td>
+              <td class="tabular-nums text-muted small">{{ promocion.fechaInicio | formatMediumDatetime }}</td>
+              <td class="tabular-nums text-muted small">{{ promocion.fechaFin | formatMediumDatetime }}</td>
+              <td>
+                @if (promocion.activo) {
+                  <span class="badge-soft-success"> <fa-icon icon="check" class="small"></fa-icon> Activo </span>
+                } @else {
+                  <span class="badge-soft-danger"> <fa-icon icon="times" class="small"></fa-icon> Inactivo </span>
+                }
+              </td>
+              <td class="d-none d-lg-table-cell text-muted small text-truncate" style="max-width: 200px">
+                {{ promocion.descripcion }}
+              </td>
+              <td class="d-none d-xl-table-cell text-muted small">{{ promocion.usuarioCreacion }}</td>
+              <td class="d-none d-xl-table-cell text-muted small tabular-nums">{{ promocion.fechaCreacion | formatMediumDatetime }}</td>
+              <td class="text-end">
+                <div class="btn-action-group">
+                  <a
+                    [routerLink]="['/promocion', promocion.id, 'view']"
+                    class="btn-action"
+                    data-cy="entityDetailsButton"
+                    title="Ver detalle"
+                  >
+                    <fa-icon icon="eye" />
+                  </a>
+
+                  <a [routerLink]="['/promocion', promocion.id, 'edit']" class="btn-action" data-cy="entityEditButton" title="Editar">
+                    <fa-icon icon="pencil-alt" />
+                  </a>
+
+                  <button
+                    type="button"
+                    (click)="delete(promocion)"
+                    class="btn-action btn-action-delete"
+                    data-cy="entityDeleteButton"
+                    title="Eliminar"
+                  >
+                    <fa-icon icon="times" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (promocions().length > 0) {
+    <div class="mt-3">
+      <div class="d-flex justify-content-center">
+        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems()"
+          [page]="page()"
+          [pageSize]="itemsPerPage()"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="navigateToPage($event)"
+        />
+      </div>
+    </div>
+  }
+</div>

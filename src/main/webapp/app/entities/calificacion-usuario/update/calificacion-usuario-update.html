@@ -1,0 +1,261 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-calificacion-usuario-heading"
+        data-cy="CalificacionUsuarioCreateUpdateHeading"
+        jhiTranslate="ejemplo01App.calificacionUsuario.home.createOrEditLabel"
+      >
+        Crear o editar Calificacion Usuario
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="global.field.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let puntuacionRef = editForm.get('puntuacion')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_puntuacion" jhiTranslate="ejemplo01App.calificacionUsuario.puntuacion">Puntuacion</label>
+          <input
+            type="number"
+            class="form-control"
+            name="puntuacion"
+            id="field_puntuacion"
+            data-cy="puntuacion"
+            formControlName="puntuacion"
+          />
+          @if (puntuacionRef.invalid && (puntuacionRef.dirty || puntuacionRef.touched)) {
+            <div>
+              @if (puntuacionRef.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+              @if (puntuacionRef.errors?.min) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.min" [translateValues]="{ min: '1' }"
+                  >Este campo debe ser mayor que 1.</small
+                >
+              }
+              @if (puntuacionRef.errors?.max) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.max" [translateValues]="{ max: '5' }"
+                  >Este campo no puede ser mayor que 5.</small
+                >
+              }
+              <small class="form-text text-danger" [hidden]="!puntuacionRef.errors?.number" jhiTranslate="entity.validation.number"
+                >Este campo debe ser un número.</small
+              >
+            </div>
+          }
+        </div>
+
+        @let comentarioRef = editForm.get('comentario')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_comentario" jhiTranslate="ejemplo01App.calificacionUsuario.comentario">Comentario</label>
+          <input
+            type="text"
+            class="form-control"
+            name="comentario"
+            id="field_comentario"
+            data-cy="comentario"
+            formControlName="comentario"
+          />
+          @if (comentarioRef.invalid && (comentarioRef.dirty || comentarioRef.touched)) {
+            <div>
+              @if (comentarioRef.errors?.maxlength) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '500' }"
+                  >Este campo no puede superar más de 500 caracteres.</small
+                >
+              }
+            </div>
+          }
+        </div>
+
+        @let fechaCalificacionRef = editForm.get('fechaCalificacion')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaCalificacion" jhiTranslate="ejemplo01App.calificacionUsuario.fechaCalificacion"
+            >Fecha Calificacion</label
+          >
+          <div class="d-flex">
+            <input
+              id="field_fechaCalificacion"
+              data-cy="fechaCalificacion"
+              type="datetime-local"
+              class="form-control"
+              name="fechaCalificacion"
+              formControlName="fechaCalificacion"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+          @if (fechaCalificacionRef.invalid && (fechaCalificacionRef.dirty || fechaCalificacionRef.touched)) {
+            <div>
+              @if (fechaCalificacionRef.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+              <small
+                class="form-text text-danger"
+                [hidden]="!fechaCalificacionRef.errors?.datetimelocal"
+                jhiTranslate="entity.validation.datetimelocal"
+                >Este campo debe ser una fecha y hora.</small
+              >
+            </div>
+          }
+        </div>
+
+        @let activoRef = editForm.get('activo')!;
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" name="activo" id="field_activo" data-cy="activo" formControlName="activo" />
+          <label class="form-check-label" for="field_activo" jhiTranslate="ejemplo01App.calificacionUsuario.activo">Activo</label>
+          @if (activoRef.invalid && (activoRef.dirty || activoRef.touched)) {
+            <div>
+              @if (activoRef.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_usuarioCreacion" jhiTranslate="ejemplo01App.calificacionUsuario.usuarioCreacion"
+            >Usuario Creacion</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="usuarioCreacion"
+            id="field_usuarioCreacion"
+            data-cy="usuarioCreacion"
+            formControlName="usuarioCreacion"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaCreacion" jhiTranslate="ejemplo01App.calificacionUsuario.fechaCreacion"
+            >Fecha Creacion</label
+          >
+          <div class="d-flex">
+            <input
+              id="field_fechaCreacion"
+              data-cy="fechaCreacion"
+              type="datetime-local"
+              class="form-control"
+              name="fechaCreacion"
+              formControlName="fechaCreacion"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_usuarioModificacion" jhiTranslate="ejemplo01App.calificacionUsuario.usuarioModificacion"
+            >Usuario Modificacion</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="usuarioModificacion"
+            id="field_usuarioModificacion"
+            data-cy="usuarioModificacion"
+            formControlName="usuarioModificacion"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaModificacion" jhiTranslate="ejemplo01App.calificacionUsuario.fechaModificacion"
+            >Fecha Modificacion</label
+          >
+          <div class="d-flex">
+            <input
+              id="field_fechaModificacion"
+              data-cy="fechaModificacion"
+              type="datetime-local"
+              class="form-control"
+              name="fechaModificacion"
+              formControlName="fechaModificacion"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_clienteEvaluado" jhiTranslate="ejemplo01App.calificacionUsuario.clienteEvaluado"
+            >Cliente Evaluado</label
+          >
+          <select
+            class="form-select"
+            id="field_clienteEvaluado"
+            data-cy="clienteEvaluado"
+            name="clienteEvaluado"
+            formControlName="clienteEvaluado"
+            [compareWith]="compareUsuario"
+          >
+            @if (editForm.get(['clienteEvaluado'])!.value === null) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (usuarioOption of usuariosSharedCollection(); track $index) {
+              <option [ngValue]="usuarioOption">{{ usuarioOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (
+          editForm.get(['clienteEvaluado'])!.invalid &&
+          (editForm.get(['clienteEvaluado'])!.dirty || editForm.get(['clienteEvaluado'])!.touched)
+        ) {
+          <div>
+            @if (editForm.get(['clienteEvaluado'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_evaluadorTienda" jhiTranslate="ejemplo01App.calificacionUsuario.evaluadorTienda"
+            >Evaluador Tienda</label
+          >
+          <select
+            class="form-select"
+            id="field_evaluadorTienda"
+            data-cy="evaluadorTienda"
+            name="evaluadorTienda"
+            formControlName="evaluadorTienda"
+            [compareWith]="compareUsuario"
+          >
+            <option [ngValue]="null"></option>
+            @for (usuarioOption of usuariosSharedCollection(); track $index) {
+              <option [ngValue]="usuarioOption">{{ usuarioOption.id }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_venta" jhiTranslate="ejemplo01App.calificacionUsuario.venta">Venta</label>
+          <select class="form-select" id="field_venta" data-cy="venta" name="venta" formControlName="venta" [compareWith]="compareVenta">
+            <option [ngValue]="null"></option>
+            @for (ventaOption of ventasSharedCollection(); track $index) {
+              <option [ngValue]="ventaOption">{{ ventaOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving()"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Guardar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

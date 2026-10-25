@@ -1,0 +1,40 @@
+{
+  "ejemplo01App": {
+    "usuario": {
+      "home": {
+        "title": "Usuarios",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Usuario",
+        "createOrEditLabel": "Crear o editar Usuario",
+        "notFound": "Ningún Usuarios encontrado"
+      },
+      "created": "Un nuevo Usuario ha sido creado con el identificador {{ param }}",
+      "updated": "Un Usuario ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Usuario ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Usuario {{ id }}?"
+      },
+      "detail": {
+        "title": "Usuario"
+      },
+      "id": "ID",
+      "nombre": "Nombre",
+      "apellido": "Apellido",
+      "email": "Email",
+      "contrasena": "Contrasena",
+      "direccion": "Direccion",
+      "celular": "Celular",
+      "fechaRegistro": "Fecha Registro",
+      "calificacionPromedio": "Calificacion Promedio",
+      "activo": "Activo",
+      "usuarioCreacion": "Usuario Creacion",
+      "fechaCreacion": "Fecha Creacion",
+      "usuarioModificacion": "Usuario Modificacion",
+      "fechaModificacion": "Fecha Modificacion",
+      "compras": "Compras",
+      "calificacionesRecibidas": "Calificaciones Recibidas",
+      "calificacionesEmitidas": "Calificaciones Emitidas",
+      "rol": "Rol"
+    }
+  }
+}

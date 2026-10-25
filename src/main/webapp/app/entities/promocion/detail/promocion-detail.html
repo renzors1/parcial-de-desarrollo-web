@@ -1,0 +1,87 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (promocion(); as promocionRef) {
+      <div>
+        <h2 data-cy="promocionDetailsHeading"><span jhiTranslate="ejemplo01App.promocion.detail.title">Promocion</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ promocionRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.nombre">Nombre</span></dt>
+          <dd>
+            <span>{{ promocionRef.nombre }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.descripcion">Descripcion</span></dt>
+          <dd>
+            <span>{{ promocionRef.descripcion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.porcentajeDescuento">Porcentaje Descuento</span></dt>
+          <dd>
+            <span>{{ promocionRef.porcentajeDescuento }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.cantidadDefinida">Cantidad Definida</span></dt>
+          <dd>
+            <span>{{ promocionRef.cantidadDefinida }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.cantidadDisponible">Cantidad Disponible</span></dt>
+          <dd>
+            <span>{{ promocionRef.cantidadDisponible }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.fechaInicio">Fecha Inicio</span></dt>
+          <dd>
+            <span>{{ promocionRef.fechaInicio | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.fechaFin">Fecha Fin</span></dt>
+          <dd>
+            <span>{{ promocionRef.fechaFin | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.activo">Activo</span></dt>
+          <dd>
+            <span>{{ promocionRef.activo }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ promocionRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ promocionRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ promocionRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ promocionRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.promocion.libros">Libros</span></dt>
+          <dd>
+            @for (libros of promocionRef.libroses; track $index; let last = $last) {
+              <span>
+                <a [routerLink]="['/libro', libros.id, 'view']">{{ libros?.id }}</a
+                >{{ last ? '' : ', ' }}
+              </span>
+            }
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/promocion', promocionRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,76 @@
+{
+  "annotations": {
+    "changelogDate": "20261025022530"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "puntuacion",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required", "min", "max"],
+      "fieldValidateRulesMax": "5",
+      "fieldValidateRulesMin": "1"
+    },
+    {
+      "fieldName": "comentario",
+      "fieldType": "String",
+      "fieldValidateRules": ["maxlength"],
+      "fieldValidateRulesMaxlength": "500"
+    },
+    {
+      "fieldName": "fechaCalificacion",
+      "fieldType": "Instant",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "activo",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "usuarioCreacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaCreacion",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "usuarioModificacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaModificacion",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "CalificacionUsuario",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "usuario",
+      "otherEntityRelationshipName": "calificacionesRecibidas",
+      "relationshipName": "clienteEvaluado",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one",
+      "relationshipValidateRules": "required"
+    },
+    {
+      "otherEntityName": "usuario",
+      "otherEntityRelationshipName": "calificacionesEmitidas",
+      "relationshipName": "evaluadorTienda",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "venta",
+      "otherEntityRelationshipName": "calificacionesCliente",
+      "relationshipName": "venta",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

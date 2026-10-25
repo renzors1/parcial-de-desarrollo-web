@@ -1,0 +1,62 @@
+/* ==========================================================================
+   Editorial Navbar - Deep Slate & Minimal
+   ========================================================================== */
+
+.navbar {
+  background-color: #0f172a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.65rem 1.25rem;
+
+  .navbar-brand {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: #ffffff !important;
+  }
+
+  .nav-link {
+    color: #94a3b8 !important;
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 0.45rem 0.75rem !important;
+    border-radius: 6px;
+    transition:
+      color 140ms ease,
+      background-color 140ms ease;
+
+    &:hover,
+    &.active {
+      color: #ffffff !important;
+      background-color: rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  .dropdown-menu {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+    padding: 0.35rem;
+
+    .dropdown-item {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #334155;
+      border-radius: 6px;
+      padding: 0.45rem 0.75rem;
+
+      &:hover {
+        background-color: #f1f5f9;
+        color: #0f172a;
+      }
+    }
+  }
+}
+
+.logo-img {
+  height: 32px;
+  width: 32px;
+  display: inline-block;
+  vertical-align: middle;
+  background: url('/content/images/logo-jhipster.png') no-repeat center center;
+  background-size: contain;
+}

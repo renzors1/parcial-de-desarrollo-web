@@ -1,0 +1,48 @@
+<section class="card shadow-sm p-4 mb-4 rounded-4 border bg-white">
+  <div class="row g-4 align-items-center">
+    <div class="col-lg-6">
+      <label for="buscarLibro" class="form-label fw-bold fs-6 mb-2 text-dark">
+        <fa-icon icon="search" class="me-1 text-primary"></fa-icon> Búsqueda en el Catálogo
+      </label>
+      <div class="input-group input-group-lg">
+        <span class="input-group-text bg-light border-end-0 text-muted">
+          <fa-icon icon="search"></fa-icon>
+        </span>
+        <input
+          id="buscarLibro"
+          type="text"
+          class="form-control border-start-0 ps-0"
+          placeholder="Escribe el título, ISBN o idioma..."
+          [ngModel]="texto()"
+          (ngModelChange)="onTextoChange($event)"
+        />
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <span class="form-label d-block fw-bold fs-6 mb-2 text-dark">
+        <fa-icon icon="tags" class="me-1 text-primary"></fa-icon> Filtrar por Categoría
+      </span>
+      <div class="d-flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="btn btn-sm rounded-pill px-3 py-2 fw-semibold"
+          [ngClass]="categoriaSeleccionadaId() === null ? 'btn-primary' : 'btn-outline-primary'"
+          (click)="onSelectCategoria(null)"
+        >
+          Todas las Categorías
+        </button>
+        @for (cat of categorias(); track cat.id) {
+          <button
+            type="button"
+            class="btn btn-sm rounded-pill px-3 py-2 fw-semibold"
+            [ngClass]="categoriaSeleccionadaId() === cat.id ? 'btn-primary' : 'btn-outline-primary'"
+            (click)="onSelectCategoria(cat.id)"
+          >
+            {{ cat.nombreCategoria }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,21 @@
+<section class="card p-4 p-md-5 rounded-4 shadow-sm border mb-4 bg-light">
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <fa-icon icon="database" class="text-primary fs-3"></fa-icon>
+    <h3 class="fw-bold mb-0 text-dark">Módulos de Gestión de la Base de Datos</h3>
+  </div>
+  <p class="text-muted fs-6 mb-4">Acceso directo a la administración, consulta y auditoría de todas las entidades de la plataforma:</p>
+
+  <div class="row g-3">
+    @for (modulo of modulos; track modulo.ruta) {
+      <div class="col-6 col-md-4 col-lg-3">
+        <a [routerLink]="modulo.ruta" class="card p-4 text-decoration-none text-dark h-100 rounded-4 module-card">
+          <div class="icon-shape mb-3" [ngClass]="modulo.colorClase">
+            <fa-icon [icon]="modulo.icono"></fa-icon>
+          </div>
+          <div class="fw-bold fs-5">{{ modulo.titulo }}</div>
+          <small class="text-muted">{{ modulo.descripcion }}</small>
+        </a>
+      </div>
+    }
+  </div>
+</section>

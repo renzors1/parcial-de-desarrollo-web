@@ -1,0 +1,52 @@
+{
+  "annotations": {
+    "changelogDate": "20261001215525"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "nombreEditorial",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "pais",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "activo",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "usuarioCreacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaCreacion",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "usuarioModificacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaModificacion",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "Editorial",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "libro",
+      "otherEntityRelationshipName": "editorial",
+      "relationshipName": "libros",
+      "relationshipSide": "left",
+      "relationshipType": "one-to-many"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

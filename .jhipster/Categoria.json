@@ -1,0 +1,48 @@
+{
+  "annotations": {
+    "changelogDate": "20261001215524"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "nombreCategoria",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "activo",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "usuarioCreacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaCreacion",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "usuarioModificacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaModificacion",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "Categoria",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "libro",
+      "otherEntityRelationshipName": "categorias",
+      "relationshipName": "libros",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

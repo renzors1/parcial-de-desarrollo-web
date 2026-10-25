@@ -1,0 +1,47 @@
+<div class="alert alert-success alert-dismissible shadow-lg p-4 mb-4 rounded-4 border-2 border-success" role="alert">
+  <div class="d-flex align-items-start justify-content-between">
+    <div class="w-100">
+      <div class="d-flex align-items-center mb-2">
+        <fa-icon icon="check-circle" class="text-success fs-3 me-2"></fa-icon>
+        <h3 class="alert-heading fw-bold mb-0">Transacción Confirmada y Licencia Emitida</h3>
+      </div>
+      <p class="fs-5 mb-3 text-secondary">
+        Se ha completado la adquisición de licencia para el título: <strong>{{ compra().libro.titulo }}</strong
+        >.
+      </p>
+      <hr />
+      <div class="row g-3 fs-6">
+        <div class="col-md-4">
+          <span class="text-muted">N° de Comprobante:</span>
+          <div class="fw-bold fs-5 font-monospace text-dark">{{ compra().numeroComprobante }}</div>
+        </div>
+        <div class="col-md-4">
+          <span class="text-muted">Total Abonado:</span>
+          <div class="fw-bold fs-5 text-success">S/ {{ compra().total | number: '1.2-2' }}</div>
+        </div>
+        <div class="col-md-12">
+          <div class="voucher-box p-4 mt-2">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+              <span class="text-uppercase fw-bold text-muted small letter-spacing">
+                <fa-icon icon="key" class="me-1 text-primary"></fa-icon> Clave de Licencia Digital Única
+              </span>
+              <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">Estado: Vendida / Asignada</span>
+            </div>
+            <div class="fs-3 fw-bold text-primary font-monospace bg-white p-3 rounded-3 border mb-3">
+              {{ compra().codigoLicencia }}
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+              <a [href]="compra().enlaceDescarga" target="_blank" class="btn btn-success btn-lg px-4">
+                <fa-icon icon="download" class="me-2"></fa-icon> Descargar Recurso Digital
+              </a>
+              <a routerLink="/licencia-digital" class="btn btn-outline-secondary btn-lg px-3">
+                <fa-icon icon="list" class="me-2"></fa-icon> Registro de Licencias
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="btn-close" (click)="onCerrar()" aria-label="Close"></button>
+  </div>
+</div>

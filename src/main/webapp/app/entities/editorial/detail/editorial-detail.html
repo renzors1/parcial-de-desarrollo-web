@@ -1,0 +1,58 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (editorial(); as editorialRef) {
+      <div>
+        <h2 data-cy="editorialDetailsHeading"><span jhiTranslate="ejemplo01App.editorial.detail.title">Editorial</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ editorialRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.editorial.nombreEditorial">Nombre Editorial</span></dt>
+          <dd>
+            <span>{{ editorialRef.nombreEditorial }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.editorial.pais">Pais</span></dt>
+          <dd>
+            <span>{{ editorialRef.pais }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.editorial.activo">Activo</span></dt>
+          <dd>
+            <span>{{ editorialRef.activo }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.editorial.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ editorialRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.editorial.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ editorialRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.editorial.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ editorialRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.editorial.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ editorialRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/editorial', editorialRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

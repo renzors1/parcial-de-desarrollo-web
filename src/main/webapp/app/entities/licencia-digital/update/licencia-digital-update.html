@@ -1,0 +1,200 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-licencia-digital-heading"
+        data-cy="LicenciaDigitalCreateUpdateHeading"
+        jhiTranslate="ejemplo01App.licenciaDigital.home.createOrEditLabel"
+      >
+        Crear o editar Licencia Digital
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="global.field.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let codigoLicenciaRef = editForm.get('codigoLicencia')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_codigoLicencia" jhiTranslate="ejemplo01App.licenciaDigital.codigoLicencia"
+            >Codigo Licencia</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="codigoLicencia"
+            id="field_codigoLicencia"
+            data-cy="codigoLicencia"
+            formControlName="codigoLicencia"
+          />
+          @if (codigoLicenciaRef.invalid && (codigoLicenciaRef.dirty || codigoLicenciaRef.touched)) {
+            <div>
+              @if (codigoLicenciaRef.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_enlaceDescarga" jhiTranslate="ejemplo01App.licenciaDigital.enlaceDescarga"
+            >Enlace Descarga</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="enlaceDescarga"
+            id="field_enlaceDescarga"
+            data-cy="enlaceDescarga"
+            formControlName="enlaceDescarga"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaAsignacion" jhiTranslate="ejemplo01App.licenciaDigital.fechaAsignacion"
+            >Fecha Asignacion</label
+          >
+          <div class="d-flex">
+            <input
+              id="field_fechaAsignacion"
+              data-cy="fechaAsignacion"
+              type="datetime-local"
+              class="form-control"
+              name="fechaAsignacion"
+              formControlName="fechaAsignacion"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        @let estadoRef = editForm.get('estado')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_estado" jhiTranslate="ejemplo01App.licenciaDigital.estado">Estado</label>
+          <select class="form-select" name="estado" formControlName="estado" id="field_estado" data-cy="estado">
+            <option [ngValue]="null">{{ 'ejemplo01App.EstadoLicencia.null' | translate }}</option>
+            @for (estadoLicencia of estadoLicenciaValues; track $index) {
+              <option [value]="estadoLicencia">{{ 'ejemplo01App.EstadoLicencia.' + estadoLicencia | translate }}</option>
+            }
+          </select>
+          @if (estadoRef.invalid && (estadoRef.dirty || estadoRef.touched)) {
+            <div>
+              @if (estadoRef.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_usuarioCreacion" jhiTranslate="ejemplo01App.licenciaDigital.usuarioCreacion"
+            >Usuario Creacion</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="usuarioCreacion"
+            id="field_usuarioCreacion"
+            data-cy="usuarioCreacion"
+            formControlName="usuarioCreacion"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaCreacion" jhiTranslate="ejemplo01App.licenciaDigital.fechaCreacion"
+            >Fecha Creacion</label
+          >
+          <div class="d-flex">
+            <input
+              id="field_fechaCreacion"
+              data-cy="fechaCreacion"
+              type="datetime-local"
+              class="form-control"
+              name="fechaCreacion"
+              formControlName="fechaCreacion"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_usuarioModificacion" jhiTranslate="ejemplo01App.licenciaDigital.usuarioModificacion"
+            >Usuario Modificacion</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="usuarioModificacion"
+            id="field_usuarioModificacion"
+            data-cy="usuarioModificacion"
+            formControlName="usuarioModificacion"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaModificacion" jhiTranslate="ejemplo01App.licenciaDigital.fechaModificacion"
+            >Fecha Modificacion</label
+          >
+          <div class="d-flex">
+            <input
+              id="field_fechaModificacion"
+              data-cy="fechaModificacion"
+              type="datetime-local"
+              class="form-control"
+              name="fechaModificacion"
+              formControlName="fechaModificacion"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_libro" jhiTranslate="ejemplo01App.licenciaDigital.libro">Libro</label>
+          <select class="form-select" id="field_libro" data-cy="libro" name="libro" formControlName="libro" [compareWith]="compareLibro">
+            <option [ngValue]="null"></option>
+            @for (libroOption of librosSharedCollection(); track $index) {
+              <option [ngValue]="libroOption">{{ libroOption.id }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_detalleVenta" jhiTranslate="ejemplo01App.licenciaDigital.detalleVenta">Detalle Venta</label>
+          <select
+            class="form-select"
+            id="field_detalleVenta"
+            data-cy="detalleVenta"
+            name="detalleVenta"
+            formControlName="detalleVenta"
+            [compareWith]="compareDetalleVenta"
+          >
+            <option [ngValue]="null"></option>
+            @for (detalleVentaOption of detalleVentasSharedCollection(); track $index) {
+              <option [ngValue]="detalleVentaOption">{{ detalleVentaOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving()"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Guardar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

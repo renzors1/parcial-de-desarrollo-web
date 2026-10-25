@@ -1,0 +1,78 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (venta(); as ventaRef) {
+      <div>
+        <h2 data-cy="ventaDetailsHeading"><span jhiTranslate="ejemplo01App.venta.detail.title">Venta</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ ventaRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.numeroComprobante">Numero Comprobante</span></dt>
+          <dd>
+            <span>{{ ventaRef.numeroComprobante }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.fechaVenta">Fecha Venta</span></dt>
+          <dd>
+            <span>{{ ventaRef.fechaVenta | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.subtotalVenta">Subtotal Venta</span></dt>
+          <dd>
+            <span>{{ ventaRef.subtotalVenta }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.totalDescuento">Total Descuento</span></dt>
+          <dd>
+            <span>{{ ventaRef.totalDescuento }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.igv">Igv</span></dt>
+          <dd>
+            <span>{{ ventaRef.igv }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.totalVenta">Total Venta</span></dt>
+          <dd>
+            <span>{{ ventaRef.totalVenta }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ ventaRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ ventaRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ ventaRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ ventaRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.venta.cliente">Cliente</span></dt>
+          <dd>
+            @if (venta()!.cliente) {
+              <div>
+                <a [routerLink]="['/usuario', venta()!.cliente?.id, 'view']">{{ ventaRef.cliente?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/venta', ventaRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

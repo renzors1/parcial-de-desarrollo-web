@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity CalificacionUsuario.
+    -->
+    <changeSet id="20261025022530-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="cliente_evaluado_id"
+                                 baseTableName="calificacion_usuario"
+                                 constraintName="fk_calificacion_usuario__cliente_evaluado_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="usuario"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="evaluador_tienda_id"
+                                 baseTableName="calificacion_usuario"
+                                 constraintName="fk_calificacion_usuario__evaluador_tienda_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="usuario"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="venta_id"
+                                 baseTableName="calificacion_usuario"
+                                 constraintName="fk_calificacion_usuario__venta_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="venta"
+                                 />
+    </changeSet>
+</databaseChangeLog>

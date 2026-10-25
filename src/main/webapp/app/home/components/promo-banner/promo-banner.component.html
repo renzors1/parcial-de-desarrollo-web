@@ -1,0 +1,18 @@
+<div class="card mb-4 rounded-3 banner-promo">
+  <div class="card-body p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <span class="badge promo-badge px-3 py-2 mb-2 rounded-pill d-inline-flex align-items-center">
+        <fa-icon icon="percentage" class="me-2 text-warning"></fa-icon> PROMOCIÓN ESPECIAL DISPONIBLE
+      </span>
+      <h3 class="promo-title mb-1">{{ promocion().nombre }}</h3>
+      <p class="promo-desc mb-0">
+        {{ promocion().descripcion }} (Descuento directo del {{ promocion().porcentajeDescuento }}% aplicado automáticamente)
+      </p>
+    </div>
+    <div>
+      <span class="fs-6 badge promo-quota px-3 py-2 rounded-3 shadow-sm tabular-nums">
+        Cupos restantes: {{ promocion().cantidadDisponible }}
+      </span>
+    </div>
+  </div>
+</div>

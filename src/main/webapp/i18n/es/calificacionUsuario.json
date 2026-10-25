@@ -1,0 +1,34 @@
+{
+  "ejemplo01App": {
+    "calificacionUsuario": {
+      "home": {
+        "title": "Calificacion Usuarios",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Calificacion Usuario",
+        "createOrEditLabel": "Crear o editar Calificacion Usuario",
+        "notFound": "Ningún Calificacion Usuarios encontrado"
+      },
+      "created": "Un nuevo Calificacion Usuario ha sido creado con el identificador {{ param }}",
+      "updated": "Un Calificacion Usuario ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Calificacion Usuario ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Calificacion Usuario {{ id }}?"
+      },
+      "detail": {
+        "title": "Calificacion Usuario"
+      },
+      "id": "ID",
+      "puntuacion": "Puntuacion",
+      "comentario": "Comentario",
+      "fechaCalificacion": "Fecha Calificacion",
+      "activo": "Activo",
+      "usuarioCreacion": "Usuario Creacion",
+      "fechaCreacion": "Fecha Creacion",
+      "usuarioModificacion": "Usuario Modificacion",
+      "fechaModificacion": "Fecha Modificacion",
+      "clienteEvaluado": "Cliente Evaluado",
+      "evaluadorTienda": "Evaluador Tienda",
+      "venta": "Venta"
+    }
+  }
+}

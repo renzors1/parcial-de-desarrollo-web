@@ -1,0 +1,90 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (usuario(); as usuarioRef) {
+      <div>
+        <h2 data-cy="usuarioDetailsHeading"><span jhiTranslate="ejemplo01App.usuario.detail.title">Usuario</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ usuarioRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.nombre">Nombre</span></dt>
+          <dd>
+            <span>{{ usuarioRef.nombre }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.apellido">Apellido</span></dt>
+          <dd>
+            <span>{{ usuarioRef.apellido }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.email">Email</span></dt>
+          <dd>
+            <span>{{ usuarioRef.email }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.contrasena">Contrasena</span></dt>
+          <dd>
+            <span>{{ usuarioRef.contrasena }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.direccion">Direccion</span></dt>
+          <dd>
+            <span>{{ usuarioRef.direccion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.celular">Celular</span></dt>
+          <dd>
+            <span>{{ usuarioRef.celular }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.fechaRegistro">Fecha Registro</span></dt>
+          <dd>
+            <span>{{ usuarioRef.fechaRegistro | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.calificacionPromedio">Calificacion Promedio</span></dt>
+          <dd>
+            <span>{{ usuarioRef.calificacionPromedio }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.activo">Activo</span></dt>
+          <dd>
+            <span>{{ usuarioRef.activo }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ usuarioRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ usuarioRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ usuarioRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ usuarioRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.usuario.rol">Rol</span></dt>
+          <dd>
+            @if (usuario()!.rol) {
+              <div>
+                <a [routerLink]="['/rol', usuario()!.rol?.id, 'view']">{{ usuarioRef.rol?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/usuario', usuarioRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

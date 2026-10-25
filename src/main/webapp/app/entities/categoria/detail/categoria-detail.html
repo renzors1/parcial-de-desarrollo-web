@@ -1,0 +1,63 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (categoria(); as categoriaRef) {
+      <div>
+        <h2 data-cy="categoriaDetailsHeading"><span jhiTranslate="ejemplo01App.categoria.detail.title">Categoria</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ categoriaRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.categoria.nombreCategoria">Nombre Categoria</span></dt>
+          <dd>
+            <span>{{ categoriaRef.nombreCategoria }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.categoria.activo">Activo</span></dt>
+          <dd>
+            <span>{{ categoriaRef.activo }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.categoria.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ categoriaRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.categoria.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ categoriaRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.categoria.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ categoriaRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.categoria.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ categoriaRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.categoria.libros">Libros</span></dt>
+          <dd>
+            @for (libros of categoriaRef.libroses; track $index; let last = $last) {
+              <span>
+                <a [routerLink]="['/libro', libros.id, 'view']">{{ libros?.id }}</a
+                >{{ last ? '' : ', ' }}
+              </span>
+            }
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/categoria', categoriaRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,50 @@
+/* ==========================================================================
+   Tarjetas de Libros - Editorial Craft
+   ========================================================================== */
+
+.libro-card {
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+  border: 1px solid #e2e8f0 !important;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06) !important;
+    border-color: #cbd5e1 !important;
+  }
+}
+
+.libro-cover-container {
+  height: 200px;
+  background-color: #0f172a;
+  border-bottom: 1px solid #e2e8f0;
+  overflow: hidden;
+  position: relative;
+}
+
+.libro-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portada-fallback {
+  width: 100%;
+  height: 100%;
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.sinopsis-texto {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 4.5em;
+  line-height: 1.5;
+  color: #475569;
+}

@@ -1,0 +1,212 @@
+<div>
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <h2 id="page-heading" data-cy="LicenciaDigitalHeading" class="fw-bold mb-1">
+        <span jhiTranslate="ejemplo01App.licenciaDigital.home.title">Licencias Digitales</span>
+      </h2>
+      <div class="text-muted small">Control de claves DRM, asignación de descargas y disponibilidad</div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" (click)="load()" [disabled]="isLoading()">
+        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
+        <span class="d-none d-sm-inline ms-1" jhiTranslate="ejemplo01App.licenciaDigital.home.refreshListLabel">Refrescar</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-dark btn-sm jh-create-entity create-licencia-digital"
+        [routerLink]="['/licencia-digital/new']"
+      >
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.licenciaDigital.home.createLabel">Nueva Licencia</span>
+      </button>
+    </div>
+  </div>
+
+  <jhi-alert-error />
+  <jhi-alert />
+
+  @if (licenciaDigitals().length === 0) {
+    <div class="editorial-empty-state" id="no-result">
+      <div class="empty-state-icon">
+        <fa-icon icon="key" />
+      </div>
+      <h4 jhiTranslate="ejemplo01App.licenciaDigital.home.notFound">Ninguna Licencia encontrada</h4>
+      <p>No se encontraron claves de licencia registradas en la base de datos.</p>
+      <button class="btn btn-dark btn-sm" [routerLink]="['/licencia-digital/new']">
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.licenciaDigital.home.createLabel">Generar primera Licencia</span>
+      </button>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span jhiTranslate="global.field.id">ID</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="codigoLicencia">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.licenciaDigital.codigoLicencia">Código Licencia</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="estado">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.licenciaDigital.estado">Estado</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaAsignacion">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.licenciaDigital.fechaAsignacion">Fecha Asignación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="libro.id">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.licenciaDigital.libro">Libro</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="detalleVenta.id">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.licenciaDigital.detalleVenta">Detalle Venta</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="enlaceDescarga" class="d-none d-lg-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.licenciaDigital.enlaceDescarga">Enlace Descarga</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="usuarioCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.licenciaDigital.usuarioCreacion">Usuario Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.licenciaDigital.fechaCreacion">Fecha Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (licenciaDigital of licenciaDigitals(); track trackId(licenciaDigital)) {
+            <tr data-cy="entityTable">
+              <td class="tabular-nums">
+                <a [routerLink]="['/licencia-digital', licenciaDigital.id, 'view']" class="fw-semibold text-primary"
+                  >#{{ licenciaDigital.id }}</a
+                >
+              </td>
+              <td class="font-monospace fw-semibold text-dark">{{ licenciaDigital.codigoLicencia }}</td>
+              <td>
+                @if (licenciaDigital.estado === 'DISPONIBLE') {
+                  <span class="badge-soft-success"> <fa-icon icon="check" class="small"></fa-icon> DISPONIBLE </span>
+                } @else if (licenciaDigital.estado === 'VENDIDA') {
+                  <span class="badge-soft-info"> <fa-icon icon="key" class="small"></fa-icon> VENDIDA </span>
+                } @else {
+                  <span class="badge-soft-neutral">{{ licenciaDigital.estado }}</span>
+                }
+              </td>
+              <td class="tabular-nums text-muted small">{{ licenciaDigital.fechaAsignacion | formatMediumDatetime }}</td>
+              <td>
+                @if (licenciaDigital.libro) {
+                  <div>
+                    <a [routerLink]="['/libro', licenciaDigital.libro.id, 'view']" class="badge bg-light text-dark border">
+                      Libro #{{ licenciaDigital.libro.id }}
+                    </a>
+                  </div>
+                }
+              </td>
+              <td>
+                @if (licenciaDigital.detalleVenta) {
+                  <div>
+                    <a
+                      [routerLink]="['/detalle-venta', licenciaDigital.detalleVenta.id, 'view']"
+                      class="badge bg-light text-secondary border"
+                    >
+                      Línea #{{ licenciaDigital.detalleVenta.id }}
+                    </a>
+                  </div>
+                }
+              </td>
+              <td class="d-none d-lg-table-cell text-muted small text-truncate" style="max-width: 180px">
+                @if (licenciaDigital.enlaceDescarga) {
+                  <a [href]="licenciaDigital.enlaceDescarga" target="_blank" class="text-secondary">
+                    <fa-icon icon="download" class="me-1 small"></fa-icon> Recurso
+                  </a>
+                }
+              </td>
+              <td class="d-none d-xl-table-cell text-muted small">{{ licenciaDigital.usuarioCreacion }}</td>
+              <td class="d-none d-xl-table-cell text-muted small tabular-nums">
+                {{ licenciaDigital.fechaCreacion | formatMediumDatetime }}
+              </td>
+              <td class="text-end">
+                <div class="btn-action-group">
+                  <a
+                    [routerLink]="['/licencia-digital', licenciaDigital.id, 'view']"
+                    class="btn-action"
+                    data-cy="entityDetailsButton"
+                    title="Ver detalle"
+                  >
+                    <fa-icon icon="eye" />
+                  </a>
+
+                  <a
+                    [routerLink]="['/licencia-digital', licenciaDigital.id, 'edit']"
+                    class="btn-action"
+                    data-cy="entityEditButton"
+                    title="Editar"
+                  >
+                    <fa-icon icon="pencil-alt" />
+                  </a>
+
+                  <button
+                    type="button"
+                    (click)="delete(licenciaDigital)"
+                    class="btn-action btn-action-delete"
+                    data-cy="entityDeleteButton"
+                    title="Eliminar"
+                  >
+                    <fa-icon icon="times" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (licenciaDigitals().length > 0) {
+    <div class="mt-3">
+      <div class="d-flex justify-content-center">
+        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems()"
+          [page]="page()"
+          [pageSize]="itemsPerPage()"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="navigateToPage($event)"
+        />
+      </div>
+    </div>
+  }
+</div>

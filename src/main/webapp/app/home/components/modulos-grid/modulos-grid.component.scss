@@ -1,0 +1,27 @@
+/* ==========================================================================
+   Módulos de Gestión - Grid Editorial
+   ========================================================================== */
+
+.icon-shape {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 1.15rem;
+}
+
+.module-card {
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 10px;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+    border-color: #94a3b8 !important;
+  }
+}

@@ -1,0 +1,223 @@
+<div>
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <h2 id="page-heading" data-cy="CalificacionUsuarioHeading" class="fw-bold mb-1">
+        <span jhiTranslate="ejemplo01App.calificacionUsuario.home.title">Calificaciones de Usuario</span>
+      </h2>
+      <div class="text-muted small">Evaluación de clientes y fidelidad comercial en la plataforma</div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" (click)="load()" [disabled]="isLoading()">
+        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
+        <span class="d-none d-sm-inline ms-1" jhiTranslate="ejemplo01App.calificacionUsuario.home.refreshListLabel">Refrescar</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-dark btn-sm jh-create-entity create-calificacion-usuario"
+        [routerLink]="['/calificacion-usuario/new']"
+      >
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.calificacionUsuario.home.createLabel">Nueva Calificación</span>
+      </button>
+    </div>
+  </div>
+
+  <jhi-alert-error />
+  <jhi-alert />
+
+  @if (calificacionUsuarios().length === 0) {
+    <div class="editorial-empty-state" id="no-result">
+      <div class="empty-state-icon">
+        <fa-icon icon="star" />
+      </div>
+      <h4 jhiTranslate="ejemplo01App.calificacionUsuario.home.notFound">Ninguna Calificación encontrada</h4>
+      <p>Aún no se han registrado evaluaciones de comportamiento comercial para los clientes.</p>
+      <button class="btn btn-dark btn-sm" [routerLink]="['/calificacion-usuario/new']">
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.calificacionUsuario.home.createLabel">Crear primera Calificación</span>
+      </button>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span jhiTranslate="global.field.id">ID</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="puntuacion">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.calificacionUsuario.puntuacion">Puntuación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="comentario">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.calificacionUsuario.comentario">Comentario</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaCalificacion">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.calificacionUsuario.fechaCalificacion">Fecha</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="activo">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.calificacionUsuario.activo">Activo</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="clienteEvaluado.id">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.calificacionUsuario.clienteEvaluado">Cliente</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="evaluadorTienda.id">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.calificacionUsuario.evaluadorTienda">Evaluador</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="venta.id">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.calificacionUsuario.venta">Venta</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="usuarioCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.calificacionUsuario.usuarioCreacion">Usuario Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.calificacionUsuario.fechaCreacion">Fecha Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (calificacionUsuario of calificacionUsuarios(); track trackId(calificacionUsuario)) {
+            <tr data-cy="entityTable">
+              <td class="tabular-nums">
+                <a [routerLink]="['/calificacion-usuario', calificacionUsuario.id, 'view']" class="fw-semibold text-primary"
+                  >#{{ calificacionUsuario.id }}</a
+                >
+              </td>
+              <td class="tabular-nums">
+                <div class="d-inline-flex align-items-center gap-1">
+                  <div class="rating-stars">
+                    @for (star of [1, 2, 3, 4, 5]; track star) {
+                      <fa-icon
+                        icon="star"
+                        [class.text-warning]="star <= (calificacionUsuario.puntuacion ?? 0)"
+                        [class.text-black-50]="star > (calificacionUsuario.puntuacion ?? 0)"
+                      />
+                    }
+                  </div>
+                  <span class="fw-bold ms-1 text-dark small">{{ calificacionUsuario.puntuacion }}/5</span>
+                </div>
+              </td>
+              <td class="text-secondary small">{{ calificacionUsuario.comentario }}</td>
+              <td class="tabular-nums text-muted small">{{ calificacionUsuario.fechaCalificacion | formatMediumDatetime }}</td>
+              <td>
+                @if (calificacionUsuario.activo) {
+                  <span class="badge-soft-success"> <fa-icon icon="check" class="small"></fa-icon> Activo </span>
+                } @else {
+                  <span class="badge-soft-danger"> <fa-icon icon="times" class="small"></fa-icon> Inactivo </span>
+                }
+              </td>
+              <td>
+                @if (calificacionUsuario.clienteEvaluado) {
+                  <a [routerLink]="['/usuario', calificacionUsuario.clienteEvaluado.id, 'view']" class="badge bg-light text-dark border">
+                    Cliente #{{ calificacionUsuario.clienteEvaluado.id }}
+                  </a>
+                }
+              </td>
+              <td>
+                @if (calificacionUsuario.evaluadorTienda) {
+                  <a [routerLink]="['/usuario', calificacionUsuario.evaluadorTienda.id, 'view']" class="badge bg-light text-dark border">
+                    Admin #{{ calificacionUsuario.evaluadorTienda.id }}
+                  </a>
+                }
+              </td>
+              <td>
+                @if (calificacionUsuario.venta) {
+                  <a [routerLink]="['/venta', calificacionUsuario.venta.id, 'view']" class="badge bg-light text-primary border">
+                    Venta #{{ calificacionUsuario.venta.id }}
+                  </a>
+                }
+              </td>
+              <td class="d-none d-xl-table-cell text-muted small">{{ calificacionUsuario.usuarioCreacion }}</td>
+              <td class="d-none d-xl-table-cell text-muted small tabular-nums">
+                {{ calificacionUsuario.fechaCreacion | formatMediumDatetime }}
+              </td>
+              <td class="text-end">
+                <div class="btn-action-group">
+                  <a
+                    [routerLink]="['/calificacion-usuario', calificacionUsuario.id, 'view']"
+                    class="btn-action"
+                    data-cy="entityDetailsButton"
+                    title="Ver detalle"
+                  >
+                    <fa-icon icon="eye" />
+                  </a>
+
+                  <a
+                    [routerLink]="['/calificacion-usuario', calificacionUsuario.id, 'edit']"
+                    class="btn-action"
+                    data-cy="entityEditButton"
+                    title="Editar"
+                  >
+                    <fa-icon icon="pencil-alt" />
+                  </a>
+
+                  <button
+                    type="button"
+                    (click)="delete(calificacionUsuario)"
+                    class="btn-action btn-action-delete"
+                    data-cy="entityDeleteButton"
+                    title="Eliminar"
+                  >
+                    <fa-icon icon="times" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (calificacionUsuarios().length > 0) {
+    <div class="mt-3">
+      <div class="d-flex justify-content-center">
+        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems()"
+          [page]="page()"
+          [pageSize]="itemsPerPage()"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="navigateToPage($event)"
+        />
+      </div>
+    </div>
+  }
+</div>

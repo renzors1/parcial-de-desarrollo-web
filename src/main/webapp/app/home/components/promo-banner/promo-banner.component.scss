@@ -1,0 +1,33 @@
+/* Banner de Promoción - Estilo Editorial Cálido */
+.banner-promo {
+  background-color: #fffbeb !important;
+  border: 1px solid #fde68a !important;
+  color: #78350f;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(180, 83, 9, 0.05);
+
+  .promo-badge {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .promo-title {
+    color: #92400e;
+    font-weight: 700;
+  }
+
+  .promo-desc {
+    color: #78350f;
+    font-size: 0.95rem;
+  }
+
+  .promo-quota {
+    background-color: #ffffff;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    font-weight: 600;
+  }
+}

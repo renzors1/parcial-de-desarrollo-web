@@ -1,0 +1,41 @@
+{
+  "ejemplo01App": {
+    "libro": {
+      "home": {
+        "title": "Libros",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Libro",
+        "createOrEditLabel": "Create or edit a Libro",
+        "notFound": "No Libros found"
+      },
+      "created": "A new Libro is created with identifier {{ param }}",
+      "updated": "A Libro is updated with identifier {{ param }}",
+      "deleted": "A Libro is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Libro {{ id }}?"
+      },
+      "detail": {
+        "title": "Libro"
+      },
+      "id": "ID",
+      "isbn": "Isbn",
+      "titulo": "Titulo",
+      "sinopsis": "Sinopsis",
+      "urlPortada": "Url Portada",
+      "fechaPublicacion": "Fecha Publicacion",
+      "precio": "Precio",
+      "idioma": "Idioma",
+      "activo": "Activo",
+      "usuarioCreacion": "Usuario Creacion",
+      "fechaCreacion": "Fecha Creacion",
+      "usuarioModificacion": "Usuario Modificacion",
+      "fechaModificacion": "Fecha Modificacion",
+      "detallesVenta": "Detalles Venta",
+      "licencias": "Licencias",
+      "categorias": "Categorias",
+      "autores": "Autores",
+      "editorial": "Editorial",
+      "promociones": "Promociones"
+    }
+  }
+}

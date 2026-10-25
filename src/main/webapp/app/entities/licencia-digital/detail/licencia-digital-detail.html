@@ -1,0 +1,84 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (licenciaDigital(); as licenciaDigitalRef) {
+      <div>
+        <h2 data-cy="licenciaDigitalDetailsHeading">
+          <span jhiTranslate="ejemplo01App.licenciaDigital.detail.title">Licencia Digital</span>
+        </h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ licenciaDigitalRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.codigoLicencia">Codigo Licencia</span></dt>
+          <dd>
+            <span>{{ licenciaDigitalRef.codigoLicencia }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.enlaceDescarga">Enlace Descarga</span></dt>
+          <dd>
+            <span>{{ licenciaDigitalRef.enlaceDescarga }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.fechaAsignacion">Fecha Asignacion</span></dt>
+          <dd>
+            <span>{{ licenciaDigitalRef.fechaAsignacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.estado">Estado</span></dt>
+          <dd>
+            <span [jhiTranslate]="'ejemplo01App.EstadoLicencia.' + (licenciaDigitalRef.estado ?? 'null')">{{
+              { null: '', DISPONIBLE: 'DISPONIBLE', VENDIDA: 'VENDIDA' }[licenciaDigitalRef.estado ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ licenciaDigitalRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ licenciaDigitalRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ licenciaDigitalRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ licenciaDigitalRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.libro">Libro</span></dt>
+          <dd>
+            @if (licenciaDigital()!.libro) {
+              <div>
+                <a [routerLink]="['/libro', licenciaDigital()!.libro?.id, 'view']">{{ licenciaDigitalRef.libro?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.licenciaDigital.detalleVenta">Detalle Venta</span></dt>
+          <dd>
+            @if (licenciaDigital()!.detalleVenta) {
+              <div>
+                <a [routerLink]="['/detalle-venta', licenciaDigital()!.detalleVenta?.id, 'view']">{{
+                  licenciaDigitalRef.detalleVenta?.id
+                }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/licencia-digital', licenciaDigitalRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

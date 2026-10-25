@@ -1,0 +1,9 @@
+{
+  "ejemplo01App": {
+    "EstadoLicencia": {
+      "null": "",
+      "DISPONIBLE": "DISPONIBLE",
+      "VENDIDA": "VENDIDA"
+    }
+  }
+}

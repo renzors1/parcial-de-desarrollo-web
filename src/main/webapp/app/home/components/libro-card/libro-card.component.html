@@ -1,0 +1,62 @@
+<div class="card h-100 rounded-3 shadow-sm libro-card">
+  <!-- Portada / Cabecera de la Tarjeta -->
+  <div class="libro-cover-container position-relative">
+    @if (libro().urlPortada && libro().urlPortada?.startsWith('http')) {
+      <img [src]="libro().urlPortada" class="card-img-top libro-img" alt="Portada de {{ libro().titulo }}" />
+    } @else {
+      <div class="portada-fallback d-flex flex-column align-items-center justify-content-center p-4 text-center">
+        <fa-icon icon="book-open" class="fs-1 text-slate-400 mb-2" style="color: #94a3b8"></fa-icon>
+        <div class="fw-bold fs-5 px-2 text-truncate w-100 text-white">{{ libro().titulo }}</div>
+        <span class="badge bg-white bg-opacity-10 text-slate-300 mt-2 font-monospace border border-white border-opacity-10">
+          {{ libro().isbn }}
+        </span>
+      </div>
+    }
+    <span
+      class="badge bg-white text-dark border position-absolute top-0 end-0 m-3 fs-6 px-3 py-2 rounded-pill shadow-sm tabular-nums fw-bold"
+    >
+      S/ {{ libro().precio ?? 0 | number: '1.2-2' }}
+    </span>
+  </div>
+
+  <div class="card-body d-flex flex-column justify-content-between p-4">
+    <div>
+      <h4 class="card-title fw-bold text-dark mb-2">{{ libro().titulo }}</h4>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-light text-secondary border font-monospace"> <strong>ISBN:</strong> {{ libro().isbn }} </span>
+        <span class="badge bg-light text-secondary border">
+          {{ libro().idioma ?? 'Español' }}
+        </span>
+      </div>
+
+      @if (libro().sinopsis) {
+        <p class="card-text sinopsis-texto fs-6">
+          {{ libro().sinopsis }}
+        </p>
+      }
+    </div>
+
+    <div class="mt-4 pt-3 border-top">
+      <div class="d-grid gap-2">
+        <button
+          type="button"
+          class="btn btn-dark btn-lg d-flex align-items-center justify-content-center gap-2 fw-semibold"
+          [disabled]="isProcesando()"
+          (click)="onComprar()"
+        >
+          @if (isProcesando()) {
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            <span>Procesando...</span>
+          } @else {
+            <fa-icon icon="key"></fa-icon>
+            <span>Adquirir Licencia Digital</span>
+          }
+        </button>
+
+        <a class="btn btn-outline-secondary btn-sm fw-medium py-2" [routerLink]="['/libro', libro().id, 'view']">
+          <fa-icon icon="eye" class="me-1"></fa-icon> Ver Ficha Completa
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity Libro.
+    -->
+    <changeSet id="20261001215527-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="libro_id"
+                                 baseTableName="rel_libro__categorias"
+                                 constraintName="fk_rel_libro__categorias__libro_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="libro"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="categorias_id"
+                                 baseTableName="rel_libro__categorias"
+                                 constraintName="fk_rel_libro__categorias__categorias_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="categoria"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="libro_id"
+                                 baseTableName="rel_libro__autores"
+                                 constraintName="fk_rel_libro__autores__libro_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="libro"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="autores_id"
+                                 baseTableName="rel_libro__autores"
+                                 constraintName="fk_rel_libro__autores__autores_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="autor"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="editorial_id"
+                                 baseTableName="libro"
+                                 constraintName="fk_libro__editorial_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="editorial"
+                                 />
+    </changeSet>
+</databaseChangeLog>

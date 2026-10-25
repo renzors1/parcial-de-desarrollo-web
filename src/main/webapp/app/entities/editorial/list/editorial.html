@@ -1,0 +1,157 @@
+<div>
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <h2 id="page-heading" data-cy="EditorialHeading" class="fw-bold mb-1">
+        <span jhiTranslate="ejemplo01App.editorial.home.title">Editoriales</span>
+      </h2>
+      <div class="text-muted small">Sellos editoriales, distribución geográfica y casas de publicación</div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" (click)="load()" [disabled]="isLoading()">
+        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
+        <span class="d-none d-sm-inline ms-1" jhiTranslate="ejemplo01App.editorial.home.refreshListLabel">Refrescar</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-dark btn-sm jh-create-entity create-editorial"
+        [routerLink]="['/editorial/new']"
+      >
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.editorial.home.createLabel">Nueva Editorial</span>
+      </button>
+    </div>
+  </div>
+
+  <jhi-alert-error />
+  <jhi-alert />
+
+  @if (editorials().length === 0) {
+    <div class="editorial-empty-state" id="no-result">
+      <div class="empty-state-icon">
+        <fa-icon icon="book" />
+      </div>
+      <h4 jhiTranslate="ejemplo01App.editorial.home.notFound">Ninguna Editorial encontrada</h4>
+      <p>No se registran sellos editoriales asociados al catálogo.</p>
+      <button class="btn btn-dark btn-sm" [routerLink]="['/editorial/new']">
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.editorial.home.createLabel">Registrar primera Editorial</span>
+      </button>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span jhiTranslate="global.field.id">ID</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="nombreEditorial">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.editorial.nombreEditorial">Nombre Editorial</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="pais">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.editorial.pais">País</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="activo">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.editorial.activo">Activo</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="usuarioCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.editorial.usuarioCreacion">Usuario Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.editorial.fechaCreacion">Fecha Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (editorial of editorials(); track trackId(editorial)) {
+            <tr data-cy="entityTable">
+              <td class="tabular-nums">
+                <a [routerLink]="['/editorial', editorial.id, 'view']" class="fw-semibold text-primary">#{{ editorial.id }}</a>
+              </td>
+              <td class="fw-semibold text-dark">{{ editorial.nombreEditorial }}</td>
+              <td>
+                <span class="badge bg-light text-secondary border">{{ editorial.pais }}</span>
+              </td>
+              <td>
+                @if (editorial.activo) {
+                  <span class="badge-soft-success"> <fa-icon icon="check" class="small"></fa-icon> Activo </span>
+                } @else {
+                  <span class="badge-soft-danger"> <fa-icon icon="times" class="small"></fa-icon> Inactivo </span>
+                }
+              </td>
+              <td class="d-none d-xl-table-cell text-muted small">{{ editorial.usuarioCreacion }}</td>
+              <td class="d-none d-xl-table-cell text-muted small tabular-nums">{{ editorial.fechaCreacion | formatMediumDatetime }}</td>
+              <td class="text-end">
+                <div class="btn-action-group">
+                  <a
+                    [routerLink]="['/editorial', editorial.id, 'view']"
+                    class="btn-action"
+                    data-cy="entityDetailsButton"
+                    title="Ver detalle"
+                  >
+                    <fa-icon icon="eye" />
+                  </a>
+
+                  <a [routerLink]="['/editorial', editorial.id, 'edit']" class="btn-action" data-cy="entityEditButton" title="Editar">
+                    <fa-icon icon="pencil-alt" />
+                  </a>
+
+                  <button
+                    type="button"
+                    (click)="delete(editorial)"
+                    class="btn-action btn-action-delete"
+                    data-cy="entityDeleteButton"
+                    title="Eliminar"
+                  >
+                    <fa-icon icon="times" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (editorials().length > 0) {
+    <div class="mt-3">
+      <div class="d-flex justify-content-center">
+        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems()"
+          [page]="page()"
+          [pageSize]="itemsPerPage()"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="navigateToPage($event)"
+        />
+      </div>
+    </div>
+  }
+</div>

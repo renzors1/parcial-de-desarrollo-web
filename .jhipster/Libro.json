@@ -1,0 +1,111 @@
+{
+  "annotations": {
+    "changelogDate": "20261001215527"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "isbn",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
+      "fieldName": "titulo",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "sinopsis",
+      "fieldType": "TextBlob"
+    },
+    {
+      "fieldName": "urlPortada",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaPublicacion",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "precio",
+      "fieldType": "Float",
+      "fieldValidateRules": ["required", "min"],
+      "fieldValidateRulesMin": "0"
+    },
+    {
+      "fieldName": "idioma",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "activo",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "usuarioCreacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaCreacion",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "usuarioModificacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaModificacion",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "Libro",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "detalleVenta",
+      "otherEntityRelationshipName": "libro",
+      "relationshipName": "detallesVenta",
+      "relationshipSide": "left",
+      "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityName": "licenciaDigital",
+      "otherEntityRelationshipName": "libro",
+      "relationshipName": "licencias",
+      "relationshipSide": "left",
+      "relationshipType": "one-to-many"
+    },
+    {
+      "otherEntityName": "categoria",
+      "otherEntityRelationshipName": "libros",
+      "relationshipName": "categorias",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityName": "autor",
+      "otherEntityRelationshipName": "libros",
+      "relationshipName": "autores",
+      "relationshipSide": "left",
+      "relationshipType": "many-to-many"
+    },
+    {
+      "otherEntityName": "editorial",
+      "otherEntityRelationshipName": "libros",
+      "relationshipName": "editorial",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "promocion",
+      "otherEntityRelationshipName": "libros",
+      "relationshipName": "promociones",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-many"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

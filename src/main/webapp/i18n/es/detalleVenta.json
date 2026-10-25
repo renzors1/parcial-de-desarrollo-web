@@ -1,0 +1,35 @@
+{
+  "ejemplo01App": {
+    "detalleVenta": {
+      "home": {
+        "title": "Detalle Ventas",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Detalle Venta",
+        "createOrEditLabel": "Crear o editar Detalle Venta",
+        "notFound": "Ningún Detalle Ventas encontrado"
+      },
+      "created": "Un nuevo Detalle Venta ha sido creado con el identificador {{ param }}",
+      "updated": "Un Detalle Venta ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Detalle Venta ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Detalle Venta {{ id }}?"
+      },
+      "detail": {
+        "title": "Detalle Venta"
+      },
+      "id": "ID",
+      "cantidadVenta": "Cantidad Venta",
+      "precioUnitario": "Precio Unitario",
+      "descuento": "Descuento",
+      "subtotal": "Subtotal",
+      "usuarioCreacion": "Usuario Creacion",
+      "fechaCreacion": "Fecha Creacion",
+      "usuarioModificacion": "Usuario Modificacion",
+      "fechaModificacion": "Fecha Modificacion",
+      "licenciasEntregadas": "Licencias Entregadas",
+      "venta": "Venta",
+      "libro": "Libro",
+      "promocionAplicada": "Promocion Aplicada"
+    }
+  }
+}

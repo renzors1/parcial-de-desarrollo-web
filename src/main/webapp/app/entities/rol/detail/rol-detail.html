@@ -1,0 +1,62 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (rol(); as rolRef) {
+      <div>
+        <h2 data-cy="rolDetailsHeading"><span jhiTranslate="ejemplo01App.rol.detail.title">Rol</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ rolRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.rol.codigoIdentificador">Codigo Identificador</span></dt>
+          <dd>
+            <span>{{ rolRef.codigoIdentificador }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.rol.nombreRol">Nombre Rol</span></dt>
+          <dd>
+            <span>{{ rolRef.nombreRol }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.rol.descripcion">Descripcion</span></dt>
+          <dd>
+            <span>{{ rolRef.descripcion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.rol.activo">Activo</span></dt>
+          <dd>
+            <span>{{ rolRef.activo }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.rol.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ rolRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.rol.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ rolRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.rol.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ rolRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.rol.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ rolRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/rol', rolRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,136 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-editorial-heading" data-cy="EditorialCreateUpdateHeading" jhiTranslate="ejemplo01App.editorial.home.createOrEditLabel">
+        Crear o editar Editorial
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="global.field.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let nombreEditorialRef = editForm.get('nombreEditorial')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_nombreEditorial" jhiTranslate="ejemplo01App.editorial.nombreEditorial"
+            >Nombre Editorial</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="nombreEditorial"
+            id="field_nombreEditorial"
+            data-cy="nombreEditorial"
+            formControlName="nombreEditorial"
+          />
+          @if (nombreEditorialRef.invalid && (nombreEditorialRef.dirty || nombreEditorialRef.touched)) {
+            <div>
+              @if (nombreEditorialRef.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_pais" jhiTranslate="ejemplo01App.editorial.pais">Pais</label>
+          <input type="text" class="form-control" name="pais" id="field_pais" data-cy="pais" formControlName="pais" />
+        </div>
+
+        @let activoRef = editForm.get('activo')!;
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" name="activo" id="field_activo" data-cy="activo" formControlName="activo" />
+          <label class="form-check-label" for="field_activo" jhiTranslate="ejemplo01App.editorial.activo">Activo</label>
+          @if (activoRef.invalid && (activoRef.dirty || activoRef.touched)) {
+            <div>
+              @if (activoRef.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Este campo es obligatorio.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_usuarioCreacion" jhiTranslate="ejemplo01App.editorial.usuarioCreacion"
+            >Usuario Creacion</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="usuarioCreacion"
+            id="field_usuarioCreacion"
+            data-cy="usuarioCreacion"
+            formControlName="usuarioCreacion"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaCreacion" jhiTranslate="ejemplo01App.editorial.fechaCreacion">Fecha Creacion</label>
+          <div class="d-flex">
+            <input
+              id="field_fechaCreacion"
+              data-cy="fechaCreacion"
+              type="datetime-local"
+              class="form-control"
+              name="fechaCreacion"
+              formControlName="fechaCreacion"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_usuarioModificacion" jhiTranslate="ejemplo01App.editorial.usuarioModificacion"
+            >Usuario Modificacion</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            name="usuarioModificacion"
+            id="field_usuarioModificacion"
+            data-cy="usuarioModificacion"
+            formControlName="usuarioModificacion"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_fechaModificacion" jhiTranslate="ejemplo01App.editorial.fechaModificacion"
+            >Fecha Modificacion</label
+          >
+          <div class="d-flex">
+            <input
+              id="field_fechaModificacion"
+              data-cy="fechaModificacion"
+              type="datetime-local"
+              class="form-control"
+              name="fechaModificacion"
+              formControlName="fechaModificacion"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Cancelar</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving()"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Guardar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

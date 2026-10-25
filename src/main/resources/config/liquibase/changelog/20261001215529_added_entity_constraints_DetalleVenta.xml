@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+    <!--
+        Added the constraints for entity DetalleVenta.
+    -->
+    <changeSet id="20261001215529-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="venta_id"
+                                 baseTableName="detalle_venta"
+                                 constraintName="fk_detalle_venta__venta_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="venta"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="libro_id"
+                                 baseTableName="detalle_venta"
+                                 constraintName="fk_detalle_venta__libro_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="libro"
+                                 />
+
+        <addForeignKeyConstraint baseColumnNames="promocion_aplicada_id"
+                                 baseTableName="detalle_venta"
+                                 constraintName="fk_detalle_venta__promocion_aplicada_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="promocion"
+                                 />
+    </changeSet>
+</databaseChangeLog>

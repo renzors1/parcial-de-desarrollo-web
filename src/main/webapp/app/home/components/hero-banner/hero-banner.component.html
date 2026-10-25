@@ -1,0 +1,67 @@
+<header class="hero-banner p-4 p-md-5 mb-4 text-white">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-8">
+      <span class="badge hero-badge px-3 py-2 mb-3 rounded-pill d-inline-flex align-items-center">
+        <fa-icon icon="shield-alt" class="me-2 text-warning"></fa-icon> Sistema Oficial de Gestión y Licencias Digitales
+      </span>
+      <h1 class="display-5 fw-bold mb-3 text-white">Catálogo Digital de Libros</h1>
+      <p class="fs-5 mb-4 text-slate-300" style="color: #cbd5e1; max-width: 620px">
+        Explora títulos disponibles, adquiere licencias digitales seguras y administra ventas con emisión inmediata de comprobantes.
+      </p>
+
+      @if (account(); as user) {
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <span class="badge bg-white text-dark fs-6 px-3 py-2 rounded-3 border">
+            <fa-icon icon="user" class="me-1 text-primary"></fa-icon> Conectado como: <strong>{{ user.login }}</strong>
+          </span>
+          <a class="btn btn-light btn-lg text-dark fw-semibold" routerLink="/libro">
+            <fa-icon icon="book" class="me-1"></fa-icon> Gestionar Libros
+          </a>
+          <a class="btn btn-outline-light btn-lg" routerLink="/venta"> <fa-icon icon="receipt" class="me-1"></fa-icon> Ver Ventas </a>
+          <a class="btn btn-outline-light btn-lg" routerLink="/licencia-digital">
+            <fa-icon icon="key" class="me-1"></fa-icon> Ver Licencias
+          </a>
+        </div>
+      } @else {
+        <div class="d-flex flex-wrap gap-3 align-items-center">
+          <button type="button" class="btn btn-light btn-lg px-4 text-dark fw-semibold" (click)="onLogin()">
+            <fa-icon icon="sign-in-alt" class="me-1 text-primary"></fa-icon> Iniciar Sesión
+          </button>
+          <a class="btn btn-outline-light btn-lg px-4" routerLink="/account/register">
+            <fa-icon icon="user-plus" class="me-1"></fa-icon> Registrarse
+          </a>
+          <span class="demo-credentials"> Acceso demo: <code>admin</code> / <code>admin</code> </span>
+        </div>
+      }
+    </div>
+
+    <div class="col-lg-4 text-center">
+      <div class="card bg-white text-dark p-4 rounded-3 border">
+        <div class="d-flex align-items-center justify-content-center mb-3">
+          <fa-icon icon="chart-bar" class="text-primary fs-5 me-2"></fa-icon>
+          <h5 class="fw-bold mb-0 text-dark">Métricas de la Plataforma</h5>
+        </div>
+        <div class="row g-2 text-center">
+          <div class="col-6">
+            <div class="p-3 border rounded-3 bg-light">
+              <span class="fs-2 fw-bold text-dark tabular-nums">{{ librosCount() }}</span>
+              <div class="text-muted small fw-semibold">Libros Activos</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 border rounded-3 bg-light">
+              <span class="fs-2 fw-bold text-dark tabular-nums">{{ categoriasCount() }}</span>
+              <div class="text-muted small fw-semibold">Categorías</div>
+            </div>
+          </div>
+          <div class="col-12 mt-2">
+            <div class="p-3 border rounded-3 bg-light">
+              <span class="fs-3 fw-bold text-dark tabular-nums">{{ promocionesCount() }}</span>
+              <div class="text-muted small fw-semibold">Promociones Activas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>

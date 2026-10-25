@@ -1,0 +1,64 @@
+{
+  "annotations": {
+    "changelogDate": "20261002011825"
+  },
+  "applications": ["*"],
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "codigoLicencia",
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "unique"]
+    },
+    {
+      "fieldName": "enlaceDescarga",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaAsignacion",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "estado",
+      "fieldType": "EstadoLicencia",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "DISPONIBLE,VENDIDA"
+    },
+    {
+      "fieldName": "usuarioCreacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaCreacion",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "usuarioModificacion",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "fechaModificacion",
+      "fieldType": "Instant"
+    }
+  ],
+  "name": "LicenciaDigital",
+  "pagination": "pagination",
+  "relationships": [
+    {
+      "otherEntityName": "libro",
+      "otherEntityRelationshipName": "licencias",
+      "relationshipName": "libro",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    },
+    {
+      "otherEntityName": "detalleVenta",
+      "otherEntityRelationshipName": "licenciasEntregadas",
+      "relationshipName": "detalleVenta",
+      "relationshipSide": "right",
+      "relationshipType": "many-to-one"
+    }
+  ],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}

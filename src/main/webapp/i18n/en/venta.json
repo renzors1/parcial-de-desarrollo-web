@@ -1,0 +1,36 @@
+{
+  "ejemplo01App": {
+    "venta": {
+      "home": {
+        "title": "Ventas",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Venta",
+        "createOrEditLabel": "Create or edit a Venta",
+        "notFound": "No Ventas found"
+      },
+      "created": "A new Venta is created with identifier {{ param }}",
+      "updated": "A Venta is updated with identifier {{ param }}",
+      "deleted": "A Venta is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Venta {{ id }}?"
+      },
+      "detail": {
+        "title": "Venta"
+      },
+      "id": "ID",
+      "numeroComprobante": "Numero Comprobante",
+      "fechaVenta": "Fecha Venta",
+      "subtotalVenta": "Subtotal Venta",
+      "totalDescuento": "Total Descuento",
+      "igv": "Igv",
+      "totalVenta": "Total Venta",
+      "usuarioCreacion": "Usuario Creacion",
+      "fechaCreacion": "Fecha Creacion",
+      "usuarioModificacion": "Usuario Modificacion",
+      "fechaModificacion": "Fecha Modificacion",
+      "calificacionesCliente": "Calificaciones Cliente",
+      "detalles": "Detalles",
+      "cliente": "Cliente"
+    }
+  }
+}

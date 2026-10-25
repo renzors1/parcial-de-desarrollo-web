@@ -1,0 +1,191 @@
+<div>
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <h2 id="page-heading" data-cy="DetalleVentaHeading" class="fw-bold mb-1">
+        <span jhiTranslate="ejemplo01App.detalleVenta.home.title">Detalles de Venta</span>
+      </h2>
+      <div class="text-muted small">Líneas de facturación, artículos adquiridos y subtotales por comprobante</div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-outline-secondary btn-sm" (click)="load()" [disabled]="isLoading()">
+        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
+        <span class="d-none d-sm-inline ms-1" jhiTranslate="ejemplo01App.detalleVenta.home.refreshListLabel">Refrescar</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-dark btn-sm jh-create-entity create-detalle-venta"
+        [routerLink]="['/detalle-venta/new']"
+      >
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.detalleVenta.home.createLabel">Nuevo Detalle</span>
+      </button>
+    </div>
+  </div>
+
+  <jhi-alert-error />
+  <jhi-alert />
+
+  @if (detalleVentas().length === 0) {
+    <div class="editorial-empty-state" id="no-result">
+      <div class="empty-state-icon">
+        <fa-icon icon="file-alt" />
+      </div>
+      <h4 jhiTranslate="ejemplo01App.detalleVenta.home.notFound">Ningún Detalle de Venta encontrado</h4>
+      <p>No se registran líneas de pedido ni detalles de comprobante.</p>
+      <button class="btn btn-dark btn-sm" [routerLink]="['/detalle-venta/new']">
+        <fa-icon icon="plus" class="me-1" />
+        <span jhiTranslate="ejemplo01App.detalleVenta.home.createLabel">Registrar primer Detalle</span>
+      </button>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span jhiTranslate="global.field.id">ID</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="venta.id">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.detalleVenta.venta">Venta</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="libro.id">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.detalleVenta.libro">Libro</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="cantidadVenta">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.detalleVenta.cantidadVenta">Cantidad</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="precioUnitario">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.detalleVenta.precioUnitario">P. Unitario</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="descuento">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.detalleVenta.descuento">Descuento</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="subtotal">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.detalleVenta.subtotal">Subtotal</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="usuarioCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.detalleVenta.usuarioCreacion">Usuario Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="fechaCreacion" class="d-none d-xl-table-cell">
+              <div class="d-flex">
+                <span jhiTranslate="ejemplo01App.detalleVenta.fechaCreacion">Fecha Creación</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (detalleVenta of detalleVentas(); track trackId(detalleVenta)) {
+            <tr data-cy="entityTable">
+              <td class="tabular-nums">
+                <a [routerLink]="['/detalle-venta', detalleVenta.id, 'view']" class="fw-semibold text-primary">#{{ detalleVenta.id }}</a>
+              </td>
+              <td>
+                @if (detalleVenta.venta) {
+                  <div>
+                    <a [routerLink]="['/venta', detalleVenta.venta.id, 'view']" class="badge bg-light text-primary border">
+                      Venta #{{ detalleVenta.venta.id }}
+                    </a>
+                  </div>
+                }
+              </td>
+              <td>
+                @if (detalleVenta.libro) {
+                  <div>
+                    <a [routerLink]="['/libro', detalleVenta.libro.id, 'view']" class="badge bg-light text-dark border">
+                      Libro #{{ detalleVenta.libro.id }}
+                    </a>
+                  </div>
+                }
+              </td>
+              <td class="tabular-nums fw-semibold text-dark">{{ detalleVenta.cantidadVenta }}</td>
+              <td class="tabular-nums text-secondary">S/ {{ detalleVenta.precioUnitario ?? 0 | number: '1.2-2' }}</td>
+              <td class="tabular-nums text-secondary">S/ {{ detalleVenta.descuento ?? 0 | number: '1.2-2' }}</td>
+              <td class="tabular-nums fw-bold text-success">S/ {{ detalleVenta.subtotal ?? 0 | number: '1.2-2' }}</td>
+              <td class="d-none d-xl-table-cell text-muted small">{{ detalleVenta.usuarioCreacion }}</td>
+              <td class="d-none d-xl-table-cell text-muted small tabular-nums">{{ detalleVenta.fechaCreacion | formatMediumDatetime }}</td>
+              <td class="text-end">
+                <div class="btn-action-group">
+                  <a
+                    [routerLink]="['/detalle-venta', detalleVenta.id, 'view']"
+                    class="btn-action"
+                    data-cy="entityDetailsButton"
+                    title="Ver detalle"
+                  >
+                    <fa-icon icon="eye" />
+                  </a>
+
+                  <a
+                    [routerLink]="['/detalle-venta', detalleVenta.id, 'edit']"
+                    class="btn-action"
+                    data-cy="entityEditButton"
+                    title="Editar"
+                  >
+                    <fa-icon icon="pencil-alt" />
+                  </a>
+
+                  <button
+                    type="button"
+                    (click)="delete(detalleVenta)"
+                    class="btn-action btn-action-delete"
+                    data-cy="entityDeleteButton"
+                    title="Eliminar"
+                  >
+                    <fa-icon icon="times" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (detalleVentas().length > 0) {
+    <div class="mt-3">
+      <div class="d-flex justify-content-center">
+        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems()"
+          [page]="page()"
+          [pageSize]="itemsPerPage()"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="navigateToPage($event)"
+        />
+      </div>
+    </div>
+  }
+</div>

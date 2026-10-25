@@ -1,0 +1,33 @@
+/* ==========================================================================
+   Hero Banner - Editorial Ink & Warm Minimal (Anti-AI Manifest)
+   ========================================================================== */
+
+.hero-banner {
+  background-color: #0f172a !important;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.hero-badge {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+}
+
+.demo-credentials {
+  color: #94a3b8;
+  font-size: 0.875rem;
+
+  code {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+    padding: 0.2rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+  }
+}

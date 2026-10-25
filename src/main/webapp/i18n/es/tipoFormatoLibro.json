@@ -1,0 +1,10 @@
+{
+  "ejemplo01App": {
+    "TipoFormatoLibro": {
+      "null": "",
+      "FISICO": "FISICO",
+      "DIGITAL": "DIGITAL",
+      "AMBOS": "AMBOS"
+    }
+  }
+}

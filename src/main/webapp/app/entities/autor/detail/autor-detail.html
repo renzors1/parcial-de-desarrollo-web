@@ -1,0 +1,67 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (autor(); as autorRef) {
+      <div>
+        <h2 data-cy="autorDetailsHeading"><span jhiTranslate="ejemplo01App.autor.detail.title">Autor</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ autorRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.autor.nombres">Nombres</span></dt>
+          <dd>
+            <span>{{ autorRef.nombres }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.autor.apellidos">Apellidos</span></dt>
+          <dd>
+            <span>{{ autorRef.apellidos }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.autor.nacionalidad">Nacionalidad</span></dt>
+          <dd>
+            <span>{{ autorRef.nacionalidad }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.autor.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ autorRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.autor.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ autorRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.autor.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ autorRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.autor.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ autorRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.autor.libros">Libros</span></dt>
+          <dd>
+            @for (libros of autorRef.libroses; track $index; let last = $last) {
+              <span>
+                <a [routerLink]="['/libro', libros.id, 'view']">{{ libros?.id }}</a
+                >{{ last ? '' : ', ' }}
+              </span>
+            }
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/autor', autorRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

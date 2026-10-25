@@ -1,0 +1,92 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (calificacionUsuario(); as calificacionUsuarioRef) {
+      <div>
+        <h2 data-cy="calificacionUsuarioDetailsHeading">
+          <span jhiTranslate="ejemplo01App.calificacionUsuario.detail.title">Calificacion Usuario</span>
+        </h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ calificacionUsuarioRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.puntuacion">Puntuacion</span></dt>
+          <dd>
+            <span>{{ calificacionUsuarioRef.puntuacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.comentario">Comentario</span></dt>
+          <dd>
+            <span>{{ calificacionUsuarioRef.comentario }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.fechaCalificacion">Fecha Calificacion</span></dt>
+          <dd>
+            <span>{{ calificacionUsuarioRef.fechaCalificacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.activo">Activo</span></dt>
+          <dd>
+            <span>{{ calificacionUsuarioRef.activo }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ calificacionUsuarioRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ calificacionUsuarioRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ calificacionUsuarioRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ calificacionUsuarioRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.clienteEvaluado">Cliente Evaluado</span></dt>
+          <dd>
+            @if (calificacionUsuario()!.clienteEvaluado) {
+              <div>
+                <a [routerLink]="['/usuario', calificacionUsuario()!.clienteEvaluado?.id, 'view']">{{
+                  calificacionUsuarioRef.clienteEvaluado?.id
+                }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.evaluadorTienda">Evaluador Tienda</span></dt>
+          <dd>
+            @if (calificacionUsuario()!.evaluadorTienda) {
+              <div>
+                <a [routerLink]="['/usuario', calificacionUsuario()!.evaluadorTienda?.id, 'view']">{{
+                  calificacionUsuarioRef.evaluadorTienda?.id
+                }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.calificacionUsuario.venta">Venta</span></dt>
+          <dd>
+            @if (calificacionUsuario()!.venta) {
+              <div>
+                <a [routerLink]="['/venta', calificacionUsuario()!.venta?.id, 'view']">{{ calificacionUsuarioRef.venta?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/calificacion-usuario', calificacionUsuarioRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

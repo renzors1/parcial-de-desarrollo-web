@@ -1,0 +1,113 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (libro(); as libroRef) {
+      <div>
+        <h2 data-cy="libroDetailsHeading"><span jhiTranslate="ejemplo01App.libro.detail.title">Libro</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ libroRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.isbn">Isbn</span></dt>
+          <dd>
+            <span>{{ libroRef.isbn }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.titulo">Titulo</span></dt>
+          <dd>
+            <span>{{ libroRef.titulo }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.sinopsis">Sinopsis</span></dt>
+          <dd>
+            <span>{{ libroRef.sinopsis }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.urlPortada">Url Portada</span></dt>
+          <dd>
+            <span>{{ libroRef.urlPortada }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.fechaPublicacion">Fecha Publicacion</span></dt>
+          <dd>
+            <span>{{ libroRef.fechaPublicacion | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.precio">Precio</span></dt>
+          <dd>
+            <span>{{ libroRef.precio }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.idioma">Idioma</span></dt>
+          <dd>
+            <span>{{ libroRef.idioma }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.activo">Activo</span></dt>
+          <dd>
+            <span>{{ libroRef.activo }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.usuarioCreacion">Usuario Creacion</span></dt>
+          <dd>
+            <span>{{ libroRef.usuarioCreacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.fechaCreacion">Fecha Creacion</span></dt>
+          <dd>
+            <span>{{ libroRef.fechaCreacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.usuarioModificacion">Usuario Modificacion</span></dt>
+          <dd>
+            <span>{{ libroRef.usuarioModificacion }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.fechaModificacion">Fecha Modificacion</span></dt>
+          <dd>
+            <span>{{ libroRef.fechaModificacion | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.categorias">Categorias</span></dt>
+          <dd>
+            @for (categorias of libroRef.categoriases; track $index; let last = $last) {
+              <span>
+                <a [routerLink]="['/categoria', categorias.id, 'view']">{{ categorias?.id }}</a
+                >{{ last ? '' : ', ' }}
+              </span>
+            }
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.autores">Autores</span></dt>
+          <dd>
+            @for (autores of libroRef.autoreses; track $index; let last = $last) {
+              <span>
+                <a [routerLink]="['/autor', autores.id, 'view']">{{ autores?.id }}</a
+                >{{ last ? '' : ', ' }}
+              </span>
+            }
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.editorial">Editorial</span></dt>
+          <dd>
+            @if (libro()!.editorial) {
+              <div>
+                <a [routerLink]="['/editorial', libro()!.editorial?.id, 'view']">{{ libroRef.editorial?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="ejemplo01App.libro.promociones">Promociones</span></dt>
+          <dd>
+            @for (promociones of libroRef.promocioneses; track $index; let last = $last) {
+              <span>
+                <a [routerLink]="['/promocion', promociones.id, 'view']">{{ promociones?.id }}</a
+                >{{ last ? '' : ', ' }}
+              </span>
+            }
+          </dd>
+        </dl>
+
+        <button type="button" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Volver</span>
+        </button>
+
+        <button type="button" [routerLink]="['/libro', libroRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editar</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>
