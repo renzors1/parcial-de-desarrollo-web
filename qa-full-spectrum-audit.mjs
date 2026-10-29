@@ -9,7 +9,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const BASE_URL = 'http://localhost:9999';
-const FRONTEND_URL = 'http://localhost:4200';
+const FRONTEND_URL = 'http://localhost:5021';
 const TIMESTAMP = Date.now();
 const PREFIX = `qa_auto_${TIMESTAMP}`;
 
@@ -311,11 +311,11 @@ async function runFullSpectrumQA() {
         notFoundAuth.duracionMs,
       );
 
-      // 3.7 Frontend activo
+      // 3.7 Frontend activo (Blazor)
       const frontRes = await requestHttp(FRONTEND_URL, { timeout: 3000 });
       registrarTest(
         'D3',
-        'Frontend Angular responde HTTP 200 en puerto 4200',
+        'Frontend Blazor (.NET 10) responde HTTP 200 en puerto 5021',
         frontRes.status === 200,
         `Status: ${frontRes.status}`,
         frontRes.duracionMs,
@@ -635,6 +635,84 @@ async function runFullSpectrumQA() {
         `Status: ${resPutCat.status}`,
         resPutCat.duracionMs,
       );
+
+      // 4.11 Crear Editorial de prueba
+      const resEditorial = await requestHttp('/api/editorials', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          nombreEditorial: `${PREFIX}_Editorial_Tech`,
+          pais: 'Perú',
+          sitioWeb: 'https://editorial-tech.pe',
+          activo: true,
+          usuarioCreacion: 'qa_runner',
+          fechaCreacion: new Date().toISOString(),
+        }),
+      });
+      creados.editorialId = resEditorial.data?.id;
+      registrarTest(
+        'D4',
+        'Paso 11: Creación de Editorial de prueba vía API',
+        resEditorial.status === 201 && !!creados.editorialId,
+        `Status: ${resEditorial.status}`,
+        resEditorial.duracionMs,
+      );
+
+      // 4.12 Crear Calificación de Usuario de prueba
+      const resCalif = await requestHttp('/api/calificacion-usuarios', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          puntuacion: 5,
+          comentario: `${PREFIX} - Excelente catálogo digital y lectura instantánea`,
+          fechaCalificacion: new Date().toISOString(),
+          activo: true,
+          clienteEvaluado: { id: 1 },
+          usuarioCreacion: 'qa_runner',
+          fechaCreacion: new Date().toISOString(),
+        }),
+      });
+      creados.calificacionId = resCalif.data?.id;
+      registrarTest(
+        'D4',
+        'Paso 12: Registro de Calificación de Usuario (5 estrellas)',
+        resCalif.status === 201 && !!creados.calificacionId,
+        `Status: ${resCalif.status}`,
+        resCalif.duracionMs,
+      );
+
+      // 4.13 Registro de nuevo usuario cliente y login automático con activación
+      const testUserLogin = `user_${TIMESTAMP.toString().slice(-8)}`;
+      const resRegister = await requestHttp('/api/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          login: testUserLogin,
+          email: `${testUserLogin}@test.local`,
+          password: 'Password123!',
+          langKey: 'es',
+          firstName: 'ClienteQA',
+          lastName: 'Prueba',
+        }),
+      });
+      const regOk = resRegister.status === 201;
+
+      // Autenticar con el usuario recién registrado
+      const resLoginNewUser = await requestHttp('/api/authenticate', {
+        method: 'POST',
+        body: JSON.stringify({
+          username: testUserLogin,
+          password: 'Password123!',
+          rememberMe: false,
+        }),
+      });
+      const newAuthOk = resLoginNewUser.status === 200 && !!resLoginNewUser.data?.id_token;
+      registrarTest(
+        'D4',
+        'Paso 13: Flujo de auto-registro (/api/register) y login inmediato activado',
+        regOk && newAuthOk,
+        `Register Status: ${resRegister.status}, Login Status: ${resLoginNewUser.status}`,
+        resRegister.duracionMs + resLoginNewUser.duracionMs,
+      );
     }
 
     // --------------------------------------------------------------------------
@@ -916,6 +994,10 @@ async function runFullSpectrumQA() {
       const r = await requestHttp(`/api/licencia-digitals/${creados.licenciaId}`, { method: 'DELETE', headers: deleteHeaders });
       console.log(`  - Eliminada LicenciaDigital temporal id: ${creados.licenciaId} (Status: ${r.status})`);
     }
+    if (creados.calificacionId) {
+      const r = await requestHttp(`/api/calificacion-usuarios/${creados.calificacionId}`, { method: 'DELETE', headers: deleteHeaders });
+      console.log(`  - Eliminada CalificacionUsuario temporal id: ${creados.calificacionId} (Status: ${r.status})`);
+    }
     if (creados.detalleVentaId) {
       const r = await requestHttp(`/api/detalle-ventas/${creados.detalleVentaId}`, { method: 'DELETE', headers: deleteHeaders });
       console.log(`  - Eliminado DetalleVenta temporal id: ${creados.detalleVentaId} (Status: ${r.status})`);
@@ -931,6 +1013,10 @@ async function runFullSpectrumQA() {
     if (creados.libroId) {
       const r = await requestHttp(`/api/libros/${creados.libroId}`, { method: 'DELETE', headers: deleteHeaders });
       console.log(`  - Eliminado Libro temporal id: ${creados.libroId} (Status: ${r.status})`);
+    }
+    if (creados.editorialId) {
+      const r = await requestHttp(`/api/editorials/${creados.editorialId}`, { method: 'DELETE', headers: deleteHeaders });
+      console.log(`  - Eliminada Editorial temporal id: ${creados.editorialId} (Status: ${r.status})`);
     }
     if (creados.categoriaId) {
       const r = await requestHttp(`/api/categorias/${creados.categoriaId}`, { method: 'DELETE', headers: deleteHeaders });
