@@ -11,6 +11,18 @@ html, body {
     font-family: 'Merriweather', Georgia, serif;
 }
 
+/* Forzar color blanco en títulos dentro de contenedores oscuros / text-white para evitar texto negro sobre fondo oscuro */
+.text-white h1, .text-white h2, .text-white h3, .text-white h4, .text-white h5, .text-white h6,
+.text-white .display-1, .text-white .display-2, .text-white .display-3, .text-white .display-4, .text-white .display-5, .text-white .display-6,
+.text-white p, .text-white span {
+    --bs-heading-color: #ffffff;
+}
+
+.text-white h1, .text-white h2, .text-white h3, .text-white h4, .text-white h5, .text-white h6,
+.text-white .display-1, .text-white .display-2, .text-white .display-3, .text-white .display-4, .text-white .display-5, .text-white .display-6 {
+    color: #ffffff !important;
+}
+
 a {
     color: #2563eb;
     text-decoration: none;

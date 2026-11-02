@@ -199,62 +199,157 @@
                 </div>
 
                 <!-- Selección de Promociones y Cupones Activos -->
-                <div class="card border shadow-sm rounded-2 p-4 bg-white">
-                    <div class="d-flex align-items-center mb-3">
-                        <span class="bi bi-tag-fill text-primary fs-4 me-2"></span>
-                        <h5 class="fw-bold mb-0 text-dark">Promociones y Descuentos Activos</h5>
+                <div class="card border shadow-sm rounded-2 p-4 bg-white mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                        <div class="d-flex align-items-center">
+                            <span class="bi bi-ticket-perforated-fill text-primary fs-4 me-2"></span>
+                            <h5 class="fw-bold mb-0 text-dark font-editorial">Cupones y Promociones Especiales</h5>
+                        </div>
+                        @if (CarritoService.PromocionAplicada != null)
+                        {
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-2 fw-semibold">
+                                <span class="bi bi-check-circle-fill me-1"></span> Cupón Activo: @ExtraerCodigo(CarritoService.PromocionAplicada.Nombre) (-@CarritoService.PromocionAplicada.PorcentajeDescuento.ToString("0")%)
+                            </span>
+                        }
                     </div>
+
                     <p class="text-muted small mb-3">
-                        Aplica una promoción disponible para obtener un descuento inmediato en tu orden digital.
+                        ¿Tienes un código de descuento? Ingrésalo a continuación o selecciona una de las promociones sugeridas de nuestro catálogo editorial.
                     </p>
 
-                    @if (promocionesActivas.Count == 0)
+                    <!-- Ingreso manual de cupón -->
+                    <div class="row g-2 align-items-center mb-3">
+                        <div class="col-12 col-sm-8 col-md-9">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white text-muted">
+                                    <span class="bi bi-upc-scan"></span>
+                                </span>
+                                <input type="text" 
+                                       class="form-control text-uppercase font-monospace" 
+                                       placeholder="Ingresa tu cupón (ej. PROMO20, FLASH35)" 
+                                       @bind="codigoCuponInput" 
+                                       @bind:event="oninput"
+                                       @onkeyup="ManejarEnterCupon"
+                                       maxlength="30" />
+                                @if (!string.IsNullOrWhiteSpace(codigoCuponInput))
+                                {
+                                    <button class="btn btn-outline-secondary" type="button" @onclick="() => codigoCuponInput = string.Empty">
+                                        <span class="bi bi-x"></span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-4 col-md-3">
+                            <button class="btn btn-primary w-100 rounded-2 fw-semibold py-2" @onclick="AplicarCuponManual" disabled="@(string.IsNullOrWhiteSpace(codigoCuponInput) || validandoCupon)">
+                                @if (validandoCupon)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                    <span>Validando...</span>
+                                }
+                                else
+                                {
+                                    <span class="bi bi-check2-circle me-1"></span>
+                                    <span>Aplicar Cupón</span>
+                                }
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Mensajes de feedback del cupón -->
+                    @if (!string.IsNullOrEmpty(mensajeExitoCupon))
                     {
-                        <p class="text-muted small fst-italic mb-0">No hay cupones promocionales vigentes en este momento.</p>
-                    }
-                    else
-                    {
-                        <div class="row g-3">
-                            @foreach (var promo in promocionesActivas)
-                            {
-                                var aplicada = CarritoService.PromocionAplicada?.Id == promo.Id;
-                                <div class="col-12 col-md-6">
-                                    <div class="p-3 rounded-2 border h-100 d-flex flex-column justify-content-between @(aplicada ? "border-success bg-success-subtle" : "bg-light")">
-                                        <div>
-                                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                                <span class="badge @(aplicada ? "bg-success" : "bg-danger") rounded-2">
-                                                    -@promo.PorcentajeDescuento.ToString("0")% OFF
-                                                </span>
-                                                <small class="text-muted">Cupos: @promo.CantidadDisponible</small>
-                                            </div>
-                                            <h6 class="fw-bold text-dark mb-1">@promo.Nombre</h6>
-                                            <p class="text-muted small mb-2" style="font-size: 0.82rem;">@promo.Descripcion</p>
-                                        </div>
-                                        
-                                        @if (aplicada)
-                                        {
-                                            <button class="btn btn-sm btn-outline-danger rounded-2 w-100 mt-2" @onclick="RemoverPromocion">
-                                                <span class="bi bi-x-circle me-1"></span> Quitar Descuento
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-sm btn-outline-success rounded-2 w-100 mt-2" @onclick="() => AplicarPromocion(promo)">
-                                                <span class="bi bi-check-lg me-1"></span> Aplicar Promoción
-                                            </button>
-                                        }
-                                    </div>
-                                </div>
-                            }
+                        <div class="alert alert-success alert-dismissible fade show rounded-2 py-2 px-3 mb-3 d-flex align-items-center justify-content-between" role="alert">
+                            <div class="d-flex align-items-center">
+                                <span class="bi bi-check-circle-fill me-2 fs-5 text-success"></span>
+                                <span>@mensajeExitoCupon</span>
+                            </div>
+                            <button type="button" class="btn-close" @onclick="() => mensajeExitoCupon = null"></button>
                         </div>
                     }
+
+                    @if (!string.IsNullOrEmpty(mensajeErrorCupon))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show rounded-2 py-2 px-3 mb-3 d-flex align-items-center justify-content-between" role="alert">
+                            <div class="d-flex align-items-center">
+                                <span class="bi bi-exclamation-triangle-fill me-2 fs-5 text-danger"></span>
+                                <span>@mensajeErrorCupon</span>
+                            </div>
+                            <button type="button" class="btn-close" @onclick="() => mensajeErrorCupon = null"></button>
+                        </div>
+                    }
+
+                    <!-- Lista visual de promociones sugeridas -->
+                    <div class="border-top pt-3 mt-1">
+                        <h6 class="fw-bold text-dark mb-2 small text-uppercase" style="letter-spacing: 0.05em;">
+                            <span class="bi bi-stars text-warning me-1"></span> Promociones Sugeridas Disponibles
+                        </h6>
+                        @if (promocionesActivas.Count == 0)
+                        {
+                            <p class="text-muted small fst-italic mb-0">No hay cupones promocionales vigentes en este momento.</p>
+                        }
+                        else
+                        {
+                            <div class="row g-3 mt-1">
+                                @foreach (var promo in promocionesActivas)
+                                {
+                                    var aplicada = CarritoService.PromocionAplicada?.Id == promo.Id;
+                                    var codigoPromo = ExtraerCodigo(promo.Nombre);
+                                    var diasRestantes = (promo.FechaFin.Date - DateTime.Now.Date).TotalDays;
+                                    var terminaPronto = promo.EsVigente && diasRestantes >= 0 && diasRestantes <= 3;
+                                    
+                                    <div class="col-12 col-md-6">
+                                        <div class="p-3 rounded-2 border h-100 d-flex flex-column justify-content-between @(aplicada ? "border-success bg-success-subtle shadow-2xs" : "bg-light")">
+                                            <div>
+                                                <div class="d-flex justify-content-between align-items-start mb-1 gap-2 flex-wrap">
+                                                    <div class="d-flex align-items-center gap-1">
+                                                        <span class="badge @(aplicada ? "bg-success" : "bg-danger") rounded-2 fw-bold">
+                                                            @(promo.EsMontoFijo ? $"-S/ {promo.DescuentoFijo:N2}" : $"-{promo.PorcentajeDescuento:0}% OFF")
+                                                        </span>
+                                                        <span class="badge @(promo.EsCupon ? "bg-dark text-white font-monospace" : "bg-primary text-white") rounded-2">
+                                                            @(promo.EsCupon ? (!string.IsNullOrWhiteSpace(promo.CodigoCupon) ? promo.CodigoCupon : codigoPromo) : "OFERTA DIRECTA")
+                                                        </span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-1">
+                                                        @if (terminaPronto)
+                                                        {
+                                                            <span class="badge bg-warning text-dark border border-warning rounded-2 small fw-bold">
+                                                                ⏳ ¡Termina pronto!
+                                                            </span>
+                                                        }
+                                                        <small class="text-muted">Cupos: @promo.CantidadDisponible</small>
+                                                    </div>
+                                                </div>
+                                                <h6 class="fw-bold text-dark mb-1 font-editorial mt-2">@promo.Nombre</h6>
+                                                <p class="text-muted small mb-2" style="font-size: 0.85rem; line-height: 1.4;">
+                                                    @promo.Descripcion
+                                                </p>
+                                            </div>
+                                            
+                                            @if (aplicada)
+                                            {
+                                                <button class="btn btn-sm btn-outline-danger rounded-2 w-100 mt-2 fw-medium py-2" @onclick="RemoverPromocion">
+                                                    <span class="bi bi-x-circle me-1"></span> Quitar Descuento (@codigoPromo)
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="btn btn-sm btn-outline-success rounded-2 w-100 mt-2 fw-medium py-2" @onclick="() => AplicarPromocion(promo)">
+                                                    <span class="bi bi-check-lg me-1"></span> Aplicar Promoción (@codigoPromo)
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
 
             <!-- Resumen de Pago y Checkout -->
             <div class="col-12 col-lg-4">
                 <div class="card border shadow-sm rounded-2 p-4 bg-white">
-                    <h5 class="fw-bold mb-3 text-dark">Resumen de Compra</h5>
+                    <h5 class="fw-bold mb-3 text-dark font-editorial">Resumen de Compra</h5>
                     
                     <div class="d-flex justify-content-between mb-2 text-secondary">
                         <span>Items seleccionados:</span>
@@ -267,9 +362,10 @@
 
                     @if (CarritoService.PromocionAplicada != null)
                     {
-                        <div class="d-flex justify-content-between mb-2 text-danger">
+                        var codPromo = ExtraerCodigo(CarritoService.PromocionAplicada.Nombre);
+                        <div class="d-flex justify-content-between align-items-center mb-2 text-danger">
                             <span>
-                                <span class="bi bi-tag-fill me-1"></span>Descuento (@CarritoService.PromocionAplicada.PorcentajeDescuento%):
+                                <span class="bi bi-tag-fill me-1"></span>Descuento @codPromo:
                             </span>
                             <span class="fw-bold">- S/ @CarritoService.MontoDescuento.ToString("N2")</span>
                         </div>
@@ -483,6 +579,12 @@
     private string? errorMensaje = null;
     private List<PromocionDto> promocionesActivas = new();
 
+    // Campos de Cupón Manual
+    private string codigoCuponInput = "";
+    private string? mensajeExitoCupon = null;
+    private string? mensajeErrorCupon = null;
+    private bool validandoCupon = false;
+
     // Campos de Métodos de Pago
     private string metodoPago = "TARJETA";
     private string numeroTarjeta = "";
@@ -562,14 +664,146 @@
         TokenService.OnChange -= SincronizarUsuarioSesion;
     }
 
+    private string ExtraerCodigo(string? nombrePromo)
+    {
+        if (string.IsNullOrWhiteSpace(nombrePromo)) return "PROMO";
+        var token = nombrePromo.Split(new[] { ' ', '-', ':', '–' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        return !string.IsNullOrWhiteSpace(token) ? token.ToUpperInvariant() : nombrePromo.ToUpperInvariant();
+    }
+
+    private async Task ManejarEnterCupon(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await AplicarCuponManual();
+        }
+    }
+
+    private async Task AplicarCuponManual()
+    {
+        var rawCodigo = (codigoCuponInput ?? string.Empty).Trim().ToUpperInvariant();
+        mensajeErrorCupon = null;
+        mensajeExitoCupon = null;
+
+        if (string.IsNullOrWhiteSpace(rawCodigo))
+        {
+            mensajeErrorCupon = "Por favor, ingresa un código de cupón.";
+            return;
+        }
+
+        if (CarritoService.Items.Count == 0)
+        {
+            mensajeErrorCupon = "Tu bolsa de compras está vacía. Agrega libros antes de aplicar un cupón.";
+            return;
+        }
+
+        validandoCupon = true;
+        try
+        {
+            var todas = await PromocionService.GetAll();
+            var promo = todas.FirstOrDefault(p =>
+            {
+                var codigoPromo = ExtraerCodigo(p.Nombre);
+                return string.Equals(codigoPromo, rawCodigo, StringComparison.OrdinalIgnoreCase) ||
+                       p.Nombre.Contains(rawCodigo, StringComparison.OrdinalIgnoreCase);
+            });
+
+            if (promo == null)
+            {
+                mensajeErrorCupon = $"El cupón '{rawCodigo}' no existe o no es válido.";
+                return;
+            }
+
+            if (!promo.Activo)
+            {
+                mensajeErrorCupon = $"El cupón '{rawCodigo}' no está activo actualmente.";
+                return;
+            }
+
+            if (promo.CantidadDisponible <= 0)
+            {
+                mensajeErrorCupon = $"Cupón expirado o sin cupos: Ya no quedan cupos disponibles para '{rawCodigo}'.";
+                return;
+            }
+
+            var ahora = DateTime.Now;
+            var inicio = promo.FechaInicio.Kind == DateTimeKind.Utc ? promo.FechaInicio.ToLocalTime() : promo.FechaInicio;
+            var fin = promo.FechaFin.Kind == DateTimeKind.Utc ? promo.FechaFin.ToLocalTime() : promo.FechaFin;
+            var finDelDia = fin.Date.AddDays(1).AddTicks(-1);
+
+            if (ahora < inicio.Date)
+            {
+                mensajeErrorCupon = $"El cupón '{rawCodigo}' aún no ha iniciado su vigencia (inicia el {inicio:dd/MM/yyyy}).";
+                return;
+            }
+
+            if (ahora > finDelDia)
+            {
+                mensajeErrorCupon = $"Cupón expirado o sin cupos: El cupón '{rawCodigo}' venció el {fin:dd/MM/yyyy}.";
+                return;
+            }
+
+            // Validar si aplica a los libros del carrito
+            if (promo.Libroses != null && promo.Libroses.Count > 0)
+            {
+                var idsEnPromo = promo.Libroses.Where(l => l.Id.HasValue).Select(l => l.Id!.Value).ToHashSet();
+                bool aplica = CarritoService.Items.Any(item => item.Libro.Id.HasValue && idsEnPromo.Contains(item.Libro.Id.Value));
+                if (!aplica)
+                {
+                    mensajeErrorCupon = "El cupón no aplica a los libros de tu bolsa: beneficio exclusivo para títulos seleccionados.";
+                    return;
+                }
+            }
+
+            // Aplicar cupón con éxito
+            CarritoService.AplicarPromocion(promo);
+            var codigoFinal = ExtraerCodigo(promo.Nombre);
+            mensajeExitoCupon = $"¡Cupón aplicado correctamente! Has obtenido un {promo.PorcentajeDescuento:0}% de descuento con el cupón {codigoFinal}.";
+            codigoCuponInput = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            mensajeErrorCupon = $"Error al verificar el cupón: {ex.Message}";
+        }
+        finally
+        {
+            validandoCupon = false;
+        }
+    }
+
     private void AplicarPromocion(PromocionDto promo)
     {
+        mensajeErrorCupon = null;
+        mensajeExitoCupon = null;
+
+        if (!promo.EsVigente)
+        {
+            mensajeErrorCupon = "Cupón expirado o sin cupos disponibles.";
+            return;
+        }
+
+        if (promo.Libroses != null && promo.Libroses.Count > 0)
+        {
+            var idsEnPromo = promo.Libroses.Where(l => l.Id.HasValue).Select(l => l.Id!.Value).ToHashSet();
+            bool aplica = CarritoService.Items.Any(item => item.Libro.Id.HasValue && idsEnPromo.Contains(item.Libro.Id.Value));
+            if (!aplica)
+            {
+                mensajeErrorCupon = $"El cupón no aplica a los libros de tu bolsa: '{promo.Nombre}' es para títulos específicos.";
+                return;
+            }
+        }
+
         CarritoService.AplicarPromocion(promo);
+        var codigo = ExtraerCodigo(promo.Nombre);
+        mensajeExitoCupon = $"¡Cupón aplicado correctamente! Disfrutas de un {promo.PorcentajeDescuento:0}% de descuento con {codigo}.";
     }
 
     private void RemoverPromocion()
     {
+        var codigo = CarritoService.PromocionAplicada != null ? ExtraerCodigo(CarritoService.PromocionAplicada.Nombre) : "descuento";
         CarritoService.RemoverPromocion();
+        mensajeExitoCupon = $"Se ha retirado el cupón {codigo} de tu orden.";
+        mensajeErrorCupon = null;
     }
 
     private async Task CopiarClave(string codigo)
@@ -707,7 +941,7 @@
             var venta = new VentaDto
             {
                 NumeroComprobante = comprobante,
-                Cliente = $"{nombreTitular} ({correoCliente}) - [{metodoPagoTexto}]",
+                Cliente = $"{nombreTitular} ({correoCliente}) - [{metodoPagoTexto}]{(promoId.HasValue ? $" [Cupón: {ExtraerCodigo(CarritoService.PromocionAplicada!.Nombre)} (-{CarritoService.PromocionAplicada.PorcentajeDescuento:0}%)]" : "")}",
                 FechaVenta = DateTime.UtcNow,
                 SubtotalVenta = subtotalBase,
                 TotalDescuento = descuentoTotal,
@@ -733,14 +967,16 @@
                 }).ToList()
             };
 
-            // 1. Descontar cupo si aplica
+            // 1. Registrar venta
+            await VentaService.RegistrarVentaAsync(venta);
+
+            // 2. Descontar cupo al completar la compra exitosamente
             if (promoId.HasValue)
             {
                 await PromocionService.DescontarCupo(promoId.Value, 1);
+                var p = promocionesActivas.FirstOrDefault(x => x.Id == promoId.Value);
+                if (p != null) p.CantidadDisponible = Math.Max(0, p.CantidadDisponible - 1);
             }
-
-            // 2. Registrar venta
-            await VentaService.RegistrarVentaAsync(venta);
 
             // 3. Generar licencias digitales (tantas como la cantidad comprada de cada libro)
             ultimoComprobante = comprobante;

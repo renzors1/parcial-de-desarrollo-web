@@ -13,7 +13,7 @@
 <div class="p-4 p-md-5 mb-4 rounded-2 text-white shadow-sm" style="background-color: #0f172a; border-left: 4px solid #3b82f6;">
     <div class="container-fluid py-2">
         <span class="badge bg-primary px-3 py-1 rounded-2 mb-3 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Librería Digital & DRM</span>
-        <h1 class="display-5 fw-bold mb-3 font-editorial">Publicaciones Especializadas en Tecnología y Software</h1>
+        <h1 class="display-5 fw-bold mb-3 font-editorial text-white">Publicaciones Especializadas en Tecnología y Software</h1>
         <p class="col-md-8 fs-5 text-light opacity-75 mb-4">
             Adquiere obras fundamentales en arquitectura de software, lenguajes modernos e infraestructura en la nube con acceso y lectura inmediata.
         </p>
@@ -114,24 +114,36 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
             @foreach (var libro in librosFiltrados)
             {
-                var promo = libro.PromocionActiva ?? (promocionGeneral != null && (promocionGeneral.Libroses == null || promocionGeneral.Libroses.Count == 0 || promocionGeneral.Libroses.Any(l => l.Id == libro.Id)) ? promocionGeneral : null);
+                var promo = ObtenerMejorPromocion(libro);
                 var tieneDescuento = promo != null;
+                var montoDescuento = tieneDescuento 
+                    ? Math.Round(libro.Precio * (decimal)(promo!.PorcentajeDescuento / 100.0f), 2)
+                    : 0m;
                 var precioRebajado = tieneDescuento 
-                    ? Math.Round(libro.Precio * (decimal)(1 - (promo!.PorcentajeDescuento / 100.0f)), 2)
+                    ? Math.Max(0m, libro.Precio - montoDescuento)
                     : libro.Precio;
+                var vencePronto = EsVigentePorVencer(promo);
                 var metricas = ObtenerMetricas(libro.Id);
 
                 <div class="col">
                     <div class="card h-100 border shadow-sm rounded-2 overflow-hidden bg-white book-card d-flex flex-column">
-                        <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                        <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-wrap gap-1">
                             <span class="badge bg-white text-dark border px-2 py-1 rounded-2 small">
                                 @libro.CategoriaPrincipal
                             </span>
                             @if (tieneDescuento)
                             {
-                                <span class="badge bg-danger text-white rounded-2 px-2 py-1 fw-bold">
-                                    -@promo!.PorcentajeDescuento.ToString("0")% OFF
-                                </span>
+                                <div class="d-flex align-items-center gap-1 flex-wrap justify-content-end">
+                                    @if (vencePronto)
+                                    {
+                                        <span class="badge bg-warning text-dark border border-warning rounded-2 px-2 py-1 fw-bold shadow-2xs" title="Esta oferta finaliza en menos de 3 días">
+                                            ⏳ ¡Termina pronto!
+                                        </span>
+                                    }
+                                    <span class="badge bg-danger text-white rounded-2 px-2 py-1 fw-bold shadow-2xs">
+                                        -@promo!.PorcentajeDescuento.ToString("0")% OFF
+                                    </span>
+                                </div>
                             }
                             else
                             {
@@ -195,6 +207,9 @@
                                             <span class="h5 fw-bold text-danger mb-0">S/ @precioRebajado.ToString("N2")</span>
                                             <span class="text-muted small text-decoration-line-through">S/ @libro.Precio.ToString("N2")</span>
                                         </div>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-0 rounded-1" style="font-size: 0.72rem;">
+                                            Ahorras S/ @montoDescuento.ToString("N2")
+                                        </span>
                                     }
                                     else
                                     {
@@ -227,7 +242,7 @@
     private List<EditorialDto> editorialesDisponibles = new();
     private List<CalificacionUsuarioDto> listaCalificaciones = new();
     private List<string> categoriasDisponibles = new();
-    private PromocionDto? promocionGeneral = null;
+    private List<PromocionDto> todasLasPromocionesActivas = new();
 
     private bool cargando = true;
     private string? errorCarga = null;
@@ -283,7 +298,7 @@
             categoriasDisponibles = cats;
 
             var activas = await PromocionService.GetActivas();
-            promocionGeneral = activas.FirstOrDefault();
+            todasLasPromocionesActivas = activas ?? new();
         }
         catch (Exception ex)
         {
@@ -293,6 +308,52 @@
         {
             cargando = false;
         }
+    }
+
+    private PromocionDto? ObtenerMejorPromocion(LibroDto libro)
+    {
+        if (libro == null) return null;
+
+        var candidatas = new List<PromocionDto>();
+
+        // 1. Promociones asociadas directamente al libro en su DTO (que sean ofertas directas, no cupones con código)
+        if (libro.Promociones != null && libro.Promociones.Count > 0)
+        {
+            candidatas.AddRange(libro.Promociones.Where(p => p.EsVigente && p.CantidadDisponible > 0 && !p.EsCupon));
+        }
+
+        // 2. Promociones activas globales o específicas para este libro que sean ofertas automáticas
+        foreach (var promo in todasLasPromocionesActivas)
+        {
+            if (!promo.EsVigente || promo.CantidadDisponible <= 0 || promo.EsCupon) continue;
+
+            bool esGlobal = promo.Libroses == null || promo.Libroses.Count == 0;
+            bool aplicaALibro = !esGlobal && promo.Libroses != null && promo.Libroses.Any(l => l.Id == libro.Id);
+
+            if (esGlobal || aplicaALibro)
+            {
+                if (!candidatas.Any(c => c.Id == promo.Id))
+                {
+                    candidatas.Add(promo);
+                }
+            }
+        }
+
+        if (candidatas.Count == 0) return null;
+
+        // Seleccionar la mejor promoción activa: mayor porcentaje de descuento
+        return candidatas
+            .OrderByDescending(p => p.PorcentajeDescuento)
+            .ThenBy(p => p.FechaFin)
+            .FirstOrDefault();
+    }
+
+    private bool EsVigentePorVencer(PromocionDto? promo)
+    {
+        if (promo == null || !promo.EsVigente) return false;
+        var fin = promo.FechaFin.Kind == DateTimeKind.Utc ? promo.FechaFin.ToLocalTime() : promo.FechaFin;
+        var diasRestantes = (fin.Date - DateTime.Now.Date).TotalDays;
+        return diasRestantes >= 0 && diasRestantes <= 3;
     }
 
     private (decimal Rating, int Resenas) ObtenerMetricas(long? libroId)
