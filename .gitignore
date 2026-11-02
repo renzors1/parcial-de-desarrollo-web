@@ -170,3 +170,5 @@ obj/
 .vs/
 _ReSharper*/
 *.DotSettings.user
+
+src/main/webapp/app/home_bookstore_backup/

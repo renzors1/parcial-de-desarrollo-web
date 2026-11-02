@@ -1,102 +1,85 @@
-<div class="tienda-container">
-  <!-- ======================================================== -->
-  <!-- HERO BANNER Y MÉTRICAS DE PLATAFORMA                     -->
-  <!-- ======================================================== -->
-  <jhi-hero-banner
-    [account]="account()"
-    [librosCount]="libros().length"
-    [categoriasCount]="categorias().length"
-    [promocionesCount]="promociones().length"
-    (loginRequested)="login()"
-  ></jhi-hero-banner>
+<div class="row">
+  <div class="col-md-3">
+    <span class="hipster rounded"></span>
+  </div>
 
-  <!-- ======================================================== -->
-  <!-- VOUCHER / ALERTA DE COMPRA EXITOSA                      -->
-  <!-- ======================================================== -->
-  @if (ultimaCompra(); as compra) {
-    <jhi-compra-alerta [compra]="compra" (cerrarAlerta)="cerrarAlertaCompra()"></jhi-compra-alerta>
-  }
+  <div class="col-md-9">
+    <h1 class="display-4" jhiTranslate="home.title">¡Bienvenido, Java Hipster!</h1>
 
-  <!-- Mensaje de error controlado -->
-  @if (mensajeError(); as error) {
-    <div class="alert alert-danger alert-dismissible mb-4 p-4 rounded-4 shadow-sm" role="alert">
-      <div class="d-flex align-items-center">
-        <fa-icon icon="ban" class="text-danger fs-4 me-2"></fa-icon>
-        <div>
-          <strong class="fs-6">Error en la operación:</strong>
-          <div class="text-muted">{{ error }}</div>
+    <p class="lead" jhiTranslate="home.subtitle">Esta es su página de inicio</p>
+
+    @if (account() !== null) {
+      <div>
+        <div class="alert alert-success" role="alert">
+          @if (account()?.login) {
+            <span jhiTranslate="home.logged.message" [translateValues]="{ username: account()?.login }">
+              Está conectado como "{{ account()?.login }}".
+            </span>
+          }
         </div>
       </div>
-      <button type="button" class="btn-close" (click)="mensajeError.set(null)" aria-label="Close"></button>
-    </div>
-  }
-
-  <!-- ======================================================== -->
-  <!-- BANNER DE PROMOCIÓN DESTACADA                           -->
-  <!-- ======================================================== -->
-  @if (promociones().length > 0) {
-    <jhi-promo-banner [promocion]="promociones()[0]"></jhi-promo-banner>
-  }
-
-  <!-- ======================================================== -->
-  <!-- CONTROLES DE FILTRADO Y BÚSQUEDA EN TIEMPO REAL         -->
-  <!-- ======================================================== -->
-  <jhi-catalogo-filtros
-    [texto]="filtroTexto()"
-    [categorias]="categorias()"
-    [categoriaSeleccionadaId]="categoriaSeleccionada()"
-    (textoChange)="onFiltroTextoChange($event)"
-    (categoriaSelect)="onCategoriaSelect($event)"
-  ></jhi-catalogo-filtros>
-
-  <!-- ======================================================== -->
-  <!-- CATÁLOGO DE LIBROS Y TARJETAS RESPONSIVE                -->
-  <!-- ======================================================== -->
-  <section class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div class="d-flex align-items-center gap-2">
-        <fa-icon icon="book" class="text-primary fs-3"></fa-icon>
-        <h2 class="fw-bold mb-0 text-dark">Títulos Disponibles ({{ librosFiltrados().length }})</h2>
-      </div>
-      @if (cargando()) {
-        <div class="d-flex align-items-center text-primary gap-2">
-          <span class="spinner-border spinner-border-sm" role="status"></span>
-          <span class="fw-semibold small">Actualizando catálogo...</span>
+    } @else {
+      <div>
+        <div class="alert alert-warning" role="alert">
+          <span>Si desea </span>
+          <a class="alert-link" (click)="login()">iniciar sesión</a>
+          <span>, puede usar las cuentas por defecto:<br />- Administrador (usuario="admin" y contraseña="admin")<br />- Usuario (usuario="user" y contraseña="user").</span>
         </div>
-      }
-    </div>
 
-    @if (librosFiltrados().length === 0 && !cargando()) {
-      <div class="card p-5 text-center shadow-sm rounded-4 border bg-white">
-        <div class="mb-3">
-          <fa-icon icon="search" class="fs-1 text-muted"></fa-icon>
-        </div>
-        <h4 class="text-muted fw-bold">No se encontraron títulos que coincidan con los criterios de búsqueda.</h4>
-        <p class="text-secondary mb-4 fs-6">Puedes restablecer los filtros o registrar nuevas publicaciones en la plataforma.</p>
-        <div>
-          <button type="button" class="btn btn-outline-secondary btn-lg me-2 px-4" (click)="limpiarFiltros()">Restablecer Filtros</button>
-          <a class="btn btn-primary btn-lg px-4" routerLink="/libro/new">
-            <fa-icon icon="plus" class="me-1"></fa-icon> Registrar Nuevo Libro
-          </a>
+        <div class="alert alert-warning" role="alert">
+          <span>¿No tiene una cuenta todavía?</span>&nbsp;
+          <a class="alert-link" routerLink="/account/register">Registrar una cuenta nueva</a>
         </div>
       </div>
     }
 
-    <div class="row g-4">
-      @for (libro of librosFiltrados(); track libro.id) {
-        <div class="col-12 col-md-6 col-lg-4">
-          <jhi-libro-card
-            [libro]="libro"
-            [isProcesando]="procesandoCompraId() === libro.id"
-            (comprar)="comprarLicencia($event)"
-          ></jhi-libro-card>
-        </div>
-      }
-    </div>
-  </section>
+    <p jhiTranslate="home.question">Si tiene preguntas sobre JHipster:</p>
 
-  <!-- ======================================================== -->
-  <!-- ACCESO RÁPIDO A MÓDULOS DE GESTIÓN (BASE DE DATOS)       -->
-  <!-- ======================================================== -->
-  <jhi-modulos-grid></jhi-modulos-grid>
+    <ul>
+      <li>
+        <a href="https://www.jhipster.tech/" target="_blank" rel="noopener noreferrer" jhiTranslate="home.link.homepage"
+          >Página de inicio de JHipster</a
+        >
+      </li>
+      <li>
+        <a
+          href="https://stackoverflow.com/tags/jhipster/info"
+          target="_blank"
+          rel="noopener noreferrer"
+          jhiTranslate="home.link.stackoverflow"
+          >JHipster en Stack Overflow</a
+        >
+      </li>
+      <li>
+        <a
+          href="https://github.com/jhipster/generator-jhipster/issues?state=open"
+          target="_blank"
+          rel="noopener noreferrer"
+          jhiTranslate="home.link.bugtracker"
+          >JHipster seguimiento de errores</a
+        >
+      </li>
+      <li>
+        <a
+          href="https://gitter.im/jhipster/generator-jhipster"
+          target="_blank"
+          rel="noopener noreferrer"
+          jhiTranslate="home.link.chat"
+          >Sala de chat pública de JHipster</a
+        >
+      </li>
+      <li>
+        <a href="https://twitter.com/jhipster" target="_blank" rel="noopener noreferrer" jhiTranslate="home.link.follow"
+          >contacto @jhipster en Twitter</a
+        >
+      </li>
+    </ul>
+
+    <p>
+      <span jhiTranslate="home.like">Si te gusta JHipster, danos una estrella en</span>
+      <a href="https://github.com/jhipster/generator-jhipster" target="_blank" rel="noopener noreferrer" jhiTranslate="home.github"
+        >GitHub</a
+      >!
+    </p>
+  </div>
 </div>

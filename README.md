@@ -1,6 +1,6 @@
 # Plataforma de Gestión y Venta de Libros Digitales (`ejemplo01`)
 
-Proyecto integral desarrollado con **Spring Boot (Java 21)** en el backend y frontend dual disponible con **Blazor Server (.NET 10)** y **Angular**, siguiendo una arquitectura limpia por capas, desacoplada y con un sistema de diseño editorial moderno (*Clean Craft & Soft Badges*).
+Proyecto integral desarrollado con **Spring Boot (Java 21)** en el backend y **Blazor Server (.NET 10)** en el frontend, siguiendo una arquitectura limpia por capas, desacoplada y con un sistema de diseño editorial moderno (*Clean Craft & Soft Badges*).
 
 ---
 
@@ -21,9 +21,8 @@ cd parcial-de-desarrollo-web
 
 | Componente | Puerto | URL Local | Descripción |
 | :--- | :---: | :--- | :--- |
-| **Frontend Principal (Blazor .NET 10)** | `5021` | [http://localhost:5021](http://localhost:5021) | Tienda web de libros en C# / Blazor Server con modo RAM y conexión a API. |
+| **Frontend (Blazor .NET 10)** | `5021` | [http://localhost:5021](http://localhost:5021) | Tienda web de libros en C# / Blazor Server con modo RAM y conexión a API. |
 | **Backend (API Spring Boot)**| `9999` | [http://localhost:9999](http://localhost:9999) | Servidor REST API y seguridad JWT. |
-| **Frontend Alternativo (Angular)** | `4200` | [http://localhost:4200](http://localhost:4200) | Aplicación cliente SPA Angular con recarga en caliente (HMR). |
 | **Consola Base de Datos**| `9999` | [http://localhost:9999/h2-console](http://localhost:9999/h2-console) | Consola web de la base de datos H2 en memoria. |
 | **Documentación OpenAPI**| `9999` | [http://localhost:9999/swagger-ui](http://localhost:9999/swagger-ui) | Swagger UI para probar endpoints de la API. |
 
@@ -34,14 +33,13 @@ cd parcial-de-desarrollo-web
 ### Requisitos Mínimos:
 1. **Java JDK 21 (LTS)** instalado y en la variable `JAVA_HOME`.
 2. **.NET SDK 10 (o .NET 8+)** para compilar y ejecutar el frontend Blazor.
-3. **Node.js (v20 o v22)** (opcional para el cliente Angular).
-4. **Git** instalado.
+3. **Git** instalado.
 
 ---
 
 ### Paso a Paso para Encender el Proyecto:
 
-Para trabajar cómodamente, se recomienda abrir terminales separadas dentro de la carpeta del proyecto:
+Para trabajar cómodamente, se recomienda abrir dos terminales separadas dentro de la carpeta del proyecto:
 
 #### 🟢 Terminal 1: Backend (Spring Boot)
 El proyecto cuenta con el ejecutable Maven Wrapper (`mvnw`), por lo que **no necesitas tener Maven instalado globalmente**:
@@ -63,15 +61,6 @@ cd BlazorApp1
 dotnet run
 ```
 > *Abrirá automáticamente o estará disponible en **`http://localhost:5021`**.*
-
-#### 🔵 Terminal 3 (Opcional): Frontend Alternativo (Angular)
-```bash
-npm install
-npm start
-```
-
-
-> **Nota del Proxy:** El frontend ya está preconfigurado (`proxy.config.mjs`) para redirigir automáticamente todas las peticiones `/api/*` y `/management/*` hacia el puerto backend **`http://localhost:9999`**. No tendrás problemas de CORS.
 
 ---
 
