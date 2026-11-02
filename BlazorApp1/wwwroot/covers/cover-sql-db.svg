@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="bg-sql" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+    <linearGradient id="emerald-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="50%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#6ee7b7"/>
+    </linearGradient>
+    <linearGradient id="planeta-badge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="600" fill="url(#bg-sql)"/>
+
+  <!-- Left Spine Accent -->
+  <rect x="0" y="0" width="8" height="600" fill="#10b981"/>
+
+  <!-- Editorial Top Badge -->
+  <rect x="30" y="28" width="130" height="24" rx="4" fill="url(#planeta-badge)"/>
+  <text x="95" y="44" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="10" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1">PLANETA DIGITAL</text>
+  <text x="175" y="44" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="10" font-weight="600" fill="#6ee7b7" letter-spacing="1">COLECCIÓN TÉCNICA</text>
+
+  <!-- Top Accent Bar -->
+  <rect x="30" y="65" width="340" height="2" fill="url(#emerald-grad)"/>
+
+  <!-- Main Title Area -->
+  <text x="30" y="115" font-family="Georgia, 'Merriweather', serif" font-size="28" font-weight="700" fill="#ffffff" letter-spacing="-0.3">
+    Bases de Datos
+  </text>
+  <text x="30" y="148" font-family="Georgia, 'Merriweather', serif" font-size="28" font-weight="700" fill="#ffffff" letter-spacing="-0.3">
+    Relacionales y
+  </text>
+  <text x="30" y="185" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="32" font-weight="900" fill="url(#emerald-grad)" letter-spacing="0.5">
+    SQL AVANZADO
+  </text>
+
+  <!-- Subtitle -->
+  <text x="30" y="222" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">
+    Diseño, Normalización, Índices y Transacciones ACID
+  </text>
+  <text x="30" y="242" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="12" font-weight="400" fill="#64748b">
+    Optimización de consultas y arquitectura de persistencia
+  </text>
+
+  <!-- Relational Tables Diagram Icon -->
+  <g transform="translate(110, 290)">
+    <!-- Table 1 -->
+    <rect x="0" y="0" width="80" height="70" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+    <rect x="0" y="0" width="80" height="18" rx="4" fill="#047857"/>
+    <text x="40" y="13" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="700" fill="#ffffff" text-anchor="middle">USERS [PK]</text>
+    <line x1="10" y1="28" x2="70" y2="28" stroke="#34d399" stroke-width="1" opacity="0.6"/>
+    <line x1="10" y1="38" x2="60" y2="38" stroke="#6ee7b7" stroke-width="1" opacity="0.4"/>
+    <line x1="10" y1="48" x2="65" y2="48" stroke="#6ee7b7" stroke-width="1" opacity="0.4"/>
+    <line x1="10" y1="58" x2="50" y2="58" stroke="#6ee7b7" stroke-width="1" opacity="0.4"/>
+
+    <!-- Relation Line -->
+    <path d="M80,35 C105,35 105,65 120,65" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3"/>
+    <circle cx="80" cy="35" r="3" fill="#f59e0b"/>
+    <polygon points="120,62 126,65 120,68" fill="#f59e0b"/>
+
+    <!-- Table 2 -->
+    <rect x="120" y="30" width="85" height="85" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+    <rect x="120" y="30" width="85" height="18" rx="4" fill="#047857"/>
+    <text x="162" y="43" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="700" fill="#ffffff" text-anchor="middle">ORDERS [FK]</text>
+    <line x1="130" y1="58" x2="195" y2="58" stroke="#34d399" stroke-width="1" opacity="0.6"/>
+    <line x1="130" y1="68" x2="185" y2="68" stroke="#6ee7b7" stroke-width="1" opacity="0.4"/>
+    <line x1="130" y1="78" x2="190" y2="78" stroke="#6ee7b7" stroke-width="1" opacity="0.4"/>
+    <line x1="130" y1="88" x2="175" y2="88" stroke="#6ee7b7" stroke-width="1" opacity="0.4"/>
+    <line x1="130" y1="98" x2="180" y2="98" stroke="#6ee7b7" stroke-width="1" opacity="0.4"/>
+  </g>
+
+  <!-- SQL Code Snippet Decorative Pill -->
+  <rect x="30" y="445" width="340" height="42" rx="6" fill="#022c22" stroke="#065f46" stroke-width="1"/>
+  <text x="45" y="470" font-family="'Courier New', monospace" font-size="12" font-weight="700" fill="#34d399">
+    SELECT * FROM libros INNER JOIN licencias;
+  </text>
+
+  <!-- Author Area -->
+  <rect x="30" y="515" width="340" height="1" fill="#1e293b"/>
+  <text x="30" y="544" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="11" font-weight="600" fill="#94a3b8" letter-spacing="1">AUTOR PIONERO EN EL MODELO RELACIONAL</text>
+  <text x="30" y="572" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#ffffff">
+    C. J. Date
+  </text>
+</svg>

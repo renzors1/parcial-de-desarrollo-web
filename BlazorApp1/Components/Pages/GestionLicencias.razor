@@ -1,0 +1,372 @@
+@page "/admin/gestion-licencias-legacy"
+@rendermode InteractiveServer
+@inject LicenciaDigitalService LicenciaService
+@inject LibroService LibroService
+@inject TokenService TokenService
+@inject NavigationManager Navigation
+
+<PageTitle>Gestión de Licencias Digitales</PageTitle>
+
+<div class="container my-4">
+    <!-- Encabezado con Botón de Creación -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1 text-dark">Gestión de Licencias Digitales</h1>
+            <p class="text-muted mb-0">Control de stock de licencias DRM, códigos de activación y asignaciones a clientes</p>
+        </div>
+        <button class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm" @onclick="AbrirModalNuevaLicencia">
+            <span class="bi bi-key-fill me-2"></span> Nueva Licencia Digital
+        </button>
+    </div>
+
+    @if (!TokenService.IsAuthenticated)
+    {
+        <div class="alert alert-warning rounded-3 shadow-sm mb-4" role="alert">
+            <span class="bi bi-shield-lock me-2"></span>
+            <strong>Modo Demostración / Aviso:</strong> Inicia sesión como administrador para contar con autorización completa ante el servidor.
+        </div>
+    }
+
+    @if (mensajeAlerta != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+            <span class="bi bi-info-circle-fill me-2"></span> @mensajeAlerta
+            <button type="button" class="btn-close" @onclick="() => mensajeAlerta = null"></button>
+        </div>
+    }
+
+    <!-- Tarjetas de Métricas -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary p-3 me-3">
+                        <span class="bi bi-key fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Total Licencias</span>
+                        <h3 class="fw-bold text-dark mb-0">@licencias.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-success-subtle text-success p-3 me-3">
+                        <span class="bi bi-check2-circle fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Disponibles</span>
+                        <h3 class="fw-bold text-success mb-0">@licencias.Count(l => l.Estado == "DISPONIBLE")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-info-subtle text-info-emphasis p-3 me-3">
+                        <span class="bi bi-person-check fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Vendidas / Asignadas</span>
+                        <h3 class="fw-bold text-dark mb-0">@licencias.Count(l => l.Estado == "VENDIDA")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-warning-subtle text-warning-emphasis p-3 me-3">
+                        <span class="bi bi-pie-chart fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Tasa de Venta</span>
+                        <h3 class="fw-bold text-dark mb-0">
+                            @(licencias.Count > 0 ? (licencias.Count(l => l.Estado == "VENDIDA") * 100 / licencias.Count) : 0)%
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Filtros y Búsqueda -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><span class="bi bi-search"></span></span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por código, título de libro o usuario..." @bind="busquedaTexto" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-12 col-md-6 d-flex justify-content-md-end gap-2">
+                <div class="btn-group" role="group">
+                    <button class="btn @(filtroEstado == "TODOS" ? "btn-primary" : "btn-outline-secondary") rounded-pill px-3 me-1" @onclick='() => filtroEstado = "TODOS"'>Todas</button>
+                    <button class="btn @(filtroEstado == "DISPONIBLE" ? "btn-success" : "btn-outline-secondary") rounded-pill px-3 me-1" @onclick='() => filtroEstado = "DISPONIBLE"'>Disponibles</button>
+                    <button class="btn @(filtroEstado == "VENDIDA" ? "btn-info" : "btn-outline-secondary") rounded-pill px-3" @onclick='() => filtroEstado = "VENDIDA"'>Vendidas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Licencias -->
+    @if (cargando)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando licencias...</span>
+            </div>
+            <p class="mt-2 text-muted">Cargando registros de licencias...</p>
+        </div>
+    }
+    else if (licenciasFiltradas.Count == 0)
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+            <span class="bi bi-key text-muted display-4"></span>
+            <h4 class="mt-3 text-dark">No se encontraron licencias</h4>
+            <p class="text-muted">No existen licencias con el criterio de búsqueda seleccionado.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Código de Licencia</th>
+                            <th>Libro Asociado</th>
+                            <th>Estado</th>
+                            <th>Fecha Creación / Asignación</th>
+                            <th>Usuario / Asignado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var lic in licenciasFiltradas)
+                        {
+                            <tr>
+                                <td class="ps-4 text-muted">@lic.Id</td>
+                                <td>
+                                    <code class="fw-bold text-dark">@lic.CodigoLicencia</code>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark">@(lic.Libro?.Titulo ?? "Libro General")</div>
+                                    <small class="text-muted">ISBN: @(lic.Libro?.Isbn ?? "N/A")</small>
+                                </td>
+                                <td>
+                                    @if (lic.Estado == "DISPONIBLE")
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1">
+                                            <span class="bi bi-check-circle me-1"></span> DISPONIBLE
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
+                                            <span class="bi bi-person-fill me-1"></span> VENDIDA
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="d-block small text-dark">
+                                        @(lic.FechaAsignacion?.ToString("dd/MM/yyyy HH:mm") ?? lic.FechaCreacion?.ToString("dd/MM/yyyy HH:mm") ?? "Reciente")
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-secondary border">
+                                        @(lic.UsuarioCreacion ?? "admin")
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-danger border-0 rounded-circle" title="Eliminar Licencia" @onclick="() => EliminarLicencia(lic.Id)">
+                                        <span class="bi bi-trash"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal para Crear Nueva Licencia Digital -->
+@if (mostrarModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-dark">
+                        <span class="bi bi-key-fill text-primary me-2"></span>Registrar Nueva Licencia Digital
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Libro para la Licencia:</label>
+                        <select class="form-select rounded-3" @bind="libroSeleccionadoId">
+                            <option value="0">-- Selecciona un Libro --</option>
+                            @foreach (var l in catalogoLibros)
+                            {
+                                <option value="@l.Id">@l.Titulo (S/ @l.Precio)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Código de Licencia (DRM):</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control rounded-start-3" @bind="nuevaLicencia.CodigoLicencia" placeholder="Ej. LIC-2026-ABCD-1234" />
+                            <button class="btn btn-outline-secondary" type="button" @onclick="GenerarCodigoAleatorio">
+                                <span class="bi bi-shuffle me-1"></span> Auto
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Enlace de Lectura / Visor Online:</label>
+                        <input type="text" class="form-control rounded-3" @bind="nuevaLicencia.EnlaceDescarga" placeholder="https://visor.bookstore.com/read/..." />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-dark">Estado Inicial:</label>
+                        <select class="form-select rounded-3" @bind="nuevaLicencia.Estado">
+                            <option value="DISPONIBLE">DISPONIBLE (Listo para vender)</option>
+                            <option value="VENDIDA">VENDIDA (Asignada directamente)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" @onclick="CerrarModal">Cancelar</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4 fw-semibold" @onclick="GuardarLicencia">
+                        <span class="bi bi-save me-1"></span> Guardar Licencia
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<LicenciaDigitalDto> licencias = new();
+    private List<LibroDto> catalogoLibros = new();
+    private bool cargando = true;
+    private string busquedaTexto = "";
+    private string filtroEstado = "TODOS";
+    private string? mensajeAlerta = null;
+
+    private bool mostrarModal = false;
+    private LicenciaDigitalDto nuevaLicencia = new();
+    private long libroSeleccionadoId = 0;
+
+    private List<LicenciaDigitalDto> licenciasFiltradas => licencias
+        .Where(l => filtroEstado == "TODOS" || l.Estado == filtroEstado)
+        .Where(l => string.IsNullOrWhiteSpace(busquedaTexto) ||
+                    l.CodigoLicencia.Contains(busquedaTexto, StringComparison.OrdinalIgnoreCase) ||
+                    (l.Libro?.Titulo?.Contains(busquedaTexto, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (l.UsuarioCreacion?.Contains(busquedaTexto, StringComparison.OrdinalIgnoreCase) ?? false))
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+        try
+        {
+            licencias = await LicenciaService.GetAll();
+            catalogoLibros = await LibroService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            mensajeAlerta = $"Error al cargar datos: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void AbrirModalNuevaLicencia()
+    {
+        nuevaLicencia = new LicenciaDigitalDto
+        {
+            Estado = "DISPONIBLE",
+            FechaCreacion = DateTime.UtcNow
+        };
+        GenerarCodigoAleatorio();
+        if (catalogoLibros.Count > 0)
+        {
+            libroSeleccionadoId = catalogoLibros[0].Id ?? 0;
+            nuevaLicencia.EnlaceDescarga = $"https://visor.bookstore.com/read/{libroSeleccionadoId}";
+        }
+        mostrarModal = true;
+    }
+
+    private void GenerarCodigoAleatorio()
+    {
+        nuevaLicencia.CodigoLicencia = $"LIC-{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString("N")[..8].ToUpper()}";
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+    }
+
+    private async Task GuardarLicencia()
+    {
+        if (string.IsNullOrWhiteSpace(nuevaLicencia.CodigoLicencia))
+        {
+            mensajeAlerta = "El código de licencia es obligatorio.";
+            return;
+        }
+
+        var libro = catalogoLibros.FirstOrDefault(l => l.Id == libroSeleccionadoId);
+        nuevaLicencia.Libro = libro;
+
+        if (string.IsNullOrWhiteSpace(nuevaLicencia.EnlaceDescarga))
+        {
+            nuevaLicencia.EnlaceDescarga = $"https://visor.bookstore.com/read/{libroSeleccionadoId}";
+        }
+
+        var exito = await LicenciaService.Crear(nuevaLicencia);
+        if (exito)
+        {
+            mensajeAlerta = $"Licencia '{nuevaLicencia.CodigoLicencia}' creada con éxito.";
+            mostrarModal = false;
+            await CargarDatos();
+        }
+        else
+        {
+            mensajeAlerta = "No se pudo crear la licencia. Revisa la consola o conexión.";
+        }
+    }
+
+    private async Task EliminarLicencia(long? id)
+    {
+        if (!id.HasValue) return;
+        var exito = await LicenciaService.Eliminar(id.Value);
+        if (exito)
+        {
+            mensajeAlerta = "Licencia eliminada correctamente.";
+            await CargarDatos();
+        }
+        else
+        {
+            mensajeAlerta = "Error al intentar eliminar la licencia.";
+        }
+    }
+}

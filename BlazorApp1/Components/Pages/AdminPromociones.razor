@@ -1,0 +1,391 @@
+@page "/admin/promociones"
+@rendermode InteractiveServer
+@inject PromocionService PromocionService
+@inject TokenService TokenService
+@inject NavigationManager Navigation
+
+<PageTitle>Administración de Promociones</PageTitle>
+
+<div class="container my-4">
+    <!-- Encabezado con Botón Crear -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1 text-dark font-editorial">Campañas y Descuentos Comerciales</h1>
+            <p class="text-muted mb-0">Gestión de cupones, porcentajes de descuento y cupos de venta</p>
+        </div>
+        <button class="btn btn-primary rounded-2 px-3 shadow-2xs" @onclick="AbrirModalNuevaPromocion">
+            <span class="bi bi-tag me-1"></span> Nueva Campaña
+        </button>
+    </div>
+
+    @if (!TokenService.IsAuthenticated)
+    {
+        <div class="alert alert-warning rounded-2 shadow-2xs mb-4" role="alert">
+            <span class="bi bi-shield-lock me-2"></span>
+            <strong>Aviso de Sesión:</strong> Inicia sesión como administrador para contar con autorización ante el servidor.
+        </div>
+    }
+
+    @if (mensajeAlerta != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show rounded-2 shadow-2xs mb-4" role="alert">
+            <span class="bi bi-info-circle-fill me-2"></span> @mensajeAlerta
+            <button type="button" class="btn-close" @onclick="() => mensajeAlerta = null"></button>
+        </div>
+    }
+
+    <!-- Tarjetas de Métricas -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-danger border p-3 me-3">
+                        <span class="bi bi-percent fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Campañas Vigentes</span>
+                        <h3 class="fw-bold text-dark mb-0 font-editorial">@promociones.Count(p => p.EsVigente)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-primary border p-3 me-3">
+                        <span class="bi bi-ticket-perforated fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Cupos Totales</span>
+                        <h3 class="fw-bold text-primary mb-0 font-editorial">@promociones.Sum(p => p.CantidadDefinida)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-success border p-3 me-3">
+                        <span class="bi bi-check2-all fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Cupos Disponibles</span>
+                        <h3 class="fw-bold text-success mb-0 font-editorial">@promociones.Sum(p => p.CantidadDisponible)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-warning border p-3 me-3">
+                        <span class="bi bi-lightning-charge fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Descuento Promedio</span>
+                        <h3 class="fw-bold text-dark mb-0 font-editorial">
+                            @(promociones.Count > 0 ? promociones.Average(p => p.PorcentajeDescuento).ToString("0.0") : "0")%
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="card border shadow-2xs rounded-2 p-3 bg-white mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><span class="bi bi-search"></span></span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por nombre o descripción de campaña..." @bind="busquedaTexto" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-12 col-md-6 d-flex justify-content-md-end gap-2">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm @(filtroVigencia == "TODAS" ? "btn-primary" : "btn-outline-secondary") rounded-2 px-3 me-1" @onclick='() => filtroVigencia = "TODAS"'>Todas</button>
+                    <button class="btn btn-sm @(filtroVigencia == "ACTIVAS" ? "btn-success" : "btn-outline-secondary") rounded-2 px-3 me-1" @onclick='() => filtroVigencia = "ACTIVAS"'>Vigentes</button>
+                    <button class="btn btn-sm @(filtroVigencia == "INACTIVAS" ? "btn-secondary" : "btn-outline-secondary") rounded-2 px-3" @onclick='() => filtroVigencia = "INACTIVAS"'>Vencidas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado de Promociones -->
+    @if (cargando)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Cargando campañas de descuento...</p>
+        </div>
+    }
+    else if (promocionesFiltradas.Count == 0)
+    {
+        <div class="card border shadow-2xs rounded-2 p-5 text-center bg-white">
+            <span class="bi bi-tag text-muted display-4"></span>
+            <h4 class="mt-3 text-dark">No se encontraron campañas promocionales</h4>
+            <p class="text-muted">Prueba cambiando el criterio de búsqueda o crea una nueva promoción.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card border shadow-2xs rounded-2 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Campaña</th>
+                            <th>Descuento</th>
+                            <th>Cupos (Disponibles / Total)</th>
+                            <th>Periodo de Vigencia</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var promo in promocionesFiltradas)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-semibold text-dark font-editorial">@promo.Nombre</div>
+                                    <small class="text-muted">@promo.Descripcion</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-danger text-white rounded-2 px-2 py-1 fw-bold fs-6">
+                                        -@promo.PorcentajeDescuento.ToString("0")%
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 6px; width: 80px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: @(promo.CantidadDefinida > 0 ? (promo.CantidadDisponible * 100 / promo.CantidadDefinida) : 0)%"></div>
+                                        </div>
+                                        <span class="small fw-semibold">@promo.CantidadDisponible / @promo.CantidadDefinida</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        @promo.FechaInicio.ToString("dd/MM/yy") - @promo.FechaFin.ToString("dd/MM/yy")
+                                    </small>
+                                </td>
+                                <td>
+                                    @if (promo.EsVigente)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-2 px-2 py-1">
+                                            Vigente
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-muted rounded-2 px-2 py-1">
+                                            Expirada / Inactiva
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-secondary rounded-2 me-1" @onclick="() => AbrirModalEditar(promo)">
+                                        <span class="bi bi-pencil me-1"></span> Editar
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-2 px-2" @onclick="() => Eliminar(promo.Id)">
+                                        <span class="bi bi-trash"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal para Crear / Editar Promoción -->
+@if (mostrarModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(15, 23, 42, 0.75);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-2 border shadow">
+                <div class="modal-header border-bottom py-3">
+                    <h5 class="modal-title fw-bold text-dark font-editorial">
+                        <span class="bi bi-tag text-primary me-2"></span>@(promocionActual.Id.HasValue ? "Editar Campaña Promocional" : "Nueva Campaña Promocional")
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Nombre de la Campaña / Cupón</label>
+                            <input type="text" class="form-control rounded-2" placeholder="Ej. FLASH30 - Descuento Editorial" @bind="promocionActual.Nombre" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Descuento (%)</label>
+                            <input type="number" class="form-control rounded-2" min="1" max="100" @bind="promocionActual.PorcentajeDescuento" required />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Descripción o Alcance Comercial</label>
+                            <textarea class="form-control rounded-2" rows="2" placeholder="Detalles de la campaña de descuento..." @bind="promocionActual.Descripcion"></textarea>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Cupos Asignados</label>
+                            <input type="number" class="form-control rounded-2" min="1" @bind="promocionActual.CantidadDefinida" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Fecha de Inicio</label>
+                            <input type="datetime-local" class="form-control rounded-2" @bind="promocionActual.FechaInicio" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Fecha de Término</label>
+                            <input type="datetime-local" class="form-control rounded-2" @bind="promocionActual.FechaFin" required />
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="chkPromoActiva" @bind="promocionActual.Activo" />
+                                <label class="form-check-label fw-semibold" for="chkPromoActiva">Campaña habilitada y disponible en checkout</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top py-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-2 px-3" @onclick="CerrarModal">Cancelar</button>
+                    <button type="button" class="btn btn-primary rounded-2 px-4" @onclick="GuardarPromocion">Guardar Campaña</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<PromocionDto> promociones = new();
+    private PromocionDto promocionActual = new();
+    private bool cargando = true;
+    private bool mostrarModal = false;
+    private string busquedaTexto = "";
+    private string filtroVigencia = "TODAS";
+    private string? mensajeAlerta = null;
+
+    private List<PromocionDto> promocionesFiltradas => promociones
+        .Where(p => filtroVigencia == "TODAS" ||
+                    (filtroVigencia == "ACTIVAS" && p.EsVigente) ||
+                    (filtroVigencia == "INACTIVAS" && !p.EsVigente))
+        .Where(p => string.IsNullOrWhiteSpace(busquedaTexto) ||
+                    p.Nombre.Contains(busquedaTexto, StringComparison.OrdinalIgnoreCase) ||
+                    (p.Descripcion?.Contains(busquedaTexto, StringComparison.OrdinalIgnoreCase) ?? false))
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarPromociones();
+    }
+
+    private async Task CargarPromociones()
+    {
+        cargando = true;
+        try
+        {
+            promociones = await PromocionService.GetAll();
+        }
+        catch (Exception ex)
+        {
+            mensajeAlerta = $"Error al cargar promociones: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void AbrirModalNuevaPromocion()
+    {
+        promocionActual = new PromocionDto
+        {
+            Nombre = "PROMO-NUEVA",
+            PorcentajeDescuento = 20,
+            CantidadDefinida = 50,
+            CantidadDisponible = 50,
+            FechaInicio = DateTime.UtcNow,
+            FechaFin = DateTime.UtcNow.AddMonths(1),
+            Activo = true
+        };
+        mostrarModal = true;
+    }
+
+    private void AbrirModalEditar(PromocionDto promo)
+    {
+        promocionActual = new PromocionDto
+        {
+            Id = promo.Id,
+            Nombre = promo.Nombre,
+            Descripcion = promo.Descripcion,
+            PorcentajeDescuento = promo.PorcentajeDescuento,
+            CantidadDefinida = promo.CantidadDefinida,
+            CantidadDisponible = promo.CantidadDisponible,
+            FechaInicio = promo.FechaInicio,
+            FechaFin = promo.FechaFin,
+            Activo = promo.Activo
+        };
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+    }
+
+    private async Task GuardarPromocion()
+    {
+        if (string.IsNullOrWhiteSpace(promocionActual.Nombre))
+        {
+            mensajeAlerta = "El nombre de la promoción es obligatorio.";
+            return;
+        }
+
+        if (promocionActual.PorcentajeDescuento <= 0 || promocionActual.PorcentajeDescuento > 100)
+        {
+            mensajeAlerta = "El porcentaje debe estar entre 1% y 100%.";
+            return;
+        }
+
+        bool exito;
+        if (promocionActual.Id.HasValue)
+        {
+            exito = await PromocionService.Editar(promocionActual);
+        }
+        else
+        {
+            promocionActual.CantidadDisponible = promocionActual.CantidadDefinida;
+            exito = await PromocionService.Crear(promocionActual);
+        }
+
+        if (exito)
+        {
+            mensajeAlerta = $"Promoción '{promocionActual.Nombre}' guardada correctamente.";
+            mostrarModal = false;
+            await CargarPromociones();
+        }
+        else
+        {
+            mensajeAlerta = "No se pudo guardar la promoción.";
+        }
+    }
+
+    private async Task Eliminar(long? id)
+    {
+        if (!id.HasValue) return;
+        var exito = await PromocionService.Eliminar(id.Value);
+        if (exito)
+        {
+            mensajeAlerta = "Promoción eliminada con éxito.";
+            await CargarPromociones();
+        }
+        else
+        {
+            mensajeAlerta = "Error al intentar eliminar la promoción.";
+        }
+    }
+}

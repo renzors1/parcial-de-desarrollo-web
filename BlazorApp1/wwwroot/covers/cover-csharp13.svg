@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="bg-csharp" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1035"/>
+      <stop offset="40%" stop-color="#2c1654"/>
+      <stop offset="100%" stop-color="#0d061a"/>
+    </linearGradient>
+    <linearGradient id="accent-csharp" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="50%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="badge-packt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+    <pattern id="grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#ffffff" stroke-width="0.5" stroke-opacity="0.07"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="600" fill="url(#bg-csharp)"/>
+  <rect width="400" height="600" fill="url(#grid-pattern)"/>
+
+  <!-- Left Spine Accent -->
+  <rect x="0" y="0" width="8" height="600" fill="#7c3aed" opacity="0.8"/>
+
+  <!-- Editorial Brand Tag -->
+  <rect x="30" y="32" width="76" height="24" rx="4" fill="url(#badge-packt)"/>
+  <text x="68" y="48" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1">PACKT></text>
+  <text x="120" y="48" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="10" font-weight="600" fill="#a78bfa" letter-spacing="1.5">EXPERT INSIGHT</text>
+
+  <!-- Top Decorative Strip -->
+  <rect x="30" y="75" width="340" height="3" fill="url(#accent-csharp)"/>
+
+  <!-- Main Title Area -->
+  <text x="30" y="130" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="34" font-weight="800" fill="#ffffff" letter-spacing="-0.5">
+    C# 13 and
+  </text>
+  <text x="30" y="172" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="38" font-weight="900" fill="#38bdf8" letter-spacing="-0.5">
+    .NET 10
+  </text>
+
+  <!-- Subtitle -->
+  <text x="30" y="215" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="15" font-weight="500" fill="#cbd5e1">
+    Modern Cross-Platform Development
+  </text>
+  <text x="30" y="236" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="13" font-weight="400" fill="#94a3b8">
+    Build intelligent apps, services, and web UIs with Blazor
+  </text>
+
+  <!-- Tech Graphic Emblem -->
+  <g transform="translate(200, 370)">
+    <!-- Outer Glow Circle -->
+    <circle cx="0" cy="0" r="105" fill="#7c3aed" opacity="0.15"/>
+    <circle cx="0" cy="0" r="85" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.4"/>
+    <circle cx="0" cy="0" r="70" fill="#130924" stroke="url(#accent-csharp)" stroke-width="2.5"/>
+
+    <!-- C# Hexagon / Code Motif -->
+    <polygon points="0,-45 39,-22 39,22 0,45 -39,22 -39,-22" fill="#2c1654" stroke="#c084fc" stroke-width="2"/>
+    <text x="0" y="12" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="36" font-weight="800" fill="#ffffff" text-anchor="middle">C#</text>
+    
+    <!-- Orbits -->
+    <circle cx="39" cy="-22" r="5" fill="#38bdf8"/>
+    <circle cx="-39" cy="22" r="5" fill="#f97316"/>
+  </g>
+
+  <!-- Edition Badge -->
+  <rect x="30" y="475" width="130" height="26" rx="13" fill="#1e1035" stroke="#7c3aed" stroke-width="1"/>
+  <text x="95" y="492" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="11" font-weight="700" fill="#c084fc" text-anchor="middle" letter-spacing="0.5">10ª EDICIÓN OFICIAL</text>
+
+  <!-- Author Area -->
+  <rect x="30" y="520" width="340" height="1" fill="#334155"/>
+  <text x="30" y="550" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="11" font-weight="600" fill="#94a3b8" letter-spacing="1">AUTOR DESTACADO</text>
+  <text x="30" y="574" font-family="'Plus Jakarta Sans', Georgia, serif" font-size="20" font-weight="700" fill="#ffffff">
+    Mark J. Price
+  </text>
+</svg>

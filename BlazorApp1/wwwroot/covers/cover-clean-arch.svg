@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="bg-arch" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#090d16"/>
+    </linearGradient>
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="circle1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="600" fill="url(#bg-arch)"/>
+
+  <!-- Left Spine Accent -->
+  <rect x="0" y="0" width="8" height="600" fill="#f59e0b"/>
+
+  <!-- Top Series Header -->
+  <rect x="30" y="30" width="340" height="32" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="200" y="51" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="11" font-weight="700" fill="#fbbf24" text-anchor="middle" letter-spacing="2">
+    ROBERT C. MARTIN SERIES
+  </text>
+
+  <!-- Publisher Tag -->
+  <text x="30" y="95" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="12" font-weight="800" fill="#94a3b8" letter-spacing="1.5">
+    O'REILLY EDITORIAL
+  </text>
+
+  <!-- Main Title -->
+  <text x="30" y="145" font-family="Georgia, 'Merriweather', serif" font-size="36" font-weight="700" fill="#ffffff" letter-spacing="-0.5">
+    Clean
+  </text>
+  <text x="30" y="188" font-family="Georgia, 'Merriweather', serif" font-size="36" font-weight="700" fill="url(#gold-grad)" letter-spacing="-0.5">
+    Architecture
+  </text>
+
+  <!-- Subtitle -->
+  <text x="30" y="224" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="14" font-weight="500" fill="#cbd5e1">
+    A Craftsman's Guide to Software Structure
+  </text>
+  <text x="30" y="244" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="13" font-weight="400" fill="#64748b">
+    SOLID Principles, Decoupling and Universal Layers
+  </text>
+
+  <!-- Concentric Layer Diagram (The iconic clean architecture diagram) -->
+  <g transform="translate(200, 375)">
+    <!-- Outer Layer: Frameworks & Drivers -->
+    <circle cx="0" cy="0" r="105" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>
+    <circle cx="0" cy="0" r="95" fill="url(#circle1)" stroke="#0284c7" stroke-width="2"/>
+    <text x="0" y="-80" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="600" fill="#7dd3fc" text-anchor="middle" letter-spacing="1">FRAMEWORKS &amp; DRIVERS</text>
+
+    <!-- Layer 2: Interface Adapters -->
+    <circle cx="0" cy="0" r="72" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+    <text x="0" y="-58" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="600" fill="#6ee7b7" text-anchor="middle" letter-spacing="1">INTERFACE ADAPTERS</text>
+
+    <!-- Layer 3: Application Use Cases -->
+    <circle cx="0" cy="0" r="48" fill="#334155" stroke="#f59e0b" stroke-width="2"/>
+    <text x="0" y="-36" font-family="'Plus Jakarta Sans', sans-serif" font-size="7.5" font-weight="700" fill="#fde68a" text-anchor="middle" letter-spacing="0.5">USE CASES</text>
+
+    <!-- Core: Entities -->
+    <circle cx="0" cy="0" r="26" fill="#f59e0b" stroke="#ffffff" stroke-width="1.5"/>
+    <text x="0" y="4" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="800" fill="#0f172a" text-anchor="middle">ENTITIES</text>
+  </g>
+
+  <!-- Footer Border -->
+  <rect x="30" y="505" width="340" height="1" fill="#334155"/>
+
+  <!-- Author Area -->
+  <text x="30" y="535" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="11" font-weight="600" fill="#94a3b8" letter-spacing="1">
+    LEGENDARY AUTHOR
+  </text>
+  <text x="30" y="562" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#ffffff">
+    Robert C. Martin
+  </text>
+  <text x="30" y="582" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="12" font-style="italic" fill="#fbbf24">
+    "Uncle Bob" • Software Craftsmanship
+  </text>
+</svg>

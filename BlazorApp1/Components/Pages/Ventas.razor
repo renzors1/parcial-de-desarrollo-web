@@ -1,0 +1,301 @@
+@page "/ventas"
+@rendermode InteractiveServer
+@inject VentaService VentaService
+@inject TokenService TokenService
+@inject NavigationManager Navigation
+
+<PageTitle>Auditoría de Pedidos Online y Facturación</PageTitle>
+
+<div class="container my-4">
+    <!-- Encabezado de Auditoría de Comercio Electrónico -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1 text-dark font-editorial">Auditoría de Pedidos y Facturación Web</h1>
+            <p class="text-muted mb-0">Monitoreo de compras electrónicas efectuadas por los clientes desde la tienda online</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary rounded-2 px-3 shadow-2xs" @onclick="CargarDatos">
+                <span class="bi bi-arrow-clockwise me-1"></span> Actualizar Pedidos
+            </button>
+        </div>
+    </div>
+
+    @if (!TokenService.IsAuthenticated)
+    {
+        <div class="alert alert-warning rounded-2 shadow-2xs mb-4" role="alert">
+            <span class="bi bi-shield-lock me-2"></span>
+            <strong>Aviso de Seguridad:</strong> Inicia sesión como administrador para contar con permisos de auditoría comercial.
+        </div>
+    }
+
+    <!-- Métricas del E-Commerce Web -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-success border p-3 me-3">
+                        <span class="bi bi-cash-stack fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Ingresos Totales Web</span>
+                        <h3 class="fw-bold text-success mb-0 font-editorial">S/ @ventas.Sum(v => v.Total).ToString("N2")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-primary border p-3 me-3">
+                        <span class="bi bi-bag-check fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Órdenes Procesadas</span>
+                        <h3 class="fw-bold text-primary mb-0 font-editorial">@ventas.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-info border p-3 me-3">
+                        <span class="bi bi-receipt fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Ticket Promedio Online</span>
+                        <h3 class="fw-bold text-dark mb-0 font-editorial">
+                            S/ @(ventas.Count > 0 ? (ventas.Average(v => v.Total)).ToString("N2") : "0.00")
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-warning border p-3 me-3">
+                        <span class="bi bi-journal-bookmark-fill fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Ejemplares Digitales</span>
+                        <h3 class="fw-bold text-dark mb-0 font-editorial">
+                            @ventas.Sum(v => v.Detalles.Sum(d => d.CantidadVenta))
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de Filtros y Búsqueda -->
+    <div class="card border shadow-2xs rounded-2 p-3 bg-white mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><span class="bi bi-search"></span></span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por número de comprobante, titular o usuario..." @bind="busquedaTexto" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-12 col-md-6 d-flex justify-content-md-end gap-2">
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-2 align-self-center">
+                    Total Comprobantes: <strong>@ventasFiltradas.Count</strong>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla Completa de Pedidos Online -->
+    @if (cargandoVentas)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Cargando órdenes del comercio electrónico...</p>
+        </div>
+    }
+    else if (ventasFiltradas.Count == 0)
+    {
+        <div class="card border shadow-2xs rounded-2 p-5 text-center bg-white">
+            <span class="bi bi-inbox text-muted display-4"></span>
+            <h4 class="mt-3 text-dark">No se encontraron órdenes registradas</h4>
+            <p class="text-muted">Las compras realizadas por los clientes en la tienda online aparecerán automáticamente aquí.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card border shadow-2xs rounded-2 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Comprobante Fiscal</th>
+                            <th>Cliente / Comprador Web</th>
+                            <th>Fecha y Hora</th>
+                            <th>Subtotal</th>
+                            <th>IGV (18%)</th>
+                            <th>Total Pagado</th>
+                            <th class="text-center">Títulos</th>
+                            <th class="text-end pe-4">Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in ventasFiltradas)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <code class="fw-bold text-dark fs-6">@v.NumeroComprobante</code>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark">@v.Cliente</div>
+                                    <small class="text-muted">Canal: Web E-Commerce</small>
+                                </td>
+                                <td>
+                                    <span class="small text-muted">@v.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+                                </td>
+                                <td>S/ @v.SubtotalVenta.ToString("N2")</td>
+                                <td>S/ @v.Igv.ToString("N2")</td>
+                                <td>
+                                    <span class="fw-bold text-primary fs-6">S/ @v.Total.ToString("N2")</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-dark border">
+                                        @v.Detalles.Sum(d => d.CantidadVenta) unid.
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-secondary rounded-2 px-3" @onclick="() => AbrirDetalleVenta(v)">
+                                        <span class="bi bi-file-earmark-text me-1"></span> Ver Boleta
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal de Detalle de Boleta Electrónica -->
+@if (ventaSeleccionada != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(15, 23, 42, 0.75);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-2 border shadow">
+                <div class="modal-header border-bottom py-3">
+                    <div>
+                        <span class="badge bg-primary px-2 py-1 rounded-2 mb-1">Comprobante de Venta Electrónica</span>
+                        <h5 class="modal-title fw-bold text-dark font-editorial mb-0">Boleta @ventaSeleccionada.NumeroComprobante</h5>
+                        <small class="text-muted">Fecha de emisión: @ventaSeleccionada.Fecha.ToString("dd/MM/yyyy HH:mm:ss")</small>
+                    </div>
+                    <button type="button" class="btn-close" @onclick="() => ventaSeleccionada = null"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-3 p-3 bg-light rounded-2 border">
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Titular de la Compra:</span>
+                            <strong class="text-dark">@ventaSeleccionada.Cliente</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="text-muted small d-block">Usuario del Sistema:</span>
+                            <span class="text-dark">@(ventaSeleccionada.UsuarioCreacion ?? ventaSeleccionada.Cliente)</span>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-dark mb-2">Detalle de Libros y Licencias Digitales</h6>
+                    <div class="table-responsive border rounded-2 mb-3">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Título Digital</th>
+                                    <th class="text-center">Cant.</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Descuento</th>
+                                    <th class="text-end pe-3">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var det in ventaSeleccionada.Detalles)
+                                {
+                                    <tr>
+                                        <td class="ps-3 py-2">
+                                            <div class="fw-semibold font-editorial">@det.LibroTitulo</div>
+                                            <small class="text-muted">Entrega: Licencia DRM inmediata</small>
+                                        </td>
+                                        <td class="text-center">@det.CantidadVenta</td>
+                                        <td>S/ @det.PrecioUnitario.ToString("N2")</td>
+                                        <td class="text-danger">@(det.Descuento > 0 ? $"- S/ {det.Descuento:N2}" : "S/ 0.00")</td>
+                                        <td class="text-end pe-3 fw-bold">S/ @det.Subtotal.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Resumen de Liquidación -->
+                    <div class="row justify-content-end">
+                        <div class="col-sm-6">
+                            <div class="d-flex justify-content-between mb-1 small text-secondary">
+                                <span>Subtotal Base Imponible:</span>
+                                <strong>S/ @ventaSeleccionada.SubtotalVenta.ToString("N2")</strong>
+                            </div>
+                            @if (ventaSeleccionada.TotalDescuento > 0)
+                            {
+                                <div class="d-flex justify-content-between mb-1 small text-danger">
+                                    <span>Total Descuentos Promocionales:</span>
+                                    <strong>- S/ @ventaSeleccionada.TotalDescuento.ToString("N2")</strong>
+                                </div>
+                            }
+                            <div class="d-flex justify-content-between mb-2 small text-secondary">
+                                <span>I.G.V. (18%):</span>
+                                <strong>S/ @ventaSeleccionada.Igv.ToString("N2")</strong>
+                            </div>
+                            <hr class="my-2" />
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h6 mb-0 fw-bold text-dark">Total Liquidado:</span>
+                                <span class="h4 mb-0 fw-bold text-primary">S/ @ventaSeleccionada.Total.ToString("N2")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top py-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-2 px-4" @onclick="() => ventaSeleccionada = null">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<VentaDto> ventas = new();
+    private VentaDto? ventaSeleccionada = null;
+    private bool cargandoVentas = true;
+    private string busquedaTexto = "";
+
+    private List<VentaDto> ventasFiltradas => ventas
+        .Where(v => string.IsNullOrWhiteSpace(busquedaTexto) ||
+                    v.NumeroComprobante.Contains(busquedaTexto, StringComparison.OrdinalIgnoreCase) ||
+                    v.Cliente.Contains(busquedaTexto, StringComparison.OrdinalIgnoreCase) ||
+                    (v.UsuarioCreacion?.Contains(busquedaTexto, StringComparison.OrdinalIgnoreCase) ?? false))
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargandoVentas = true;
+        ventas = await VentaService.GetAll();
+        cargandoVentas = false;
+    }
+
+    private void AbrirDetalleVenta(VentaDto venta)
+    {
+        ventaSeleccionada = venta;
+    }
+}

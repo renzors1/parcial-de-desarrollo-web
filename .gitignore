@@ -157,3 +157,16 @@ frontend_completo.txt
 *.log
 .system_generated/
 
+
+######################
+# .NET / C# / Blazor
+######################
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+_ReSharper*/
+*.DotSettings.user

@@ -1,0 +1,526 @@
+@page "/carrito"
+@rendermode InteractiveServer
+@implements IDisposable
+@inject CarritoService CarritoService
+@inject VentaService VentaService
+@inject LicenciaDigitalService LicenciaService
+@inject PromocionService PromocionService
+@inject TokenService TokenService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>Carrito de Compras</PageTitle>
+
+<div class="container my-4">
+    <div class="mb-4">
+        <h1 class="h2 fw-bold mb-1 text-dark">Bolsa de Compras</h1>
+        <p class="text-muted mb-0">Revisa los libros seleccionados y aplica tus cupones antes de finalizar tu orden</p>
+    </div>
+
+    @if (compraExitosa)
+    {
+        <div class="card border shadow-sm rounded-2 p-4 p-md-5 my-4 bg-white">
+            <div class="text-center mb-4">
+                <div class="text-success display-2 mb-2">
+                    <span class="bi bi-check-circle-fill"></span>
+                </div>
+                <h2 class="fw-bold text-dark font-editorial mb-2">¡Compra Completada con Éxito!</h2>
+                <p class="text-muted col-md-8 mx-auto fs-5 mb-3">
+                    Tu orden ha sido procesada correctamente y tus licencias digitales de lectura han sido generadas y puestas a tu disposición.
+                </p>
+                <div class="d-inline-flex flex-column flex-sm-row align-items-center gap-2 p-3 bg-light rounded-2 border">
+                    <span class="text-muted small">Comprobante de Pago Emitido:</span>
+                    <strong class="text-primary fs-5 font-editorial">@ultimoComprobante</strong>
+                    <span class="text-muted small">• Titular: <strong>@nombreTitular</strong> (@correoCliente)</span>
+                </div>
+            </div>
+
+            @if (mensajeCopiado != null)
+            {
+                <div class="alert alert-info alert-dismissible fade show rounded-2 shadow-sm mb-4" role="alert">
+                    <span class="bi bi-check-circle-fill text-success me-2"></span> @mensajeCopiado
+                    <button type="button" class="btn-close" @onclick="() => mensajeCopiado = null"></button>
+                </div>
+            }
+
+            <!-- Licencias y Claves DRM Generadas IN SITU -->
+            <div class="card border rounded-2 p-4 mb-4 bg-light">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1 font-editorial">
+                            <span class="bi bi-key-fill text-primary me-2"></span> Tus Libros Digitales y Claves DRM
+                        </h5>
+                        <p class="text-muted small mb-0">Entrega digital instantánea. Ya puedes leer tus libros en línea o copiar tus claves de activación.</p>
+                    </div>
+                    <span class="badge bg-success px-3 py-2 rounded-2">
+                        @licenciasGeneradas.Count Licencias Listas
+                    </span>
+                </div>
+
+                <div class="row g-3">
+                    @foreach (var lic in licenciasGeneradas)
+                    {
+                        <div class="col-12 col-lg-6">
+                            <div class="card p-3 border shadow-2xs rounded-2 bg-white h-100 d-flex flex-column justify-content-between">
+                                <div class="d-flex gap-3 mb-3">
+                                    <div style="width: 48px; height: 72px; min-width: 48px; border-radius: 4px; overflow: hidden; background: #1e293b;" class="border shadow-2xs">
+                                        @if (!string.IsNullOrWhiteSpace(lic.Libro?.PortadaUrl))
+                                        {
+                                            <img src="@lic.Libro.PortadaUrl" alt="@lic.Libro.Titulo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.opacity='0'; this.style.display='none';" />
+                                        }
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-bold text-dark font-editorial mb-1">@(lic.Libro?.Titulo ?? "Libro Digital Licenciado")</h6>
+                                        <div class="small text-muted mb-2">
+                                            <span class="bi bi-person me-1"></span>@(lic.Libro?.AutorPrincipal ?? "Autor del Catálogo")
+                                        </div>
+                                        <div class="p-2 bg-light rounded-2 border">
+                                            <small class="text-muted d-block fw-semibold text-uppercase" style="font-size: 0.7rem;">Clave DRM</small>
+                                            <code class="fw-bold text-dark fs-6">@lic.CodigoLicencia</code>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-auto pt-2 border-top">
+                                    <button class="btn btn-sm btn-outline-secondary rounded-2 px-3 flex-grow-1" @onclick="() => CopiarClave(lic.CodigoLicencia)">
+                                        <span class="bi bi-clipboard me-1"></span> Copiar clave
+                                    </button>
+                                    <button class="btn btn-sm btn-primary rounded-2 px-3 flex-grow-1" @onclick="() => AbrirLector(lic)">
+                                        <span class="bi bi-book me-1"></span> Leer en Línea
+                                    </button>
+                                    <a href="@lic.EnlaceDescarga" target="_blank" class="btn btn-sm btn-outline-primary rounded-2 px-2" title="Descargar">
+                                        <span class="bi bi-download"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Acciones Post Compra -->
+            <div class="d-flex justify-content-center flex-wrap gap-3 pt-2">
+                @if (!TokenService.IsAuthenticated)
+                {
+                    <a href="/registro" class="btn btn-outline-primary btn-lg rounded-2 px-4 shadow-2xs">
+                        <span class="bi bi-person-plus me-2"></span> Registrarme y Vincular Compra
+                    </a>
+                    <a href="/login" class="btn btn-outline-secondary btn-lg rounded-2 px-4 shadow-2xs">
+                        <span class="bi bi-box-arrow-in-right me-2"></span> Iniciar Sesión
+                    </a>
+                }
+                <a href="/mis-libros" class="btn btn-outline-success btn-lg rounded-2 px-4 shadow-2xs">
+                    <span class="bi bi-journal-bookmark me-2"></span> Mi Biblioteca Digital
+                </a>
+                <a href="/" class="btn btn-primary btn-lg rounded-2 px-4 shadow-sm">
+                    <span class="bi bi-arrow-left me-2"></span> Seguir Comprando
+                </a>
+            </div>
+        </div>
+    }
+    else if (CarritoService.Items.Count == 0)
+    {
+        <div class="card border shadow-sm rounded-2 p-5 text-center my-4 bg-white">
+            <div class="text-muted display-2 mb-3">
+                <span class="bi bi-cart-x"></span>
+            </div>
+            <h3 class="fw-bold text-dark">Tu bolsa de compras está vacía</h3>
+            <p class="text-muted">Aún no has agregado ningún título a tu carrito.</p>
+            <div class="mt-3">
+                <a href="/" class="btn btn-primary rounded-2 px-4 py-2">
+                    <span class="bi bi-book me-2"></span> Explorar Catálogo Editorial
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Listado de Libros en Carrito -->
+            <div class="col-12 col-lg-8">
+                <div class="card border shadow-sm rounded-2 overflow-hidden mb-4 bg-white">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Libro</th>
+                                    <th>Precio</th>
+                                    <th class="text-center">Cantidad</th>
+                                    <th>Subtotal</th>
+                                    <th class="text-end pe-4">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in CarritoService.Items)
+                                {
+                                    <tr>
+                                        <td class="ps-4 py-3">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div style="width: 48px; height: 72px; min-width: 48px; border-radius: 4px; overflow: hidden; background: #1e293b;" class="border shadow-2xs">
+                                                    @if (!string.IsNullOrWhiteSpace(item.Libro.PortadaUrl))
+                                                    {
+                                                        <img src="@item.Libro.PortadaUrl" alt="@item.Libro.Titulo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.opacity='0'; this.style.display='none';" />
+                                                    }
+                                                </div>
+                                                <div>
+                                                    <div class="fw-bold text-dark font-editorial">@item.Libro.Titulo</div>
+                                                    <div class="small text-muted mt-1">
+                                                        <span class="bi bi-person me-1"></span>@item.Libro.AutorPrincipal
+                                                        @if (!string.IsNullOrWhiteSpace(item.Libro.NombreEditorial))
+                                                        {
+                                                            <span class="ms-2 badge bg-light text-secondary border">@item.Libro.NombreEditorial</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>S/ @item.Libro.Precio.ToString("N2")</td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm rounded-2 border" role="group">
+                                                <button class="btn btn-light" @onclick="() => CarritoService.ModificarCantidad(item.Libro.Id!.Value, -1)">-</button>
+                                                <span class="px-3 py-1 fw-semibold align-self-center">@item.Cantidad</span>
+                                                <button class="btn btn-light" @onclick="() => CarritoService.ModificarCantidad(item.Libro.Id!.Value, 1)">+</button>
+                                            </div>
+                                        </td>
+                                        <td class="fw-bold text-dark">S/ @item.Subtotal.ToString("N2")</td>
+                                        <td class="text-end pe-4">
+                                            <button class="btn btn-sm btn-outline-danger rounded-2 px-3 py-1" title="Eliminar del carrito" @onclick="() => CarritoService.EliminarItem(item.Libro.Id!.Value)">
+                                                <span class="bi bi-trash3 me-1"></span> Eliminar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Selección de Promociones y Cupones Activos -->
+                <div class="card border shadow-sm rounded-2 p-4 bg-white">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="bi bi-tag-fill text-primary fs-4 me-2"></span>
+                        <h5 class="fw-bold mb-0 text-dark">Promociones y Descuentos Activos</h5>
+                    </div>
+                    <p class="text-muted small mb-3">
+                        Aplica una promoción disponible para obtener un descuento inmediato en tu orden digital.
+                    </p>
+
+                    @if (promocionesActivas.Count == 0)
+                    {
+                        <p class="text-muted small fst-italic mb-0">No hay cupones promocionales vigentes en este momento.</p>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+                            @foreach (var promo in promocionesActivas)
+                            {
+                                var aplicada = CarritoService.PromocionAplicada?.Id == promo.Id;
+                                <div class="col-12 col-md-6">
+                                    <div class="p-3 rounded-2 border h-100 d-flex flex-column justify-content-between @(aplicada ? "border-success bg-success-subtle" : "bg-light")">
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <span class="badge @(aplicada ? "bg-success" : "bg-danger") rounded-2">
+                                                    -@promo.PorcentajeDescuento.ToString("0")% OFF
+                                                </span>
+                                                <small class="text-muted">Cupos: @promo.CantidadDisponible</small>
+                                            </div>
+                                            <h6 class="fw-bold text-dark mb-1">@promo.Nombre</h6>
+                                            <p class="text-muted small mb-2" style="font-size: 0.82rem;">@promo.Descripcion</p>
+                                        </div>
+                                        
+                                        @if (aplicada)
+                                        {
+                                            <button class="btn btn-sm btn-outline-danger rounded-2 w-100 mt-2" @onclick="RemoverPromocion">
+                                                <span class="bi bi-x-circle me-1"></span> Quitar Descuento
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-outline-success rounded-2 w-100 mt-2" @onclick="() => AplicarPromocion(promo)">
+                                                <span class="bi bi-check-lg me-1"></span> Aplicar Promoción
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Resumen de Pago y Checkout -->
+            <div class="col-12 col-lg-4">
+                <div class="card border shadow-sm rounded-2 p-4 bg-white">
+                    <h5 class="fw-bold mb-3 text-dark">Resumen de Compra</h5>
+                    
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Items seleccionados:</span>
+                        <span class="fw-semibold text-dark">@CarritoService.TotalItems</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Subtotal de catálogo:</span>
+                        <span class="fw-semibold text-dark">S/ @CarritoService.SubtotalBruto.ToString("N2")</span>
+                    </div>
+
+                    @if (CarritoService.PromocionAplicada != null)
+                    {
+                        <div class="d-flex justify-content-between mb-2 text-danger">
+                            <span>
+                                <span class="bi bi-tag-fill me-1"></span>Descuento (@CarritoService.PromocionAplicada.PorcentajeDescuento%):
+                            </span>
+                            <span class="fw-bold">- S/ @CarritoService.MontoDescuento.ToString("N2")</span>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Base imponible:</span>
+                        <span class="fw-semibold text-dark">S/ @BaseImponible.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 text-secondary">
+                        <span>IGV (18%):</span>
+                        <span class="fw-semibold text-dark">S/ @IgvCalculado.ToString("N2")</span>
+                    </div>
+
+                    <hr class="my-3 opacity-25" />
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="h5 mb-0 fw-bold text-dark">Total a Pagar:</span>
+                        <span class="h4 mb-0 fw-bold text-primary">S/ @CarritoService.TotalPagar.ToString("N2")</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Nombre y Apellidos del Titular:</label>
+                        <input type="text" class="form-control rounded-2" placeholder="Ej. Carlos Mendoza Ramos" @bind="nombreTitular" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-muted">Correo Electrónico (para entrega de licencias):</label>
+                        <input type="email" class="form-control rounded-2" placeholder="Ej. carlos.mendoza@gmail.com" @bind="correoCliente" />
+                    </div>
+
+                    @if (errorMensaje != null)
+                    {
+                        <div class="alert alert-danger small py-2 mb-3 rounded-2">
+                            @errorMensaje
+                        </div>
+                    }
+
+                    <button class="btn btn-success btn-lg w-100 rounded-2 fw-semibold shadow-sm py-3" disabled="@procesando" @onclick="ProcesarCheckout">
+                        @if (procesando)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            <span>Generando licencias y procesando...</span>
+                        }
+                        else
+                        {
+                            <span class="bi bi-shield-lock-fill me-2"></span>
+                            <span>Confirmar Pago y Generar Licencias</span>
+                        }
+                    </button>
+                    
+                    <p class="text-center text-muted small mt-3 mb-0">
+                        <span class="bi bi-shield-check text-success me-1"></span> Compra segura con entrega digital instantánea.
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal de Lectura Digital In Situ -->
+@if (licenciaLectura != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(15, 23, 42, 0.75);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-2 border shadow">
+                <div class="modal-header border-bottom py-3">
+                    <div>
+                        <span class="badge bg-success-subtle text-success px-2 py-1 rounded-2 mb-1">Lectura Inmediata DRM</span>
+                        <h5 class="modal-title fw-bold text-dark font-editorial">@(licenciaLectura.Libro?.Titulo ?? "Lector Digital")</h5>
+                        <small class="text-muted">Clave: @licenciaLectura.CodigoLicencia</small>
+                    </div>
+                    <button type="button" class="btn-close" @onclick="() => licenciaLectura = null"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="p-4 rounded-2 bg-light border font-editorial" style="max-height: 380px; overflow-y: auto; line-height: 1.8;">
+                        <h5 class="fw-bold mb-3 text-dark">Capítulo I: Fundamentos y Arquitectura</h5>
+                        <p class="text-secondary">
+                            Bienvenido a la versión digital autorizada de esta obra. Tu licencia digital ha sido validada exitosamente con el identificador <strong>@licenciaLectura.CodigoLicencia</strong>.
+                        </p>
+                        <p class="text-secondary">
+                            @(string.IsNullOrWhiteSpace(licenciaLectura.Libro?.Sinopsis)
+                                ? "La lectura digital ofrece portabilidad total, marcadores sincronizados y acceso inmediato desde cualquier dispositivo."
+                                : licenciaLectura.Libro.Sinopsis)
+                        </p>
+                        <p class="text-secondary">
+                            Licencia emitida a nombre de <strong>@nombreTitular</strong> (@correoCliente).
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer border-top py-3">
+                    <button type="button" class="btn btn-primary rounded-2 px-4" @onclick="() => licenciaLectura = null">
+                        Cerrar Lector
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string nombreTitular = "";
+    private string correoCliente = "";
+    private string ultimoComprobante = "";
+    private List<LicenciaDigitalDto> licenciasGeneradas = new();
+    private string? mensajeCopiado = null;
+    private LicenciaDigitalDto? licenciaLectura = null;
+    private bool procesando = false;
+    private bool compraExitosa = false;
+    private string? errorMensaje = null;
+    private List<PromocionDto> promocionesActivas = new();
+
+    private decimal BaseImponible => Math.Round(CarritoService.TotalPagar / 1.18m, 2);
+    private decimal IgvCalculado => CarritoService.TotalPagar - BaseImponible;
+
+    protected override async Task OnInitializedAsync()
+    {
+        CarritoService.OnChange += StateHasChanged;
+        
+        if (TokenService.IsAuthenticated && TokenService.CurrentUser != null)
+        {
+            var user = TokenService.CurrentUser;
+            nombreTitular = $"{user.FirstName} {user.LastName}".Trim();
+            if (string.IsNullOrWhiteSpace(nombreTitular))
+            {
+                nombreTitular = user.Login ?? "Cliente";
+            }
+            correoCliente = user.Email ?? "";
+        }
+
+        try
+        {
+            promocionesActivas = await PromocionService.GetActivas();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar promociones: {ex.Message}");
+        }
+    }
+
+    public void Dispose()
+    {
+        CarritoService.OnChange -= StateHasChanged;
+    }
+
+    private void AplicarPromocion(PromocionDto promo)
+    {
+        CarritoService.AplicarPromocion(promo);
+    }
+
+    private void RemoverPromocion()
+    {
+        CarritoService.RemoverPromocion();
+    }
+
+    private async Task CopiarClave(string codigo)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", codigo);
+            mensajeCopiado = $"Clave DRM '{codigo}' copiada al portapapeles con éxito.";
+        }
+        catch (Exception)
+        {
+            mensajeCopiado = $"Clave DRM: {codigo}";
+        }
+    }
+
+    private void AbrirLector(LicenciaDigitalDto lic)
+    {
+        licenciaLectura = lic;
+    }
+
+    private async Task ProcesarCheckout()
+    {
+        if (string.IsNullOrWhiteSpace(nombreTitular))
+        {
+            errorMensaje = "Por favor ingresa tu Nombre y Apellidos.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(correoCliente) || !correoCliente.Contains("@"))
+        {
+            errorMensaje = "Por favor ingresa un Correo Electrónico válido para emitir tu comprobante y licencias digitales.";
+            return;
+        }
+
+        procesando = true;
+        errorMensaje = null;
+
+        try
+        {
+            var totalPagar = CarritoService.TotalPagar;
+            var subtotalBase = Math.Round(totalPagar / 1.18m, 2);
+            var igv = Math.Round(totalPagar - subtotalBase, 2);
+            var descuentoTotal = Math.Round(CarritoService.MontoDescuento, 2);
+            var correlativo = DateTime.UtcNow.ToString("yyMMddHHmmss");
+            var comprobante = $"B001-{correlativo}";
+            var promoId = CarritoService.PromocionAplicada?.Id;
+            var itemsCopia = CarritoService.Items.ToList();
+
+            var venta = new VentaDto
+            {
+                NumeroComprobante = comprobante,
+                Cliente = $"{nombreTitular} ({correoCliente})",
+                FechaVenta = DateTime.UtcNow,
+                SubtotalVenta = subtotalBase,
+                TotalDescuento = descuentoTotal,
+                Igv = igv,
+                TotalVenta = totalPagar,
+                UsuarioCreacion = TokenService.CurrentUser?.Login ?? correoCliente,
+                FechaCreacion = DateTime.UtcNow,
+                Detalles = itemsCopia.Select(i =>
+                {
+                    var descItem = CarritoService.PromocionAplicada != null
+                        ? Math.Round(i.Subtotal * (decimal)(CarritoService.PromocionAplicada.PorcentajeDescuento / 100.0), 2)
+                        : 0m;
+                    return new DetalleVentaDto
+                    {
+                        LibroId = i.Libro.Id!.Value,
+                        LibroTitulo = i.Libro.Titulo,
+                        CantidadVenta = i.Cantidad,
+                        PrecioUnitario = i.Libro.Precio,
+                        Descuento = descItem,
+                        Subtotal = i.Subtotal - descItem,
+                        PromocionAplicadaId = promoId
+                    };
+                }).ToList()
+            };
+
+            // 1. Descontar cupo si aplica
+            if (promoId.HasValue)
+            {
+                await PromocionService.DescontarCupo(promoId.Value, 1);
+            }
+
+            // 2. Registrar venta
+            await VentaService.RegistrarVentaAsync(venta);
+
+            // 3. Generar licencias digitales (tantas como la cantidad comprada de cada libro)
+            ultimoComprobante = comprobante;
+            licenciasGeneradas = await LicenciaService.GenerarLicenciasParaVenta(itemsCopia, correoCliente);
+
+            // 4. Limpiar carrito y marcar éxito
+            CarritoService.Limpiar();
+            compraExitosa = true;
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = $"Ocurrió un error al procesar tu compra: {ex.Message}";
+        }
+        finally
+        {
+            procesando = false;
+        }
+    }
+}

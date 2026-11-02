@@ -1,0 +1,516 @@
+@page "/mis-libros"
+@rendermode InteractiveServer
+@inject LicenciaDigitalService LicenciaService
+@inject CalificacionService CalificacionService
+@inject TokenService TokenService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>Mis Libros Digitales</PageTitle>
+
+<div class="container my-4">
+    <!-- Encabezado Editorial -->
+    <div class="p-4 p-md-5 mb-4 rounded-2 text-white shadow-sm" style="background-color: #0f172a; border-left: 4px solid #3b82f6;">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary px-3 py-1 rounded-2 mb-2 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
+                    <span class="bi bi-shield-check me-1"></span> Licencias Digitales Activas
+                </span>
+                <h1 class="display-6 fw-bold mb-2">Mi Biblioteca Digital & Licencias</h1>
+                <p class="fs-5 text-light opacity-75 mb-0 font-editorial">
+                    Accede a tus libros digitales adquiridos, visualiza tus claves de activación DRM y lee en línea desde cualquier dispositivo.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="/" class="btn btn-outline-light px-4 py-2 rounded-2">
+                    <span class="bi bi-book me-2"></span> Explorar Catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (!TokenService.IsAuthenticated)
+    {
+        <!-- Formulario de Consulta para Clientes no Registrados / Invitados -->
+        <div class="card border shadow-sm rounded-2 p-4 p-md-5 mb-4 bg-white">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7">
+                    <div class="d-flex align-items-center mb-2">
+                        <span class="bi bi-search text-primary fs-4 me-2"></span>
+                        <h4 class="fw-bold mb-0 text-dark font-editorial">Consulta tu Biblioteca Digital</h4>
+                    </div>
+                    <p class="text-secondary mb-3">
+                        Ingresa el correo o nombre con el que compraste tus libros digitales para ver tus licencias activas y leer en línea.
+                    </p>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control rounded-start-2 form-control-lg fs-6" 
+                               placeholder="Ej. carlos.mendoza@gmail.com o Carlos Mendoza" 
+                               @bind="correoOConsulta" @onkeyup="HandleKeyUpConsulta" />
+                        <button class="btn btn-primary btn-lg rounded-end-2 px-4 fw-semibold" 
+                                disabled="@consultando" @onclick="ConsultarLicenciasInvitado">
+                            @if (consultando)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                                <span>Buscando...</span>
+                            }
+                            else
+                            {
+                                <span class="bi bi-search me-1"></span>
+                                <span>Consultar</span>
+                            }
+                        </button>
+                    </div>
+                    <div class="d-flex align-items-center gap-1 text-muted small mt-2">
+                        <span>Prueba rápida:</span>
+                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" @onclick='() => ConsultarRapido("carlos.mendoza")'>carlos.mendoza</button>
+                        <span>•</span>
+                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" @onclick='() => ConsultarRapido("ana.torres")'>ana.torres</button>
+                        <span>•</span>
+                        <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" @onclick='() => ConsultarRapido("user")'>user</button>
+                    </div>
+                </div>
+                <div class="col-lg-5 border-start-lg ps-lg-4 text-center text-lg-start">
+                    <div class="p-3 bg-light rounded-2 border">
+                        <h6 class="fw-bold text-dark mb-1"><span class="bi bi-shield-lock text-success me-1"></span> ¿Tienes cuenta registrada?</h6>
+                        <p class="text-muted small mb-3">Inicia sesión para tener siempre tus libros sincronizados en todos tus dispositivos.</p>
+                        <a href="/login" class="btn btn-outline-primary btn-sm rounded-2 px-3 me-2">
+                            <span class="bi bi-box-arrow-in-right me-1"></span> Iniciar Sesión
+                        </a>
+                        <a href="/registro" class="btn btn-primary btn-sm rounded-2 px-3">
+                            <span class="bi bi-person-plus me-1"></span> Registrarme
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Barra de Búsqueda y Filtros -->
+    <div class="row align-items-center mb-4 g-3">
+        <div class="col-12 col-md-6">
+            <div class="input-group shadow-2xs">
+                <span class="input-group-text bg-white border-end-0 text-muted">
+                    <span class="bi bi-search"></span>
+                </span>
+                <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por título, autor o clave DRM..." @bind="filtroTexto" @bind:event="oninput" />
+            </div>
+        </div>
+        <div class="col-12 col-md-6 d-flex justify-content-md-end gap-2">
+            <span class="badge bg-white text-dark border px-3 py-2 rounded-2 align-self-center shadow-2xs">
+                Total Licencias: <strong class="text-primary">@licenciasFiltradas.Count</strong>
+            </span>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorCarga))
+    {
+        <div class="alert alert-danger rounded-2 shadow-sm p-3 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
+            <div class="d-flex align-items-center">
+                <span class="bi bi-exclamation-triangle-fill fs-4 me-2 text-danger"></span>
+                <span>@errorCarga</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger rounded-2 px-3" @onclick="CargarLicencias">
+                <span class="bi bi-arrow-clockwise me-1"></span> Reintentar
+            </button>
+        </div>
+    }
+
+    @if (mensajeCopiado != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show rounded-2 shadow-sm mb-4" role="alert">
+            <span class="bi bi-check-circle-fill text-success me-2"></span> @mensajeCopiado
+            <button type="button" class="btn-close" @onclick="() => mensajeCopiado = null"></button>
+        </div>
+    }
+
+    @if (cargando)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando biblioteca digital...</span>
+            </div>
+            <p class="mt-3 text-muted">Cargando tus licencias digitales...</p>
+        </div>
+    }
+    else if (licenciasFiltradas.Count == 0)
+    {
+        @if (!TokenService.IsAuthenticated && !haConsultado)
+        {
+            <div class="card border shadow-sm rounded-2 p-5 text-center my-4 bg-white">
+                <div class="text-primary display-3 mb-3">
+                    <span class="bi bi-shield-lock"></span>
+                </div>
+                <h3 class="fw-bold text-dark font-editorial">Consulta tus Libros y Licencias Digitales</h3>
+                <p class="text-muted col-md-6 mx-auto">
+                    Ingresa arriba el correo electrónico o nombre con el que realizaste tu compra para visualizar tus obras, claves de activación DRM y leer de inmediato.
+                </p>
+                <div class="mt-2">
+                    <a href="/" class="btn btn-outline-primary rounded-2 px-4 py-2">
+                        <span class="bi bi-cart-plus me-2"></span> Explorar Catálogo Editorial
+                    </a>
+                </div>
+            </div>
+        }
+        else if (!TokenService.IsAuthenticated && haConsultado)
+        {
+            <div class="card border shadow-sm rounded-2 p-5 text-center my-4 bg-white">
+                <div class="text-warning display-3 mb-3">
+                    <span class="bi bi-search"></span>
+                </div>
+                <h3 class="fw-bold text-dark font-editorial">No se encontraron licencias activas</h3>
+                <p class="text-muted col-md-6 mx-auto">
+                    No encontramos libros digitales registrados con el término <strong>'@correoOConsulta'</strong>. Verifica que hayas ingresado el mismo correo o nombre usado al momento de la compra.
+                </p>
+                <div class="mt-3 d-flex justify-content-center gap-2">
+                    <button class="btn btn-primary rounded-2 px-4 py-2" @onclick="LimpiarConsulta">
+                        <span class="bi bi-arrow-clockwise me-1"></span> Nueva Consulta
+                    </button>
+                    <a href="/login" class="btn btn-outline-secondary rounded-2 px-4 py-2">
+                        <span class="bi bi-box-arrow-in-right me-1"></span> Iniciar Sesión
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card border shadow-sm rounded-2 p-5 text-center my-4 bg-white">
+                <div class="text-muted display-2 mb-3">
+                    <span class="bi bi-journal-bookmark"></span>
+                </div>
+                <h3 class="fw-bold text-dark font-editorial">No tienes libros digitales disponibles en tu cuenta</h3>
+                <p class="text-muted col-md-6 mx-auto">
+                    Cuando realices una compra en nuestro catálogo, tus títulos y claves DRM de lectura aparecerán inmediatamente en esta sección.
+                </p>
+                <div class="mt-3">
+                    <a href="/" class="btn btn-primary rounded-2 px-4 py-2">
+                        <span class="bi bi-cart-plus me-2"></span> Comprar Libros Digitales
+                    </a>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <!-- Listado de Licencias y Libros Digitales -->
+        <div class="row row-cols-1 row-cols-lg-2 g-4">
+            @foreach (var lic in licenciasFiltradas)
+            {
+                var rating = ObtenerPuntuacion(lic.Libro?.Id);
+                <div class="col">
+                    <div class="card h-100 border shadow-sm rounded-2 p-4 bg-white position-relative">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge bg-light text-primary border px-2 py-1 rounded-2">
+                                @(lic.Libro?.CategoriaPrincipal ?? "Digital")
+                            </span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 rounded-2">
+                                <span class="bi bi-check-circle-fill me-1"></span> @lic.Estado
+                            </span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-4 col-sm-3">
+                                <div class="book-cover-wrapper">
+                                    @if (!string.IsNullOrWhiteSpace(lic.Libro?.PortadaUrl))
+                                    {
+                                        <img src="@lic.Libro.PortadaUrl" alt="@lic.Libro?.Titulo" class="book-cover-img" onerror="this.style.opacity='0'; this.style.display='none';" />
+                                    }
+                                    <div class="book-cover-fallback">
+                                        <div class="small text-white-50">BookStore</div>
+                                        <div class="fw-bold small">@(lic.Libro?.Titulo ?? "Libro")</div>
+                                        <div class="small text-white-50">DRM</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-8 col-sm-9 d-flex flex-column justify-content-between">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-1 font-editorial">@(lic.Libro?.Titulo ?? "Libro Digital Licenciado")</h5>
+                                    <p class="text-muted small mb-2">
+                                        <span class="bi bi-person me-1"></span>@(lic.Libro?.AutorPrincipal ?? "Autor del Catálogo")
+                                    </p>
+                                    @if (!string.IsNullOrWhiteSpace(lic.Libro?.NombreEditorial))
+                                    {
+                                        <span class="badge bg-light text-secondary border small">@lic.Libro.NombreEditorial</span>
+                                    }
+                                </div>
+
+                                <div class="small text-muted mt-2">
+                                    <span class="text-warning">
+                                        <span class="bi bi-star-fill"></span>
+                                        <strong class="text-dark ms-1">@rating.ToString("0.0") / 5</strong>
+                                    </span>
+                                    <span class="mx-2">•</span>
+                                    <span>Asignado: @(lic.FechaAsignacion?.ToString("dd/MM/yyyy") ?? "Reciente")</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Código DRM de Activación -->
+                        <div class="bg-light p-3 rounded-2 mb-3 border">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted d-block fw-semibold text-uppercase" style="font-size: 0.72rem;">Clave de Licencia DRM</small>
+                                    <code class="fs-6 fw-bold text-dark">@lic.CodigoLicencia</code>
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary rounded-2 px-3" @onclick="() => CopiarCodigo(lic.CodigoLicencia)">
+                                    <span class="bi bi-clipboard me-1"></span> Copiar
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr class="my-2 opacity-25" />
+
+                        <!-- Acciones de Lectura -->
+                        <div class="d-flex flex-wrap gap-2 mt-auto pt-2">
+                            <button class="btn btn-primary px-3 py-2 rounded-2 fw-medium flex-grow-1" @onclick="() => AbrirLector(lic)">
+                                <span class="bi bi-book me-1"></span> Leer en Línea
+                            </button>
+                            <a href="@lic.EnlaceDescarga" target="_blank" class="btn btn-outline-secondary px-3 py-2 rounded-2 fw-medium">
+                                <span class="bi bi-download me-1"></span> Descargar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Modal de Lectura Digital -->
+@if (licenciaSeleccionada != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(15, 23, 42, 0.75);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-2 border shadow">
+                <div class="modal-header border-bottom py-3">
+                    <div>
+                        <span class="badge bg-success-subtle text-success px-2 py-1 rounded-2 mb-1">Licencia DRM Verificada</span>
+                        <h5 class="modal-title fw-bold text-dark font-editorial">@(licenciaSeleccionada.Libro?.Titulo ?? "Lector Digital")</h5>
+                        <small class="text-muted">Clave: @licenciaSeleccionada.CodigoLicencia</small>
+                    </div>
+                    <button type="button" class="btn-close" @onclick="() => licenciaSeleccionada = null"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="p-4 rounded-2 bg-light border font-editorial" style="max-height: 380px; overflow-y: auto; line-height: 1.8;">
+                        <h5 class="fw-bold mb-3 text-dark">Capítulo I: Introducción y Fundamentos</h5>
+                        <p class="text-secondary">
+                            Bienvenido a la versión digital autorizada de este título. Su licencia digital ha sido validada exitosamente con el identificador <strong>@licenciaSeleccionada.CodigoLicencia</strong>.
+                        </p>
+                        <p class="text-secondary">
+                            @(string.IsNullOrWhiteSpace(licenciaSeleccionada.Libro?.Sinopsis)
+                                ? "La lectura digital ofrece portabilidad total, marcadores sincronizados y acceso inmediato desde cualquier dispositivo."
+                                : licenciaSeleccionada.Libro.Sinopsis)
+                        </p>
+                        <p class="text-secondary">
+                            Este libro digital cuenta con protección DRM emitida para el titular <strong>@(TokenService.CurrentUser?.FirstName ?? TokenService.CurrentUser?.Login ?? (!string.IsNullOrWhiteSpace(correoOConsulta) ? correoOConsulta : "Cliente"))</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Calificación y Reseña -->
+                    <div class="mt-4 p-3 bg-white rounded-2 border">
+                        <h6 class="fw-bold mb-2 text-dark">Valora este libro</h6>
+                        @if (calificacionEnviada)
+                        {
+                            <div class="alert alert-success py-2 mb-0 small">
+                                <span class="bi bi-check-circle-fill me-1"></span> ¡Gracias por enviar tu opinión! Ha sido registrada en el sistema.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <label class="small text-muted fw-semibold">Tu puntuación:</label>
+                                <select class="form-select form-select-sm w-auto rounded-2" @bind="calificacion">
+                                    <option value="5">★★★★★ (5 estrellas)</option>
+                                    <option value="4">★★★★☆ (4 estrellas)</option>
+                                    <option value="3">★★★☆☆ (3 estrellas)</option>
+                                    <option value="2">★★☆☆☆ (2 estrellas)</option>
+                                    <option value="1">★☆☆☆☆ (1 estrella)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <textarea class="form-control rounded-2 small" rows="2" placeholder="Escribe un breve comentario u opinión sobre esta obra..." @bind="comentarioCalificacion"></textarea>
+                            </div>
+                            <button class="btn btn-sm btn-primary rounded-2 px-3" disabled="@enviandoCalificacion" @onclick="EnviarCalificacion">
+                                @if (enviandoCalificacion)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                }
+                                <span class="bi bi-send me-1"></span> Enviar Reseña
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<LicenciaDigitalDto> misLicencias = new();
+    private List<CalificacionUsuarioDto> listaCalificaciones = new();
+    private string correoOConsulta = "";
+    private bool haConsultado = false;
+    private bool consultando = false;
+    private bool cargando = true;
+    private string? errorCarga = null;
+    private string filtroTexto = "";
+    private string? mensajeCopiado = null;
+    private LicenciaDigitalDto? licenciaSeleccionada = null;
+    private int calificacion = 5;
+    private string comentarioCalificacion = "";
+    private bool enviandoCalificacion = false;
+    private bool calificacionEnviada = false;
+
+    private List<LicenciaDigitalDto> licenciasFiltradas => string.IsNullOrWhiteSpace(filtroTexto)
+        ? misLicencias
+        : misLicencias.Where(l =>
+            (l.Libro?.Titulo?.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (l.Libro?.AutorPrincipal?.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            l.CodigoLicencia.Contains(filtroTexto, StringComparison.OrdinalIgnoreCase)
+        ).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (TokenService.IsAuthenticated)
+        {
+            await CargarLicencias();
+        }
+        else
+        {
+            cargando = false;
+        }
+
+        try
+        {
+            listaCalificaciones = await CalificacionService.GetAll();
+        }
+        catch
+        {
+            // fallback
+        }
+    }
+
+    private async Task ConsultarLicenciasInvitado()
+    {
+        if (string.IsNullOrWhiteSpace(correoOConsulta))
+        {
+            errorCarga = "Por favor ingresa tu correo o nombre para consultar tus licencias.";
+            return;
+        }
+
+        consultando = true;
+        errorCarga = null;
+        try
+        {
+            misLicencias = await LicenciaService.GetMisLicencias(correoOConsulta.Trim());
+            haConsultado = true;
+        }
+        catch (Exception ex)
+        {
+            errorCarga = $"Error al consultar licencias: {ex.Message}";
+        }
+        finally
+        {
+            consultando = false;
+        }
+    }
+
+    private async Task ConsultarRapido(string demoUser)
+    {
+        correoOConsulta = demoUser;
+        await ConsultarLicenciasInvitado();
+    }
+
+    private async Task HandleKeyUpConsulta(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await ConsultarLicenciasInvitado();
+        }
+    }
+
+    private void LimpiarConsulta()
+    {
+        correoOConsulta = "";
+        haConsultado = false;
+    }
+
+    private async Task CargarLicencias()
+    {
+        cargando = true;
+        errorCarga = null;
+        try
+        {
+            misLicencias = await LicenciaService.GetMisLicencias();
+        }
+        catch (Exception ex)
+        {
+            errorCarga = $"No se pudieron obtener las licencias: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private decimal ObtenerPuntuacion(long? libroId)
+    {
+        var id = libroId ?? 1;
+        var list = listaCalificaciones.Where(c => c.LibroId == id).ToList();
+        if (list.Count > 0)
+        {
+            return Math.Round((decimal)list.Average(c => c.Puntuacion), 1);
+        }
+        // Valoración determinista en catálogo
+        return Math.Round(4.4m + ((id % 5) * 0.1m), 1);
+    }
+
+    private async Task CopiarCodigo(string codigo)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("navigator.clipboard.writeText", codigo);
+            mensajeCopiado = $"Clave DRM copiada al portapapeles: {codigo}";
+        }
+        catch (Exception)
+        {
+            mensajeCopiado = $"Clave DRM: {codigo}";
+        }
+    }
+
+    private void AbrirLector(LicenciaDigitalDto lic)
+    {
+        licenciaSeleccionada = lic;
+        calificacion = 5;
+        comentarioCalificacion = "";
+        calificacionEnviada = false;
+    }
+
+    private async Task EnviarCalificacion()
+    {
+        if (licenciaSeleccionada == null) return;
+        enviandoCalificacion = true;
+        try
+        {
+            var cliente = TokenService.CurrentUser?.FirstName ?? TokenService.CurrentUser?.Login ?? "Cliente";
+            var comentario = string.IsNullOrWhiteSpace(comentarioCalificacion)
+                ? $"Calificación de {calificacion} estrellas para el libro '{licenciaSeleccionada.Libro?.Titulo}'."
+                : $"[{licenciaSeleccionada.Libro?.Titulo}] {comentarioCalificacion}";
+
+            var ok = await CalificacionService.RegistrarOpinion(calificacion, comentario, cliente, licenciaSeleccionada.Libro?.Id);
+            if (ok)
+            {
+                calificacionEnviada = true;
+                mensajeCopiado = "¡Tu reseña y puntuación han sido enviadas y guardadas exitosamente!";
+                listaCalificaciones = await CalificacionService.GetAll();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al enviar calificación: {ex.Message}");
+        }
+        finally
+        {
+            enviandoCalificacion = false;
+        }
+    }
+}

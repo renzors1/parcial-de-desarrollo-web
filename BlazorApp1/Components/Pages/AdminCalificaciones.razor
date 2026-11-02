@@ -1,0 +1,235 @@
+@page "/admin/calificaciones"
+@rendermode InteractiveServer
+@inject CalificacionService CalificacionService
+@inject LibroService LibroService
+@inject TokenService TokenService
+@inject NavigationManager Navigation
+
+<PageTitle>Reseñas y Calificaciones</PageTitle>
+
+<div class="container my-4">
+    <!-- Encabezado -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1 text-dark font-editorial">Reseñas y Opiniones de Lectores</h1>
+            <p class="text-muted mb-0">Satisfacción de lectura, valoraciones por obra y comentarios verificados</p>
+        </div>
+        <button class="btn btn-outline-secondary rounded-2 px-3 shadow-2xs" @onclick="CargarCalificaciones">
+            <span class="bi bi-arrow-clockwise me-1"></span> Actualizar Reseñas
+        </button>
+    </div>
+
+    @if (!TokenService.IsAuthenticated)
+    {
+        <div class="alert alert-warning rounded-2 shadow-2xs mb-4" role="alert">
+            <span class="bi bi-shield-lock me-2"></span>
+            <strong>Aviso de Seguridad:</strong> Inicia sesión con perfil administrativo para acceder a los datos de auditoría.
+        </div>
+    }
+
+    <!-- Tarjetas de Métricas -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-warning border p-3 me-3">
+                        <span class="bi bi-star-fill fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Total Reseñas</span>
+                        <h3 class="fw-bold text-dark mb-0 font-editorial">@calificaciones.Count</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-success-subtle text-success border border-success-subtle p-3 me-3">
+                        <span class="bi bi-emoji-smile fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Promedio General</span>
+                        <h3 class="fw-bold text-success mb-0 font-editorial">
+                            @(calificaciones.Count > 0 ? calificaciones.Average(c => c.Puntuacion).ToString("0.0") : "5.0") / 5
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-primary border p-3 me-3">
+                        <span class="bi bi-trophy fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">5 Estrellas</span>
+                        <h3 class="fw-bold text-dark mb-0 font-editorial">@calificaciones.Count(c => c.Puntuacion == 5)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-2 bg-light text-info border p-3 me-3">
+                        <span class="bi bi-chat-quote fs-4"></span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Con Comentario</span>
+                        <h3 class="fw-bold text-dark mb-0 font-editorial">
+                            @calificaciones.Count(c => !string.IsNullOrWhiteSpace(c.Comentario))
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card border shadow-2xs rounded-2 p-3 bg-white mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><span class="bi bi-search"></span></span>
+                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por comentario o lector..." @bind="busqueda" @bind:event="oninput" />
+                </div>
+            </div>
+            <div class="col-12 col-md-6 d-flex justify-content-md-end gap-2">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm @(filtroEstrellas == 0 ? "btn-primary" : "btn-outline-secondary") rounded-2 px-3 me-1" @onclick="() => filtroEstrellas = 0">Todas</button>
+                    <button class="btn btn-sm @(filtroEstrellas == 5 ? "btn-warning text-dark" : "btn-outline-secondary") rounded-2 px-3 me-1" @onclick="() => filtroEstrellas = 5">5 Estrellas</button>
+                    <button class="btn btn-sm @(filtroEstrellas == 4 ? "btn-warning text-dark" : "btn-outline-secondary") rounded-2 px-3 me-1" @onclick="() => filtroEstrellas = 4">4 Estrellas</button>
+                    <button class="btn btn-sm @(filtroEstrellas == 3 ? "btn-secondary" : "btn-outline-secondary") rounded-2 px-3" @onclick="() => filtroEstrellas = 3">≤ 3 Estrellas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Opiniones -->
+    @if (cargando)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Cargando opiniones...</p>
+        </div>
+    }
+    else if (calificacionesFiltradas.Count == 0)
+    {
+        <div class="card border shadow-2xs rounded-2 p-5 text-center bg-white">
+            <span class="bi bi-chat-square-dots text-muted display-4"></span>
+            <h4 class="mt-3 text-dark">No hay opiniones registradas</h4>
+            <p class="text-muted">Aún no se han enviado reseñas con el filtro seleccionado.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card border shadow-2xs rounded-2 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Título de la Obra</th>
+                            <th>Lector / Cliente</th>
+                            <th>Valoración</th>
+                            <th>Reseña / Comentario</th>
+                            <th>Fecha</th>
+                            <th class="text-end pe-4">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cal in calificacionesFiltradas)
+                        {
+                            <tr>
+                                <td class="ps-4 text-muted small">@cal.Id</td>
+                                <td>
+                                    <div class="fw-semibold text-dark font-editorial small" style="max-width: 220px;">
+                                        @ObtenerTituloLibro(cal.LibroId)
+                                    </div>
+                                    <small class="text-muted">ID Obra: #@(cal.LibroId ?? 0)</small>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark">@(cal.UsuarioCreacion ?? "Cliente Verificado")</div>
+                                    <small class="text-muted">Compra Verificada</small>
+                                </td>
+                                <td>
+                                    <div class="text-warning small">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <span class="bi @(i <= cal.Puntuacion ? "bi-star-fill text-warning" : "bi-star text-muted")"></span>
+                                        }
+                                        <span class="fw-bold text-dark ms-1">@cal.Puntuacion / 5</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p class="text-secondary mb-0 small" style="max-width: 450px;">
+                                        @(string.IsNullOrWhiteSpace(cal.Comentario) ? "Sin comentario adicional." : cal.Comentario)
+                                    </p>
+                                </td>
+                                <td>
+                                    <small class="text-muted">@cal.FechaCalificacion.ToString("dd/MM/yyyy HH:mm")</small>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-2 px-2 py-1 small">
+                                        Publicada
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<CalificacionUsuarioDto> calificaciones = new();
+    private List<LibroDto> catalogoLibros = new();
+    private bool cargando = true;
+    private string busqueda = "";
+    private int filtroEstrellas = 0;
+
+    private List<CalificacionUsuarioDto> calificacionesFiltradas => calificaciones
+        .Where(c => filtroEstrellas == 0 || (filtroEstrellas == 3 ? c.Puntuacion <= 3 : c.Puntuacion == filtroEstrellas))
+        .Where(c => string.IsNullOrWhiteSpace(busqueda) ||
+                    (c.Comentario?.Contains(busqueda, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (c.UsuarioCreacion?.Contains(busqueda, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    ObtenerTituloLibro(c.LibroId).Contains(busqueda, StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarCalificaciones();
+    }
+
+    private string ObtenerTituloLibro(long? libroId)
+    {
+        if (!libroId.HasValue) return "Obra General";
+        var match = catalogoLibros.FirstOrDefault(l => l.Id == libroId.Value);
+        return match?.Titulo ?? $"Obra Editorial #{libroId.Value}";
+    }
+
+    private async Task CargarCalificaciones()
+    {
+        cargando = true;
+        try
+        {
+            catalogoLibros = await LibroService.GetAllAsync();
+            calificaciones = await CalificacionService.GetAll();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar calificaciones: {ex.Message}");
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+}

@@ -1,0 +1,418 @@
+@page "/libros"
+@rendermode InteractiveServer
+@inject LibroService LibroService
+@inject EditorialService EditorialService
+@inject TokenService TokenService
+@inject NavigationManager Navigation
+
+<PageTitle>Administración de Catálogo Editorial</PageTitle>
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="h2 fw-bold mb-1 font-editorial">Catálogo Editorial</h1>
+            <p class="text-muted mb-0">Administración de publicaciones, precios y fondos editoriales</p>
+        </div>
+        <button class="btn btn-primary rounded-2 px-3" @onclick="AbrirModalNuevo">
+            <span class="bi bi-plus-lg me-1"></span> Nuevo Libro
+        </button>
+    </div>
+
+    @if (!TokenService.IsAuthenticated)
+    {
+        <div class="alert alert-warning d-flex align-items-center rounded-2" role="alert">
+            <span class="bi bi-exclamation-triangle-fill text-warning fs-5 me-2"></span>
+            <div>
+                <strong>Aviso:</strong> No has iniciado sesión. <a href="/login" class="alert-link">Inicia sesión</a> para asegurar permisos de administración completos.
+            </div>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(mensajeAlerta))
+    {
+        <div class="alert alert-info alert-dismissible fade show rounded-2" role="alert">
+            @mensajeAlerta
+            <button type="button" class="btn-close" @onclick="() => mensajeAlerta = null"></button>
+        </div>
+    }
+
+    @if (cargando)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Cargando publicaciones...</p>
+        </div>
+    }
+    else if (libros == null || libros.Count == 0)
+    {
+        <div class="card p-5 text-center bg-white border rounded-2">
+            <span class="bi bi-book fs-1 text-muted mb-2"></span>
+            <h5 class="text-dark">No se encontraron títulos en el catálogo</h5>
+            <p class="text-muted mb-3">Comienza agregando un nuevo libro al catálogo editorial.</p>
+            <div>
+                <button class="btn btn-primary rounded-2" @onclick="AbrirModalNuevo">
+                    <span class="bi bi-plus-lg me-1"></span> Agregar Primer Libro
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card border shadow-sm rounded-2 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3" style="width: 60px;">ID</th>
+                            <th>Portada</th>
+                            <th>Título</th>
+                            <th>Autor</th>
+                            <th>Editorial</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var libro in libros)
+                        {
+                            <tr>
+                                <td class="ps-3 text-muted small">@libro.Id</td>
+                                <td style="width: 50px;">
+                                    <div style="width: 40px; height: 56px; border-radius: 4px; overflow: hidden; background: #1e293b;" class="border">
+                                        @if (!string.IsNullOrWhiteSpace(libro.PortadaUrl))
+                                        {
+                                            <img src="@libro.PortadaUrl" alt="@libro.Titulo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.opacity='0'; this.style.display='none';" />
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark font-editorial">@libro.Titulo</div>
+                                    <div class="text-muted small">ISBN: @libro.Isbn</div>
+                                </td>
+                                <td>@libro.AutorPrincipal</td>
+                                <td><span class="badge bg-light text-secondary border">@libro.NombreEditorial</span></td>
+                                <td><span class="fw-bold text-primary">S/ @libro.Precio.ToString("N2")</span></td>
+                                <td>
+                                    <span class="badge @(libro.Activo ? "bg-success-subtle text-success border border-success-subtle" : "bg-secondary-subtle text-muted") rounded-2">
+                                        @(libro.Activo ? "Activo" : "Inactivo")
+                                    </span>
+                                </td>
+                                <td class="text-end pe-3">
+                                    <button class="btn btn-sm btn-outline-secondary rounded-2 me-1" @onclick="() => AbrirModalEditar(libro)">
+                                        <span class="bi bi-pencil me-1"></span> Editar
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-2" title="Eliminar del catálogo" @onclick="() => SolicitarEliminarLibro(libro)">
+                                        <span class="bi bi-trash"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@if (mostrarModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(15, 23, 42, 0.75);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-2 border shadow">
+                <div class="modal-header border-bottom py-3">
+                    <h5 class="modal-title fw-bold text-dark font-editorial">
+                        @(libroActual.Id == null || libroActual.Id == 0 ? "Nuevo Título Editorial" : "Editar Título Editorial")
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModal"></button>
+                </div>
+                <EditForm Model="@libroActual" OnValidSubmit="GuardarLibro">
+                    <DataAnnotationsValidator />
+                    <div class="modal-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Título del Libro</label>
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Titulo" placeholder="Ej. Clean Architecture" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">ISBN</label>
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Isbn" placeholder="978-0134494164" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Autor (Nombre y Apellidos)</label>
+                                <input type="text" class="form-control rounded-2" @bind="campoAutorTexto" placeholder="Ej. Robert C. Martin" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Editorial</label>
+                                <select class="form-select rounded-2" @bind="editorialSeleccionadaId">
+                                    <option value="0">-- Selecciona Editorial --</option>
+                                    @foreach (var ed in editoriales)
+                                    {
+                                        <option value="@ed.Id">@ed.NombreEditorial (@ed.Pais)</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Precio (S/)</label>
+                                <InputNumber class="form-control rounded-2" @bind-Value="libroActual.Precio" step="0.01" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Categoría</label>
+                                <select class="form-select rounded-2" @bind="categoriaSeleccionada">
+                                    <option value="Programación">Programación</option>
+                                    <option value="Arquitectura">Arquitectura</option>
+                                    <option value="Cloud Computing">Cloud Computing</option>
+                                    <option value="Desarrollo Web">Desarrollo Web</option>
+                                    <option value="Base de Datos">Base de Datos</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Idioma</label>
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Idioma" placeholder="Español" />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">URL de Portada</label>
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.PortadaUrl" placeholder="/covers/cover-*.svg" />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Sinopsis / Resumen</label>
+                                <InputTextArea class="form-control rounded-2" rows="3" @bind-Value="libroActual.Sinopsis" placeholder="Descripción de la obra..."></InputTextArea>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check form-switch mt-2">
+                                    <InputCheckbox class="form-check-input" @bind-Value="libroActual.Activo" id="chkActivo" />
+                                    <label class="form-check-label fw-semibold" for="chkActivo">Título visible y disponible en catálogo</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top py-3">
+                        <button type="button" class="btn btn-outline-secondary rounded-2 px-3" @onclick="CerrarModal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary rounded-2 px-4" disabled="@guardando">
+                            @if (guardando)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            <span>Guardar Título</span>
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@if (mostrarModalEliminar && libroAEliminar != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(15, 23, 42, 0.75);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-2 border shadow">
+                <div class="modal-header border-bottom py-3">
+                    <h5 class="modal-title fw-bold text-dark font-editorial">
+                        <span class="bi bi-exclamation-triangle-fill text-danger me-2"></span> Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModalEliminar"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-secondary mb-3">
+                        ¿Estás seguro de que deseas retirar del catálogo el siguiente título editorial?
+                    </p>
+                    <div class="p-3 bg-light rounded-2 border mb-3">
+                        <div class="fw-bold text-dark font-editorial">@libroAEliminar.Titulo</div>
+                        <div class="small text-muted">ISBN: @libroAEliminar.Isbn • Autor: @libroAEliminar.AutorPrincipal</div>
+                        <div class="small text-primary fw-semibold mt-1">Precio: S/ @libroAEliminar.Precio.ToString("N2")</div>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Esta acción retirará la obra del inventario activo y del catálogo público.
+                    </p>
+                </div>
+                <div class="modal-footer border-top py-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-2 px-3" @onclick="CerrarModalEliminar">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger rounded-2 px-4 fw-semibold" @onclick="ConfirmarEliminarLibro">
+                        <span class="bi bi-trash me-1"></span> Sí, Retirar Obra
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<LibroDto> libros = new();
+    private List<EditorialDto> editoriales = new();
+    private LibroDto libroActual = new();
+    private LibroDto? libroAEliminar = null;
+    private string campoAutorTexto = "";
+    private long editorialSeleccionadaId = 0;
+    private string categoriaSeleccionada = "Programación";
+    private bool cargando = true;
+    private bool guardando = false;
+    private bool mostrarModal = false;
+    private bool mostrarModalEliminar = false;
+    private string? mensajeAlerta;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarLibros();
+        try
+        {
+            editoriales = await EditorialService.GetAll();
+        }
+        catch
+        {
+            // fallback
+        }
+    }
+
+    private async Task CargarLibros()
+    {
+        cargando = true;
+        libros = await LibroService.GetAll();
+        cargando = false;
+    }
+
+    private void AbrirModalNuevo()
+    {
+        libroActual = new LibroDto
+        {
+            Precio = 50.00m,
+            Idioma = "Español",
+            Activo = true,
+            PortadaUrl = "/covers/cover-clean-arch.svg"
+        };
+        campoAutorTexto = "";
+        editorialSeleccionadaId = editoriales.FirstOrDefault()?.Id ?? 0;
+        categoriaSeleccionada = "Programación";
+        mostrarModal = true;
+    }
+
+    private void AbrirModalEditar(LibroDto libro)
+    {
+        libroActual = new LibroDto
+        {
+            Id = libro.Id,
+            Isbn = libro.Isbn,
+            Titulo = libro.Titulo,
+            Sinopsis = libro.Sinopsis,
+            Precio = libro.Precio,
+            Stock = libro.Stock,
+            Idioma = libro.Idioma,
+            Activo = libro.Activo,
+            PortadaUrl = libro.PortadaUrl,
+            Editorial = libro.Editorial,
+            Categoriases = new List<CategoriaDto>(libro.Categoriases),
+            Autoreses = new List<AutorDto>(libro.Autoreses)
+        };
+
+        campoAutorTexto = libro.AutorPrincipal;
+        editorialSeleccionadaId = libro.Editorial?.Id ?? 0;
+        categoriaSeleccionada = libro.CategoriaPrincipal ?? "Programación";
+        mostrarModal = true;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+    }
+
+    private async Task GuardarLibro()
+    {
+        guardando = true;
+
+        if (string.IsNullOrWhiteSpace(libroActual.Isbn))
+        {
+            libroActual.Isbn = $"978-{DateTime.UtcNow.Ticks.ToString()[^10..]}";
+        }
+
+        // Separación rigurosa de Nombres y Apellidos para evitar concatenaciones duplicadas
+        var autorLimpio = (campoAutorTexto ?? "").Trim();
+        if (!string.IsNullOrWhiteSpace(autorLimpio))
+        {
+            var parts = autorLimpio.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            var nombres = parts.Length > 0 ? parts[0] : "";
+            var apellidos = parts.Length > 1 ? parts[1] : "";
+
+            if (libroActual.Autoreses.Count > 0)
+            {
+                libroActual.Autoreses[0].Nombres = nombres;
+                libroActual.Autoreses[0].Apellidos = apellidos;
+            }
+            else
+            {
+                libroActual.Autoreses.Add(new AutorDto { Nombres = nombres, Apellidos = apellidos });
+            }
+        }
+
+        // Asignar editorial seleccionada
+        if (editorialSeleccionadaId > 0)
+        {
+            var ed = editoriales.FirstOrDefault(e => e.Id == editorialSeleccionadaId);
+            if (ed != null)
+            {
+                libroActual.Editorial = ed;
+            }
+        }
+
+        // Asignar categoría seleccionada
+        if (!string.IsNullOrWhiteSpace(categoriaSeleccionada))
+        {
+            if (libroActual.Categoriases.Count > 0)
+            {
+                libroActual.Categoriases[0].NombreCategoria = categoriaSeleccionada;
+            }
+            else
+            {
+                libroActual.Categoriases.Add(new CategoriaDto { NombreCategoria = categoriaSeleccionada, Activo = true });
+            }
+        }
+
+        bool ok;
+        if (libroActual.Id == null || libroActual.Id == 0)
+        {
+            ok = await LibroService.Create(libroActual);
+            mensajeAlerta = ok ? "Título registrado con éxito en el catálogo editorial." : "Error al registrar el título.";
+        }
+        else
+        {
+            ok = await LibroService.Update(libroActual);
+            mensajeAlerta = ok ? "Título actualizado con éxito." : "Error al actualizar el título.";
+        }
+        guardando = false;
+
+        if (ok)
+        {
+            CerrarModal();
+            await CargarLibros();
+        }
+    }
+
+    private void SolicitarEliminarLibro(LibroDto libro)
+    {
+        libroAEliminar = libro;
+        mostrarModalEliminar = true;
+    }
+
+    private void CerrarModalEliminar()
+    {
+        libroAEliminar = null;
+        mostrarModalEliminar = false;
+    }
+
+    private async Task ConfirmarEliminarLibro()
+    {
+        if (libroAEliminar?.Id != null)
+        {
+            var ok = await LibroService.Delete(libroAEliminar.Id.Value);
+            mensajeAlerta = ok ? $"El título '{libroAEliminar.Titulo}' fue retirado del catálogo." : "Error al retirar el título.";
+            CerrarModalEliminar();
+            await CargarLibros();
+        }
+    }
+}

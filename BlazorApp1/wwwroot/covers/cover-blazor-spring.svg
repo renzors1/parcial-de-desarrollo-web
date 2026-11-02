@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="bg-blazor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <linearGradient id="blazor-spring" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#512bd4"/>
+      <stop offset="45%" stop-color="#6d28d9"/>
+      <stop offset="55%" stop-color="#16a34a"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="manning-badge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="600" fill="url(#bg-blazor)"/>
+
+  <!-- Left Spine Accent -->
+  <rect x="0" y="0" width="8" height="600" fill="#6d28d9"/>
+
+  <!-- Manning Publisher Header -->
+  <rect x="30" y="28" width="80" height="24" rx="3" fill="url(#manning-badge)" stroke="#475569" stroke-width="1"/>
+  <text x="70" y="44" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="11" font-weight="900" fill="#f8fafc" text-anchor="middle" letter-spacing="1">MANNING</text>
+  <text x="122" y="44" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="10" font-weight="600" fill="#a78bfa" letter-spacing="1">FULL STACK IN ACTION</text>
+
+  <!-- Main Title Area -->
+  <text x="30" y="120" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="28" font-weight="800" fill="#ffffff" letter-spacing="-0.3">
+    Desarrollo Web Full-Stack
+  </text>
+  <text x="30" y="155" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="24" font-weight="800" fill="#cbd5e1">
+    con
+  </text>
+  <text x="78" y="155" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="28" font-weight="900" fill="#a78bfa">
+    Blazor
+  </text>
+  <text x="168" y="155" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="22" font-weight="700" fill="#94a3b8">
+    &amp;
+  </text>
+  <text x="195" y="155" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="28" font-weight="900" fill="#4ade80">
+    Spring Boot
+  </text>
+
+  <!-- Subtitle -->
+  <text x="30" y="200" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="13.5" font-weight="500" fill="#cbd5e1">
+    Arquitectura Moderna Cliente-Servidor Empresarial
+  </text>
+  <text x="30" y="222" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="12" font-weight="400" fill="#64748b">
+    C# Interactivo + APIs REST con Java Spring Security y JPA
+  </text>
+
+  <!-- Dual Graphic: Blazor / Client on left, Spring / Backend on right -->
+  <g transform="translate(200, 355)">
+    <!-- Bridge connection -->
+    <rect x="-90" y="-30" width="180" height="60" rx="30" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+    <path d="M-50,0 L50,0" stroke="url(#blazor-spring)" stroke-width="3" stroke-dasharray="4,4"/>
+
+    <!-- Left: Blazor / Web UI -->
+    <circle cx="-60" cy="0" r="34" fill="#2e1065" stroke="#7c3aed" stroke-width="2.5"/>
+    <text x="-60" y="-4" font-family="'Plus Jakarta Sans', sans-serif" font-size="10" font-weight="800" fill="#ffffff" text-anchor="middle">BLAZOR</text>
+    <text x="-60" y="12" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="600" fill="#c084fc" text-anchor="middle">.NET UI</text>
+
+    <!-- Center: REST API Arrow -->
+    <rect x="-24" y="-12" width="48" height="24" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+    <text x="0" y="4" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="800" fill="#38bdf8" text-anchor="middle">REST</text>
+
+    <!-- Right: Spring Boot -->
+    <circle cx="60" cy="0" r="34" fill="#052e16" stroke="#16a34a" stroke-width="2.5"/>
+    <text x="60" y="-4" font-family="'Plus Jakarta Sans', sans-serif" font-size="10" font-weight="800" fill="#ffffff" text-anchor="middle">SPRING</text>
+    <text x="60" y="12" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="600" fill="#86efac" text-anchor="middle">BOOT 3</text>
+  </g>
+
+  <!-- Key Points Pill Bar -->
+  <g transform="translate(30, 440)">
+    <rect width="340" height="48" rx="6" fill="#1e1b4b" stroke="#312e81" stroke-width="1"/>
+    <text x="15" y="22" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="600" fill="#cbd5e1">
+      • Blazor WebAssembly &amp; SSR Interactivo
+    </text>
+    <text x="15" y="38" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="600" fill="#cbd5e1">
+      • JWT Tokens, OAuth2 y Persistencia H2/PostgreSQL
+    </text>
+  </g>
+
+  <!-- Author Area -->
+  <rect x="30" y="515" width="340" height="1" fill="#334155"/>
+  <text x="30" y="544" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="11" font-weight="600" fill="#94a3b8" letter-spacing="1">PRÓLOGO &amp; ARQUITECTURA</text>
+  <text x="30" y="572" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#ffffff">
+    Martin Fowler
+  </text>
+</svg>
