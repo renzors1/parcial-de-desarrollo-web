@@ -30,6 +30,13 @@
                     </div>
                 }
 
+                @if (!string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    <div class="alert alert-info py-2 rounded-2 small text-center mb-3">
+                        <span class="bi bi-info-circle me-1"></span> Inicia sesión para continuar con tu compra en el carrito.
+                    </div>
+                }
+
                 <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
                     <DataAnnotationsValidator />
                     <ValidationSummary class="alert alert-danger py-2 px-3 rounded-2 small mb-3" />
@@ -68,7 +75,7 @@
 
                 <div class="text-center mb-3">
                     <span class="text-muted small">¿Aún no tienes cuenta? </span>
-                    <a href="/registro" class="fw-semibold text-primary">Crear cuenta de cliente</a>
+                    <a href="@(string.IsNullOrWhiteSpace(ReturnUrl) ? "/registro" : $"/registro?returnUrl={Uri.EscapeDataString(ReturnUrl)}")" class="fw-semibold text-primary">Crear cuenta de cliente</a>
                 </div>
 
                 <!-- Accesos Rápidos para Demostración -->
@@ -112,6 +119,9 @@
 </div>
 
 @code {
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
     private LoginRequest loginModel = new();
     private string? errorMessage;
     private string? successMessage;
@@ -131,7 +141,11 @@
                 successMessage = "¡Bienvenido! Redirigiendo...";
                 await Task.Delay(400);
 
-                if (TokenService.IsAdmin)
+                if (!string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    Navigation.NavigateTo(ReturnUrl);
+                }
+                else if (TokenService.IsAdmin)
                 {
                     Navigation.NavigateTo("/libros");
                 }

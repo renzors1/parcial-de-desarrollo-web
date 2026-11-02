@@ -1,6 +1,7 @@
 @page "/admin/promociones"
 @rendermode InteractiveServer
 @inject PromocionService PromocionService
+@inject LibroService LibroService
 @inject TokenService TokenService
 @inject NavigationManager Navigation
 
@@ -139,6 +140,7 @@
                         <tr>
                             <th class="ps-4">Campaña</th>
                             <th>Descuento</th>
+                            <th>Alcance</th>
                             <th>Cupos (Disponibles / Total)</th>
                             <th>Periodo de Vigencia</th>
                             <th>Estado</th>
@@ -157,6 +159,20 @@
                                     <span class="badge bg-danger text-white rounded-2 px-2 py-1 fw-bold fs-6">
                                         -@promo.PorcentajeDescuento.ToString("0")%
                                     </span>
+                                </td>
+                                <td>
+                                    @if (promo.Libroses == null || promo.Libroses.Count == 0)
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-2 px-2 py-1 small">
+                                            <span class="bi bi-globe me-1"></span> Todo el catálogo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-dark border rounded-2 px-2 py-1 small" title="@string.Join(", ", promo.Libroses.Select(l => l.Titulo))">
+                                            <span class="bi bi-book me-1"></span> @promo.Libroses.Count @(promo.Libroses.Count == 1 ? "título" : "títulos")
+                                        </span>
+                                    }
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
@@ -244,6 +260,76 @@
                         </div>
 
                         <div class="col-12">
+                            <label class="form-label fw-semibold">Alcance y Asignación de Libros <span class="text-danger">*</span></label>
+                            <div class="p-3 bg-light rounded-2 border">
+                                <div class="d-flex flex-wrap gap-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="radioAlcance" id="radioGlobal" checked="@esAlcanceGlobal" @onchange="() => CambiarAlcance(true)" />
+                                        <label class="form-check-label fw-semibold text-dark" for="radioGlobal">
+                                            <span class="bi bi-globe me-1 text-primary"></span> Catálogo Completo (Aplica a todos los libros)
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="radioAlcance" id="radioEspecificos" checked="@(!esAlcanceGlobal)" @onchange="() => CambiarAlcance(false)" />
+                                        <label class="form-check-label fw-semibold text-dark" for="radioEspecificos">
+                                            <span class="bi bi-book me-1 text-success"></span> Libros Específicos (Seleccionar títulos)
+                                        </label>
+                                    </div>
+                                </div>
+
+                                @if (!esAlcanceGlobal)
+                                {
+                                    <div class="mt-3 pt-3 border-top">
+                                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                            <span class="small fw-bold text-secondary">
+                                                Títulos seleccionados: <span class="badge bg-primary rounded-pill px-2 py-1">@librosSeleccionadosIds.Count</span>
+                                            </span>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-2 px-2 py-1" @onclick="SeleccionarTodosLibros">
+                                                    <span class="bi bi-check-all me-1"></span> Marcar Todos
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-2 px-2 py-1" @onclick="DeseleccionarTodosLibros">
+                                                    <span class="bi bi-x me-1"></span> Limpiar
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="input-group input-group-sm mb-2">
+                                            <span class="input-group-text bg-white border-end-0 text-muted"><span class="bi bi-search"></span></span>
+                                            <input type="text" class="form-control border-start-0 ps-0" placeholder="Filtrar por título, autor o ISBN..." @bind="filtroLibrosModal" @bind:event="oninput" />
+                                        </div>
+
+                                        <div class="border rounded-2 p-2 bg-white" style="max-height: 220px; overflow-y: auto;">
+                                            @if (catalogoLibrosFiltrados.Count == 0)
+                                            {
+                                                <div class="text-center text-muted py-3 small">
+                                                    No se encontraron libros que coincidan con la búsqueda.
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                @foreach (var libro in catalogoLibrosFiltrados)
+                                                {
+                                                    var isChecked = libro.Id.HasValue && librosSeleccionadosIds.Contains(libro.Id.Value);
+                                                    <div class="form-check py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                                                        <div class="d-flex align-items-center">
+                                                            <input class="form-check-input me-3" type="checkbox" id="chkLibro_@libro.Id" checked="@isChecked" @onchange="() => ToggleLibroSeleccion(libro.Id)" />
+                                                            <label class="form-check-label mb-0" for="chkLibro_@libro.Id" style="cursor: pointer;">
+                                                                <span class="fw-semibold text-dark font-editorial">@libro.Titulo</span>
+                                                                <span class="text-muted small ms-2 d-block d-md-inline">• @libro.AutorPrincipal</span>
+                                                            </label>
+                                                        </div>
+                                                        <span class="badge bg-light text-primary border fw-bold ms-2">S/ @libro.Precio.ToString("N2")</span>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="col-12">
                             <div class="form-check form-switch mt-2">
                                 <input class="form-check-input" type="checkbox" id="chkPromoActiva" @bind="promocionActual.Activo" />
                                 <label class="form-check-label fw-semibold" for="chkPromoActiva">Campaña habilitada y disponible en checkout</label>
@@ -262,6 +348,10 @@
 
 @code {
     private List<PromocionDto> promociones = new();
+    private List<LibroDto> catalogoLibros = new();
+    private HashSet<long> librosSeleccionadosIds = new();
+    private bool esAlcanceGlobal = true;
+    private string filtroLibrosModal = "";
     private PromocionDto promocionActual = new();
     private bool cargando = true;
     private bool mostrarModal = false;
@@ -278,9 +368,26 @@
                     (p.Descripcion?.Contains(busquedaTexto, StringComparison.OrdinalIgnoreCase) ?? false))
         .ToList();
 
+    private List<LibroDto> catalogoLibrosFiltrados =>
+        string.IsNullOrWhiteSpace(filtroLibrosModal)
+            ? catalogoLibros
+            : catalogoLibros.Where(l =>
+                l.Titulo.Contains(filtroLibrosModal, StringComparison.OrdinalIgnoreCase) ||
+                l.AutorPrincipal.Contains(filtroLibrosModal, StringComparison.OrdinalIgnoreCase) ||
+                (l.Isbn?.Contains(filtroLibrosModal, StringComparison.OrdinalIgnoreCase) ?? false)
+            ).ToList();
+
     protected override async Task OnInitializedAsync()
     {
         await CargarPromociones();
+        try
+        {
+            catalogoLibros = await LibroService.GetAll();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al precargar libros en promociones: {ex.Message}");
+        }
     }
 
     private async Task CargarPromociones()
@@ -300,18 +407,61 @@
         }
     }
 
+    private void CambiarAlcance(bool global)
+    {
+        esAlcanceGlobal = global;
+        if (global)
+        {
+            librosSeleccionadosIds.Clear();
+        }
+    }
+
+    private void ToggleLibroSeleccion(long? libroId)
+    {
+        if (!libroId.HasValue) return;
+        if (librosSeleccionadosIds.Contains(libroId.Value))
+        {
+            librosSeleccionadosIds.Remove(libroId.Value);
+        }
+        else
+        {
+            librosSeleccionadosIds.Add(libroId.Value);
+        }
+    }
+
+    private void SeleccionarTodosLibros()
+    {
+        foreach (var libro in catalogoLibros)
+        {
+            if (libro.Id.HasValue)
+            {
+                librosSeleccionadosIds.Add(libro.Id.Value);
+            }
+        }
+    }
+
+    private void DeseleccionarTodosLibros()
+    {
+        librosSeleccionadosIds.Clear();
+    }
+
     private void AbrirModalNuevaPromocion()
     {
+        var hoy = DateTime.Now;
         promocionActual = new PromocionDto
         {
             Nombre = "PROMO-NUEVA",
             PorcentajeDescuento = 20,
             CantidadDefinida = 50,
             CantidadDisponible = 50,
-            FechaInicio = DateTime.UtcNow,
-            FechaFin = DateTime.UtcNow.AddMonths(1),
-            Activo = true
+            FechaInicio = hoy,
+            FechaFin = hoy.AddMonths(1),
+            Activo = true,
+            Libroses = new()
         };
+        librosSeleccionadosIds.Clear();
+        esAlcanceGlobal = true;
+        filtroLibrosModal = "";
         mostrarModal = true;
     }
 
@@ -327,8 +477,15 @@
             CantidadDisponible = promo.CantidadDisponible,
             FechaInicio = promo.FechaInicio,
             FechaFin = promo.FechaFin,
-            Activo = promo.Activo
+            Activo = promo.Activo,
+            Libroses = new List<LibroDto>(promo.Libroses ?? new())
         };
+
+        librosSeleccionadosIds = new HashSet<long>(
+            promo.Libroses?.Where(l => l.Id.HasValue).Select(l => l.Id!.Value) ?? Enumerable.Empty<long>()
+        );
+        esAlcanceGlobal = librosSeleccionadosIds.Count == 0;
+        filtroLibrosModal = "";
         mostrarModal = true;
     }
 
@@ -358,13 +515,36 @@
             return;
         }
 
-        if (promocionActual.FechaFin <= promocionActual.FechaInicio)
+        if (promocionActual.FechaFin.Date < promocionActual.FechaInicio.Date)
         {
-            mensajeAlerta = "Error: La fecha de término debe ser posterior a la fecha de inicio.";
+            mensajeAlerta = "Error: La fecha de término no puede ser anterior a la fecha de inicio.";
+            return;
+        }
+
+        // Si la campaña finaliza hoy o en la misma fecha de inicio, asegurar que la hora cubra hasta el fin del día (23:59:59)
+        if (promocionActual.FechaFin.TimeOfDay == TimeSpan.Zero || promocionActual.FechaFin.Date == promocionActual.FechaInicio.Date)
+        {
+            promocionActual.FechaFin = promocionActual.FechaFin.Date.AddDays(1).AddTicks(-1);
+        }
+
+        if (!esAlcanceGlobal && librosSeleccionadosIds.Count == 0)
+        {
+            mensajeAlerta = "Error: Debes seleccionar al menos un libro para una campaña con alcance específico.";
             return;
         }
 
         promocionActual.Nombre = nombreLimpio;
+
+        if (esAlcanceGlobal)
+        {
+            promocionActual.Libroses = new List<LibroDto>();
+        }
+        else
+        {
+            promocionActual.Libroses = catalogoLibros
+                .Where(l => l.Id.HasValue && librosSeleccionadosIds.Contains(l.Id.Value))
+                .ToList();
+        }
 
         bool exito;
         if (promocionActual.Id.HasValue)
@@ -379,6 +559,17 @@
 
         if (exito)
         {
+            // Sincronizar catálogo local de libros para reflejar la promoción en el libro correspondiente
+            foreach (var libro in catalogoLibros)
+            {
+                if (!libro.Id.HasValue) continue;
+                libro.Promociones.RemoveAll(p => p.Id == promocionActual.Id);
+                if (!esAlcanceGlobal && librosSeleccionadosIds.Contains(libro.Id.Value))
+                {
+                    libro.Promociones.Add(promocionActual);
+                }
+            }
+
             mensajeAlerta = $"Promoción '{promocionActual.Nombre}' guardada correctamente.";
             mostrarModal = false;
             await CargarPromociones();

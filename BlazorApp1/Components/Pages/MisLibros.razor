@@ -196,6 +196,7 @@
             @foreach (var lic in licenciasFiltradas)
             {
                 var rating = ObtenerPuntuacion(lic.Libro?.Id);
+                var miResena = ObtenerMiResena(lic.Libro?.Id);
                 <div class="col">
                     <div class="card h-100 border shadow-sm rounded-2 p-4 bg-white position-relative">
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -257,12 +258,32 @@
                             </div>
                         </div>
 
+                        @if (miResena != null)
+                        {
+                            <div class="p-2 mb-3 rounded-2 bg-warning-subtle border border-warning-subtle small d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-warning"><span class="bi bi-star-fill"></span></span>
+                                    <strong class="text-dark ms-1">Tu reseña: @miResena.Puntuacion / 5</strong>
+                                    @if (!string.IsNullOrWhiteSpace(miResena.Comentario))
+                                    {
+                                        <span class="text-secondary ms-1">"@(miResena.Comentario.Length > 45 ? miResena.Comentario.Substring(0, 42) + "..." : miResena.Comentario)"</span>
+                                    }
+                                </div>
+                                <button class="btn btn-sm btn-link text-decoration-none p-0 text-dark" @onclick="() => AbrirModalResena(lic)" title="Editar tu opinión">
+                                    <span class="bi bi-pencil-square"></span>
+                                </button>
+                            </div>
+                        }
+
                         <hr class="my-2 opacity-25" />
 
-                        <!-- Acciones de Lectura -->
+                        <!-- Acciones de Lectura y Reseña -->
                         <div class="d-flex flex-wrap gap-2 mt-auto pt-2">
                             <button class="btn btn-primary px-3 py-2 rounded-2 fw-medium flex-grow-1" @onclick="() => AbrirLector(lic)">
                                 <span class="bi bi-book me-1"></span> Leer en Línea
+                            </button>
+                            <button class="btn btn-outline-warning text-dark px-3 py-2 rounded-2 fw-medium" @onclick="() => AbrirModalResena(lic)">
+                                <span class="bi bi-star-fill text-warning me-1"></span> @(miResena != null ? "Editar Reseña" : "Dejar Reseña")
                             </button>
                             <a href="@lic.EnlaceDescarga" target="_blank" class="btn btn-outline-secondary px-3 py-2 rounded-2 fw-medium">
                                 <span class="bi bi-download me-1"></span> Descargar
@@ -274,6 +295,102 @@
         </div>
     }
 </div>
+
+<!-- Modal Especializado para Dejar / Editar Reseña -->
+@if (mostrarModalResena && licenciaParaResena != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(15, 23, 42, 0.75);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-2 border shadow">
+                <div class="modal-header border-bottom py-3">
+                    <div>
+                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle px-2 py-1 rounded-2 mb-1">
+                            <span class="bi bi-star-fill text-warning me-1"></span> Valoración de Lector Verificado
+                        </span>
+                        <h5 class="modal-title fw-bold text-dark font-editorial mb-0">
+                            Calificar: @(licenciaParaResena.Libro?.Titulo ?? "Obra Digital")
+                        </h5>
+                    </div>
+                    <button type="button" class="btn-close" @onclick="CerrarModalResena"></button>
+                </div>
+                <div class="modal-body p-4">
+                    @if (calificacionEnviada)
+                    {
+                        <div class="alert alert-success py-3 rounded-2 text-center shadow-2xs mb-0">
+                            <span class="bi bi-check-circle-fill fs-3 text-success d-block mb-2"></span>
+                            <h6 class="fw-bold text-dark mb-1">¡Muchas gracias por tu reseña!</h6>
+                            <p class="small text-muted mb-3">Tu valoración ha sido registrada con éxito y ya está disponible en la plataforma.</p>
+                            <button type="button" class="btn btn-sm btn-primary rounded-2 px-3" @onclick="CerrarModalResena">
+                                Entendido
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-3 bg-light rounded-2 border mb-3">
+                            <div class="fw-bold text-dark font-editorial">@(licenciaParaResena.Libro?.Titulo)</div>
+                            <div class="small text-muted">Autor: @(licenciaParaResena.Libro?.AutorPrincipal) • Clave DRM: <code>@licenciaParaResena.CodigoLicencia</code></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-dark mb-1">Tu Puntuación (1 a 5 estrellas) <span class="text-danger">*</span></label>
+                            <div class="d-flex align-items-center gap-2 py-2">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    var starIndex = i;
+                                    <button type="button" class="btn btn-link p-1 text-decoration-none fs-2 @(starIndex <= calificacion ? "text-warning" : "text-muted opacity-25")" 
+                                            @onclick="() => calificacion = starIndex" title="@(starIndex) estrellas">
+                                        <span class="bi bi-star-fill"></span>
+                                    </button>
+                                }
+                                <span class="ms-2 fw-bold text-dark">
+                                    @calificacion / 5 
+                                    <span class="badge bg-white border text-primary ms-1">
+                                        @(calificacion switch {
+                                            5 => "Excelente",
+                                            4 => "Muy Bueno",
+                                            3 => "Bueno",
+                                            2 => "Regular",
+                                            _ => "Aceptable"
+                                        })
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-dark mb-1">Tu Opinión o Comentario de Lectura</label>
+                            <textarea class="form-control rounded-2" rows="3" 
+                                      placeholder="Comparte qué te pareció el contenido, la calidad del libro, la claridad de los ejemplos..." 
+                                      @bind="comentarioCalificacion" @bind:event="oninput" maxlength="500"></textarea>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small class="text-muted">Límite comercial de 500 caracteres.</small>
+                                <small class="text-muted">@(comentarioCalificacion?.Length ?? 0) / 500</small>
+                            </div>
+                        </div>
+
+                        <div class="small text-muted mb-0">
+                            <span class="bi bi-shield-check text-success me-1"></span> Reseña emitida como: <strong>@(TokenService.CurrentUser?.FirstName ?? TokenService.CurrentUser?.Login ?? (!string.IsNullOrWhiteSpace(correoOConsulta) ? correoOConsulta : "Lector Verificado"))</strong>
+                        </div>
+                    }
+                </div>
+                @if (!calificacionEnviada)
+                {
+                    <div class="modal-footer border-top py-3">
+                        <button type="button" class="btn btn-outline-secondary rounded-2 px-3" @onclick="CerrarModalResena">Cancelar</button>
+                        <button type="button" class="btn btn-primary rounded-2 px-4" disabled="@enviandoCalificacion" @onclick="GuardarResenaModal">
+                            @if (enviandoCalificacion)
+                            {
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                            }
+                            <span class="bi bi-send me-1"></span> Publicar Reseña
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
 
 <!-- Modal de Lectura Digital -->
 @if (licenciaSeleccionada != null)
@@ -355,6 +472,8 @@
     private string filtroTexto = "";
     private string? mensajeCopiado = null;
     private LicenciaDigitalDto? licenciaSeleccionada = null;
+    private LicenciaDigitalDto? licenciaParaResena = null;
+    private bool mostrarModalResena = false;
     private int calificacion = 5;
     private string comentarioCalificacion = "";
     private bool enviandoCalificacion = false;
@@ -485,6 +604,82 @@
         calificacionEnviada = false;
     }
 
+    private CalificacionUsuarioDto? ObtenerMiResena(long? libroId)
+    {
+        if (!libroId.HasValue) return null;
+        var usuarioActual = TokenService.CurrentUser?.FirstName ?? TokenService.CurrentUser?.Login ?? (!string.IsNullOrWhiteSpace(correoOConsulta) ? correoOConsulta : null);
+        if (string.IsNullOrWhiteSpace(usuarioActual))
+        {
+            return listaCalificaciones.FirstOrDefault(c => c.LibroId == libroId.Value);
+        }
+        return listaCalificaciones.FirstOrDefault(c => c.LibroId == libroId.Value && 
+            (c.UsuarioCreacion?.Equals(usuarioActual, StringComparison.OrdinalIgnoreCase) ?? false));
+    }
+
+    private void AbrirModalResena(LicenciaDigitalDto lic)
+    {
+        licenciaParaResena = lic;
+        var mi = ObtenerMiResena(lic.Libro?.Id);
+        if (mi != null)
+        {
+            calificacion = mi.Puntuacion;
+            var com = mi.Comentario ?? "";
+            if (lic.Libro?.Titulo != null && com.StartsWith($"[{lic.Libro.Titulo}] "))
+            {
+                com = com.Substring($"[{lic.Libro.Titulo}] ".Length);
+            }
+            comentarioCalificacion = com;
+        }
+        else
+        {
+            calificacion = 5;
+            comentarioCalificacion = "";
+        }
+        calificacionEnviada = false;
+        mostrarModalResena = true;
+    }
+
+    private void CerrarModalResena()
+    {
+        mostrarModalResena = false;
+        licenciaParaResena = null;
+    }
+
+    private async Task GuardarResenaModal()
+    {
+        if (licenciaParaResena == null) return;
+        enviandoCalificacion = true;
+        try
+        {
+            calificacion = Math.Clamp(calificacion, 1, 5);
+            var comentarioBase = (comentarioCalificacion ?? "").Trim();
+            if (comentarioBase.Length > 500) comentarioBase = comentarioBase[..500];
+
+            var cliente = TokenService.CurrentUser?.FirstName ?? TokenService.CurrentUser?.Login ?? (!string.IsNullOrWhiteSpace(correoOConsulta) ? correoOConsulta : "Cliente");
+            var comentario = string.IsNullOrWhiteSpace(comentarioBase)
+                ? $"Calificación de {calificacion} estrellas para el libro '{licenciaParaResena.Libro?.Titulo}'."
+                : $"[{licenciaParaResena.Libro?.Titulo}] {comentarioBase}";
+
+            if (comentario.Length > 500) comentario = comentario[..500];
+
+            var ok = await CalificacionService.RegistrarOpinion(calificacion, comentario, cliente, licenciaParaResena.Libro?.Id);
+            if (ok)
+            {
+                calificacionEnviada = true;
+                mensajeCopiado = "¡Tu reseña y puntuación han sido enviadas y guardadas exitosamente!";
+                listaCalificaciones = await CalificacionService.GetAll();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al enviar reseña: {ex.Message}");
+        }
+        finally
+        {
+            enviandoCalificacion = false;
+        }
+    }
+
     private async Task EnviarCalificacion()
     {
         if (licenciaSeleccionada == null) return;
@@ -495,7 +690,7 @@
             var comentarioBase = (comentarioCalificacion ?? "").Trim();
             if (comentarioBase.Length > 500) comentarioBase = comentarioBase[..500];
 
-            var cliente = TokenService.CurrentUser?.FirstName ?? TokenService.CurrentUser?.Login ?? "Cliente";
+            var cliente = TokenService.CurrentUser?.FirstName ?? TokenService.CurrentUser?.Login ?? (!string.IsNullOrWhiteSpace(correoOConsulta) ? correoOConsulta : "Cliente");
             var comentario = string.IsNullOrWhiteSpace(comentarioBase)
                 ? $"Calificación de {calificacion} estrellas para el libro '{licenciaSeleccionada.Libro?.Titulo}'."
                 : $"[{licenciaSeleccionada.Libro?.Titulo}] {comentarioBase}";

@@ -120,7 +120,7 @@ public class LibroService
     public async Task<List<LibroDto>> GetAll()
     {
         // Limpieza preventiva de registros con datos fuera de rango o corruptos
-        _librosLocales.RemoveAll(l => l.Precio > 10000m || (l.Isbn != null && l.Isbn.Length > 25));
+        _librosLocales.RemoveAll(l => l.Precio < 0.50m || l.Precio > 9999.99m || (l.Isbn != null && l.Isbn.Length > 20) || l.Titulo.Equals("matematica", StringComparison.OrdinalIgnoreCase));
 
         if (_backendStatus.ModoMemoriaRAM)
         {
@@ -134,7 +134,7 @@ public class LibroService
             if (result != null && result.Count > 0)
             {
                 // Filtrar datos no comerciales o inválidos
-                return result.Where(l => l.Precio <= 10000m && (l.Isbn == null || l.Isbn.Length <= 25)).ToList();
+                return result.Where(l => l.Precio >= 0.50m && l.Precio <= 9999.99m && (l.Isbn == null || l.Isbn.Length <= 20) && !l.Titulo.Equals("matematica", StringComparison.OrdinalIgnoreCase)).ToList();
             }
         }
         catch (Exception ex)

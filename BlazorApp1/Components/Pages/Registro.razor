@@ -84,7 +84,7 @@
 
                 <div class="text-center">
                     <span class="text-muted small">¿Ya tienes una cuenta? </span>
-                    <a href="/login" class="fw-semibold text-primary">Inicia sesión aquí</a>
+                    <a href="@(string.IsNullOrWhiteSpace(ReturnUrl) ? "/login" : $"/login?returnUrl={Uri.EscapeDataString(ReturnUrl)}")" class="fw-semibold text-primary">Inicia sesión aquí</a>
                 </div>
             </div>
         </div>
@@ -92,6 +92,9 @@
 </div>
 
 @code {
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
     private RegisterRequest registerModel = new();
     private string? errorMessage;
     private string? successMessage;
@@ -108,9 +111,20 @@
             var error = await AuthService.RegisterAsync(registerModel);
             if (string.IsNullOrWhiteSpace(error))
             {
-                successMessage = "¡Cuenta creada exitosamente!";
-                await Task.Delay(1000);
-                Navigation.NavigateTo("/login");
+                successMessage = "¡Cuenta creada exitosamente! Iniciando sesión...";
+                
+                // Iniciar sesión automáticamente con la cuenta recién creada
+                await AuthService.Login(registerModel.Login, registerModel.Password);
+                await Task.Delay(500);
+
+                if (!string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    Navigation.NavigateTo(ReturnUrl);
+                }
+                else
+                {
+                    Navigation.NavigateTo("/");
+                }
             }
             else
             {

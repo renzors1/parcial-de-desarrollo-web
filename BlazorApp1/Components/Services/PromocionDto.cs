@@ -42,7 +42,24 @@ public class PromocionDto
     public List<LibroDto> Libroses { get; set; } = new();
 
     [JsonIgnore]
-    public bool EsVigente => Activo && CantidadDisponible > 0 && DateTime.UtcNow >= FechaInicio && DateTime.UtcNow <= FechaFin;
+    public bool EsVigente
+    {
+        get
+        {
+            if (!Activo || CantidadDisponible <= 0) return false;
+
+            var ahora = DateTime.Now;
+            var inicio = FechaInicio.Kind == DateTimeKind.Utc ? FechaInicio.ToLocalTime() : FechaInicio;
+            var fin = FechaFin.Kind == DateTimeKind.Utc ? FechaFin.ToLocalTime() : FechaFin;
+
+            // La campaña dura todo el día de la fecha de término indicada (hasta las 23:59:59).
+            // Si la campaña finaliza "hoy", sigue vigente durante todo el día de hoy.
+            // Recién al día siguiente (cuando la fecha actual supere el día de término) se considera expirada.
+            var finDelDia = fin.Date.AddDays(1).AddTicks(-1);
+
+            return ahora >= inicio.Date && ahora <= finDelDia;
+        }
+    }
 
     [JsonIgnore]
     public int CuposUsados => Math.Max(0, CantidadDefinida - CantidadDisponible);

@@ -88,6 +88,9 @@
                                     <button class="btn btn-sm btn-primary rounded-2 px-3 flex-grow-1" @onclick="() => AbrirLector(lic)">
                                         <span class="bi bi-book me-1"></span> Leer en Línea
                                     </button>
+                                    <a href="/mis-libros" class="btn btn-sm btn-outline-warning text-dark rounded-2 px-3" title="Calificar y opinar sobre esta obra">
+                                        <span class="bi bi-star-fill text-warning me-1"></span> Dejar Reseña
+                                    </a>
                                     <a href="@lic.EnlaceDescarga" target="_blank" class="btn btn-sm btn-outline-primary rounded-2 px-2" title="Descargar">
                                         <span class="bi bi-download"></span>
                                     </a>
@@ -288,35 +291,136 @@
                         <span class="h4 mb-0 fw-bold text-primary">S/ @CarritoService.TotalPagar.ToString("N2")</span>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold text-muted">Nombre y Apellidos del Titular: <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control rounded-2" placeholder="Ej. Carlos Mendoza Ramos" @bind="nombreTitular" maxlength="100" required />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label small fw-semibold text-muted">Correo Electrónico (para entrega de licencias): <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control rounded-2" placeholder="Ej. carlos.mendoza@gmail.com" @bind="correoCliente" maxlength="100" required />
-                    </div>
-
-                    @if (errorMensaje != null)
+                    @if (!TokenService.IsAuthenticated)
                     {
-                        <div class="alert alert-danger small py-2 mb-3 rounded-2">
-                            @errorMensaje
+                        <div class="p-3 bg-light rounded-2 border text-center my-3">
+                            <div class="text-primary mb-2 display-6">
+                                <span class="bi bi-person-lock"></span>
+                            </div>
+                            <h6 class="fw-bold text-dark font-editorial mb-2">Identificación de Cliente Requerida</h6>
+                            <p class="text-secondary small mb-3">
+                                Para emitir y vincular tus licencias DRM permanentemente a tu cuenta de cliente, debes iniciar sesión o registrarte antes de pagar.
+                            </p>
+                            <div class="d-grid gap-2">
+                                <a href="/login?returnUrl=/carrito" class="btn btn-primary rounded-2 fw-semibold py-2 shadow-2xs">
+                                    <span class="bi bi-box-arrow-in-right me-1"></span> Iniciar Sesión para Pagar
+                                </a>
+                                <a href="/registro?returnUrl=/carrito" class="btn btn-outline-secondary rounded-2 py-2">
+                                    <span class="bi bi-person-plus me-1"></span> Registrarme como Nuevo Cliente
+                                </a>
+                            </div>
+                            <div class="small text-muted mt-3">
+                                <span class="bi bi-shield-check text-success me-1"></span> Los libros de tu carrito se mantendrán listos al identificarte.
+                            </div>
                         </div>
                     }
+                    else
+                    {
+                        <div class="p-3 bg-light rounded-2 border mb-3">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="small text-muted fw-semibold text-uppercase" style="font-size: 0.72rem;">Titular de la Compra</span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle small">
+                                    <span class="bi bi-check-circle-fill me-1"></span> Verificado
+                                </span>
+                            </div>
+                            <div class="fw-bold text-dark font-editorial">@nombreTitular</div>
+                            <div class="small text-muted">@correoCliente • @@@(TokenService.CurrentUser?.Login)</div>
+                        </div>
 
-                    <button class="btn btn-success btn-lg w-100 rounded-2 fw-semibold shadow-sm py-3" disabled="@procesando" @onclick="ProcesarCheckout">
-                        @if (procesando)
+                        <!-- Sección de Método de Pago con Validaciones Estrictas -->
+                        <div class="card border rounded-2 p-3 bg-white mb-3 shadow-2xs">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="fw-bold text-dark small font-editorial">
+                                    <span class="bi bi-credit-card-2-front text-primary me-1"></span> Método de Pago
+                                </div>
+                                <span class="small text-muted" style="font-size: 0.72rem;">Pago 100% Seguro</span>
+                            </div>
+
+                            <!-- Selector de tipo de pago -->
+                            <div class="btn-group w-100 mb-3" role="group">
+                                <button type="button" class="btn btn-sm @(metodoPago == "TARJETA" ? "btn-primary" : "btn-outline-secondary") rounded-start-2 py-2 fw-semibold" @onclick='() => SeleccionarMetodoPago("TARJETA")'>
+                                    <span class="bi bi-credit-card me-1"></span> Tarjeta Débito / Crédito
+                                </button>
+                                <button type="button" class="btn btn-sm @(metodoPago == "BILLETERA" ? "btn-primary" : "btn-outline-secondary") rounded-end-2 py-2 fw-semibold" @onclick='() => SeleccionarMetodoPago("BILLETERA")'>
+                                    <span class="bi bi-phone me-1"></span> Yape / Plin
+                                </button>
+                            </div>
+
+                            @if (metodoPago == "TARJETA")
+                            {
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="form-label small fw-semibold text-muted mb-0">Número de Tarjeta (16 dígitos) <span class="text-danger">*</span></label>
+                                            <button type="button" class="btn btn-link p-0 text-decoration-none small text-primary" style="font-size: 0.75rem;" @onclick="LlenarDatosPruebaTarjeta">
+                                                <span class="bi bi-magic me-1"></span> Datos de prueba
+                                            </button>
+                                        </div>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-white text-muted"><span class="bi bi-credit-card"></span></span>
+                                            <input type="text" class="form-control rounded-end-2 font-monospace" placeholder="4557 1234 5678 9012" @bind="numeroTarjeta" @bind:event="oninput" maxlength="19" required />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-semibold text-muted mb-1">Nombre del Titular en la Tarjeta <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-sm rounded-2 text-uppercase" placeholder="CARLOS MENDOZA" @bind="nombreTarjeta" @bind:event="oninput" maxlength="60" required />
+                                    </div>
+
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold text-muted mb-1">Vencimiento <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-sm rounded-2 text-center" placeholder="MM/AA" @bind="vencimientoTarjeta" @bind:event="oninput" maxlength="5" required />
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold text-muted mb-1">CVV / CVC <span class="text-danger">*</span></label>
+                                        <input type="password" class="form-control form-control-sm rounded-2 text-center font-monospace" placeholder="123" @bind="cvvTarjeta" @bind:event="oninput" maxlength="4" required />
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="form-label small fw-semibold text-muted mb-0">Número de Celular (9 dígitos) <span class="text-danger">*</span></label>
+                                            <button type="button" class="btn btn-link p-0 text-decoration-none small text-primary" style="font-size: 0.75rem;" @onclick="LlenarDatosPruebaYape">
+                                                <span class="bi bi-magic me-1"></span> Datos de prueba
+                                            </button>
+                                        </div>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-white text-muted"><span class="bi bi-phone"></span></span>
+                                            <input type="text" class="form-control rounded-end-2 font-monospace" placeholder="987654321" @bind="telefonoBilletera" @bind:event="oninput" maxlength="9" required />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label small fw-semibold text-muted mb-1">Código de Aprobación de la Operación <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-sm rounded-2 font-monospace" placeholder="Ej. 849201" @bind="codigoOperacion" @bind:event="oninput" maxlength="8" required />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        @if (errorMensaje != null)
                         {
-                            <span class="spinner-border spinner-border-sm me-2"></span>
-                            <span>Generando licencias y procesando...</span>
+                            <div class="alert alert-danger small py-2 mb-3 rounded-2">
+                                <span class="bi bi-exclamation-triangle-fill me-1"></span> @errorMensaje
+                            </div>
                         }
-                        else
-                        {
-                            <span class="bi bi-shield-lock-fill me-2"></span>
-                            <span>Confirmar Pago y Generar Licencias</span>
-                        }
-                    </button>
+
+                        <button class="btn btn-success btn-lg w-100 rounded-2 fw-semibold shadow-sm py-3" disabled="@procesando" @onclick="ProcesarCheckout">
+                            @if (procesando)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                                <span>Verificando pago y emitiendo licencias...</span>
+                            }
+                            else
+                            {
+                                <span class="bi bi-shield-lock-fill me-2"></span>
+                                <span>Pagar S/ @CarritoService.TotalPagar.ToString("N2") y Obtener Licencias DRM</span>
+                            }
+                        </button>
+                    }
                     
                     <p class="text-center text-muted small mt-3 mb-0">
                         <span class="bi bi-shield-check text-success me-1"></span> Compra segura con entrega digital instantánea.
@@ -379,23 +483,48 @@
     private string? errorMensaje = null;
     private List<PromocionDto> promocionesActivas = new();
 
+    // Campos de Métodos de Pago
+    private string metodoPago = "TARJETA";
+    private string numeroTarjeta = "";
+    private string nombreTarjeta = "";
+    private string vencimientoTarjeta = "";
+    private string cvvTarjeta = "";
+    private string telefonoBilletera = "";
+    private string codigoOperacion = "";
+
+    private void SeleccionarMetodoPago(string metodo)
+    {
+        metodoPago = metodo;
+        errorMensaje = null;
+    }
+
+    private void LlenarDatosPruebaTarjeta()
+    {
+        metodoPago = "TARJETA";
+        numeroTarjeta = "4557 1234 5678 9012";
+        nombreTarjeta = (string.IsNullOrWhiteSpace(nombreTitular) ? "CARLOS MENDOZA" : nombreTitular).ToUpperInvariant();
+        vencimientoTarjeta = "12/28";
+        cvvTarjeta = "845";
+        errorMensaje = null;
+    }
+
+    private void LlenarDatosPruebaYape()
+    {
+        metodoPago = "BILLETERA";
+        telefonoBilletera = "987654321";
+        codigoOperacion = "849201";
+        errorMensaje = null;
+    }
+
     private decimal BaseImponible => Math.Round(CarritoService.TotalPagar / 1.18m, 2);
     private decimal IgvCalculado => CarritoService.TotalPagar - BaseImponible;
 
     protected override async Task OnInitializedAsync()
     {
         CarritoService.OnChange += StateHasChanged;
+        TokenService.OnChange += SincronizarUsuarioSesion;
         
-        if (TokenService.IsAuthenticated && TokenService.CurrentUser != null)
-        {
-            var user = TokenService.CurrentUser;
-            nombreTitular = $"{user.FirstName} {user.LastName}".Trim();
-            if (string.IsNullOrWhiteSpace(nombreTitular))
-            {
-                nombreTitular = user.Login ?? "Cliente";
-            }
-            correoCliente = user.Email ?? "";
-        }
+        SincronizarUsuarioSesion();
 
         try
         {
@@ -407,9 +536,30 @@
         }
     }
 
+    private void SincronizarUsuarioSesion()
+    {
+        if (TokenService.IsAuthenticated && TokenService.CurrentUser != null)
+        {
+            var user = TokenService.CurrentUser;
+            nombreTitular = $"{user.FirstName} {user.LastName}".Trim();
+            if (string.IsNullOrWhiteSpace(nombreTitular))
+            {
+                nombreTitular = user.Login ?? "Cliente";
+            }
+            correoCliente = user.Email ?? "";
+        }
+        else
+        {
+            nombreTitular = "";
+            correoCliente = "";
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
     public void Dispose()
     {
         CarritoService.OnChange -= StateHasChanged;
+        TokenService.OnChange -= SincronizarUsuarioSesion;
     }
 
     private void AplicarPromocion(PromocionDto promo)
@@ -442,17 +592,23 @@
 
     private async Task ProcesarCheckout()
     {
+        if (!TokenService.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login?returnUrl=/carrito");
+            return;
+        }
+
         var titularLimpio = (nombreTitular ?? "").Trim();
         if (string.IsNullOrWhiteSpace(titularLimpio) || titularLimpio.Length < 3 || titularLimpio.Length > 100)
         {
-            errorMensaje = "Por favor ingresa un Nombre y Apellidos válidos (entre 3 y 100 caracteres).";
+            errorMensaje = "Por favor verifica el Nombre y Apellidos de tu cuenta en tu Perfil.";
             return;
         }
 
         var correoLimpio = (correoCliente ?? "").Trim();
         if (string.IsNullOrWhiteSpace(correoLimpio) || !correoLimpio.Contains("@") || !correoLimpio.Contains(".") || correoLimpio.Length > 100)
         {
-            errorMensaje = "Por favor ingresa un Correo Electrónico válido para emitir tu comprobante y licencias digitales.";
+            errorMensaje = "Por favor verifica tu Correo Electrónico en tu Perfil para emitir tus licencias digitales.";
             return;
         }
 
@@ -468,6 +624,65 @@
             return;
         }
 
+        // Validaciones estrictas de métodos de pago
+        if (metodoPago == "TARJETA")
+        {
+            var rawCard = numeroTarjeta.Replace(" ", "").Replace("-", "").Trim();
+            if (rawCard.Length != 16 || !rawCard.All(char.IsDigit))
+            {
+                errorMensaje = "Error: El número de tarjeta debe tener exactamente 16 dígitos numéricos.";
+                return;
+            }
+
+            var nomLimpio = nombreTarjeta.Trim();
+            if (nomLimpio.Length < 3 || nomLimpio.Length > 60 || !nomLimpio.All(c => char.IsLetter(c) || char.IsWhiteSpace(c)))
+            {
+                errorMensaje = "Error: El nombre del titular en la tarjeta debe contener entre 3 y 60 caracteres alfabéticos.";
+                return;
+            }
+
+            var vencLimpio = vencimientoTarjeta.Trim();
+            if (!System.Text.RegularExpressions.Regex.IsMatch(vencLimpio, @"^(0[1-9]|1[0-2])\/?([2-9][0-9])$"))
+            {
+                errorMensaje = "Error: La fecha de vencimiento debe tener el formato MM/AA (ej. 12/28).";
+                return;
+            }
+
+            var parts = vencLimpio.Split('/');
+            if (parts.Length == 2 && int.TryParse(parts[0], out int mes) && int.TryParse(parts[1], out int anio))
+            {
+                var anioCompleto = 2000 + anio;
+                if (anioCompleto < 2026 || (anioCompleto == 2026 && mes < 11))
+                {
+                    errorMensaje = "Error: La tarjeta indicada ya se encuentra vencida.";
+                    return;
+                }
+            }
+
+            var cvvLimpio = cvvTarjeta.Trim();
+            if ((cvvLimpio.Length != 3 && cvvLimpio.Length != 4) || !cvvLimpio.All(char.IsDigit))
+            {
+                errorMensaje = "Error: El código de seguridad CVV debe tener 3 o 4 dígitos numéricos.";
+                return;
+            }
+        }
+        else if (metodoPago == "BILLETERA")
+        {
+            var telLimpio = telefonoBilletera.Trim();
+            if (telLimpio.Length != 9 || !telLimpio.StartsWith("9") || !telLimpio.All(char.IsDigit))
+            {
+                errorMensaje = "Error: El número de celular para Yape/Plin debe tener exactamente 9 dígitos e iniciar con 9.";
+                return;
+            }
+
+            var codLimpio = codigoOperacion.Trim();
+            if (codLimpio.Length < 6 || codLimpio.Length > 8 || !codLimpio.All(char.IsDigit))
+            {
+                errorMensaje = "Error: El código de operación debe contener entre 6 y 8 dígitos numéricos.";
+                return;
+            }
+        }
+
         nombreTitular = titularLimpio;
         correoCliente = correoLimpio;
         procesando = true;
@@ -475,6 +690,7 @@
 
         try
         {
+            await Task.Delay(600); // Simulación de procesamiento seguro
             var totalPagar = CarritoService.TotalPagar;
             var subtotalBase = Math.Round(totalPagar / 1.18m, 2);
             var igv = Math.Round(totalPagar - subtotalBase, 2);
@@ -483,11 +699,15 @@
             var comprobante = $"B001-{correlativo}";
             var promoId = CarritoService.PromocionAplicada?.Id;
             var itemsCopia = CarritoService.Items.ToList();
+            var rawUltimos4 = numeroTarjeta.Replace(" ", "").Replace("-", "").Trim();
+            var metodoPagoTexto = metodoPago == "TARJETA" 
+                ? $"Tarjeta ***{(rawUltimos4.Length >= 4 ? rawUltimos4[^4..] : "0000")}" 
+                : $"Yape {telefonoBilletera.Trim()}";
 
             var venta = new VentaDto
             {
                 NumeroComprobante = comprobante,
-                Cliente = $"{nombreTitular} ({correoCliente})",
+                Cliente = $"{nombreTitular} ({correoCliente}) - [{metodoPagoTexto}]",
                 FechaVenta = DateTime.UtcNow,
                 SubtotalVenta = subtotalBase,
                 TotalDescuento = descuentoTotal,

@@ -51,6 +51,12 @@ public class UserAccountDto
     [JsonPropertyName("email")]
     public string Email { get; set; } = string.Empty;
 
+    [JsonPropertyName("activated")]
+    public bool Activated { get; set; } = true;
+
+    [JsonPropertyName("createdDate")]
+    public DateTime? CreatedDate { get; set; } = DateTime.UtcNow;
+
     [JsonPropertyName("authorities")]
     public List<string> Authorities { get; set; } = new();
 

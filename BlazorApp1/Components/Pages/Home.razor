@@ -114,7 +114,7 @@
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
             @foreach (var libro in librosFiltrados)
             {
-                var promo = libro.PromocionActiva ?? promocionGeneral;
+                var promo = libro.PromocionActiva ?? (promocionGeneral != null && (promocionGeneral.Libroses == null || promocionGeneral.Libroses.Count == 0 || promocionGeneral.Libroses.Any(l => l.Id == libro.Id)) ? promocionGeneral : null);
                 var tieneDescuento = promo != null;
                 var precioRebajado = tieneDescuento 
                     ? Math.Round(libro.Precio * (decimal)(1 - (promo!.PorcentajeDescuento / 100.0f)), 2)
