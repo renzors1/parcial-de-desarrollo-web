@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json.Serialization;
@@ -10,9 +11,11 @@ public class DetalleVentaDto
     public long? Id { get; set; }
 
     [JsonPropertyName("cantidadVenta")]
+    [Range(1, 20, ErrorMessage = "La cantidad por título debe estar entre 1 y 20.")]
     public int CantidadVenta { get; set; } = 1;
 
     [JsonPropertyName("precioUnitario")]
+    [Range(0.50, 9999.99, ErrorMessage = "El precio unitario debe estar entre S/ 0.50 y S/ 9,999.99.")]
     public decimal PrecioUnitario { get; set; }
 
     [JsonPropertyName("descuento")]
@@ -31,6 +34,7 @@ public class DetalleVentaDto
     public long LibroId { get; set; }
 
     [JsonPropertyName("libroTitulo")]
+    [StringLength(150, ErrorMessage = "El título no puede superar 150 caracteres.")]
     public string? LibroTitulo { get; set; }
 
     [JsonPropertyName("promocionAplicadaId")]
@@ -50,6 +54,7 @@ public class VentaDto
     public long? Id { get; set; }
 
     [JsonPropertyName("numeroComprobante")]
+    [StringLength(50, ErrorMessage = "El comprobante no puede superar 50 caracteres.")]
     public string NumeroComprobante { get; set; } = string.Empty;
 
     [JsonPropertyName("subtotalVenta")]
@@ -68,9 +73,12 @@ public class VentaDto
     public DateTime FechaVenta { get; set; } = DateTime.UtcNow;
 
     [JsonPropertyName("cliente")]
+    [Required(ErrorMessage = "El cliente es obligatorio.")]
+    [StringLength(100, MinimumLength = 3, ErrorMessage = "El cliente debe tener entre 3 y 100 caracteres.")]
     public string Cliente { get; set; } = string.Empty;
 
     [JsonPropertyName("usuarioCreacion")]
+    [StringLength(50, ErrorMessage = "El usuario no puede superar 50 caracteres.")]
     public string? UsuarioCreacion { get; set; }
 
     [JsonPropertyName("fechaCreacion")]

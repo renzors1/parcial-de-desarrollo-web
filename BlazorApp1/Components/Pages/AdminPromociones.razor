@@ -217,22 +217,22 @@
                 <div class="modal-body p-4">
                     <div class="row g-3">
                         <div class="col-md-8">
-                            <label class="form-label fw-semibold">Nombre de la Campaña / Cupón</label>
-                            <input type="text" class="form-control rounded-2" placeholder="Ej. FLASH30 - Descuento Editorial" @bind="promocionActual.Nombre" required />
+                            <label class="form-label fw-semibold">Nombre de la Campaña / Cupón <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control rounded-2" placeholder="Ej. FLASH30 - Descuento Editorial" @bind="promocionActual.Nombre" maxlength="100" required />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">Descuento (%)</label>
+                            <label class="form-label fw-semibold">Descuento (%) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control rounded-2" min="1" max="100" @bind="promocionActual.PorcentajeDescuento" required />
                         </div>
 
                         <div class="col-12">
                             <label class="form-label fw-semibold">Descripción o Alcance Comercial</label>
-                            <textarea class="form-control rounded-2" rows="2" placeholder="Detalles de la campaña de descuento..." @bind="promocionActual.Descripcion"></textarea>
+                            <textarea class="form-control rounded-2" rows="2" placeholder="Detalles de la campaña de descuento..." @bind="promocionActual.Descripcion" maxlength="300"></textarea>
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">Cupos Asignados</label>
-                            <input type="number" class="form-control rounded-2" min="1" @bind="promocionActual.CantidadDefinida" required />
+                            <label class="form-label fw-semibold">Cupos Asignados <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control rounded-2" min="1" max="10000" @bind="promocionActual.CantidadDefinida" required />
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Fecha de Inicio</label>
@@ -339,17 +339,32 @@
 
     private async Task GuardarPromocion()
     {
-        if (string.IsNullOrWhiteSpace(promocionActual.Nombre))
+        var nombreLimpio = (promocionActual.Nombre ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(nombreLimpio) || nombreLimpio.Length < 3 || nombreLimpio.Length > 100)
         {
-            mensajeAlerta = "El nombre de la promoción es obligatorio.";
+            mensajeAlerta = "Error: El nombre de la promoción debe tener entre 3 y 100 caracteres.";
             return;
         }
 
-        if (promocionActual.PorcentajeDescuento <= 0 || promocionActual.PorcentajeDescuento > 100)
+        if (promocionActual.PorcentajeDescuento < 1 || promocionActual.PorcentajeDescuento > 100)
         {
-            mensajeAlerta = "El porcentaje debe estar entre 1% y 100%.";
+            mensajeAlerta = "Error: El porcentaje debe encontrarse entre 1% y 100%.";
             return;
         }
+
+        if (promocionActual.CantidadDefinida < 1 || promocionActual.CantidadDefinida > 10000)
+        {
+            mensajeAlerta = "Error: La cantidad de cupos debe ser entre 1 y 10,000.";
+            return;
+        }
+
+        if (promocionActual.FechaFin <= promocionActual.FechaInicio)
+        {
+            mensajeAlerta = "Error: La fecha de término debe ser posterior a la fecha de inicio.";
+            return;
+        }
+
+        promocionActual.Nombre = nombreLimpio;
 
         bool exito;
         if (promocionActual.Id.HasValue)

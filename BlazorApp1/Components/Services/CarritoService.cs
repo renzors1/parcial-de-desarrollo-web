@@ -9,6 +9,8 @@ public class CarritoItem
 
 public class CarritoService
 {
+    public const int MaxCantidadPorTitulo = 20;
+
     public List<CarritoItem> Items { get; private set; } = new();
     public PromocionDto? PromocionAplicada { get; private set; }
 
@@ -28,7 +30,10 @@ public class CarritoService
         var existente = Items.FirstOrDefault(i => i.Libro.Id == libro.Id);
         if (existente != null)
         {
-            existente.Cantidad++;
+            if (existente.Cantidad < MaxCantidadPorTitulo)
+            {
+                existente.Cantidad++;
+            }
         }
         else
         {
@@ -42,10 +47,14 @@ public class CarritoService
         var item = Items.FirstOrDefault(i => i.Libro.Id == libroId);
         if (item != null)
         {
-            item.Cantidad += delta;
-            if (item.Cantidad <= 0)
+            var nueva = item.Cantidad + delta;
+            if (nueva <= 0)
             {
                 Items.Remove(item);
+            }
+            else
+            {
+                item.Cantidad = Math.Min(nueva, MaxCantidadPorTitulo);
             }
             NotifyStateChanged();
         }

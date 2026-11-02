@@ -222,17 +222,17 @@
 
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label fw-semibold mb-0">Código / Clave DRM</label>
+                            <label class="form-label fw-semibold mb-0">Código / Clave DRM <span class="text-danger">*</span></label>
                             <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" @onclick="GenerarCodigoAleatorio">
                                 <span class="bi bi-arrow-repeat me-1"></span> Generar aleatorio
                             </button>
                         </div>
-                        <input type="text" class="form-control rounded-2 font-monospace" @bind="nuevaLicencia.CodigoLicencia" required />
+                        <input type="text" class="form-control rounded-2 font-monospace" @bind="nuevaLicencia.CodigoLicencia" maxlength="50" required />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Enlace de Acceso / Visor</label>
-                        <input type="text" class="form-control rounded-2" @bind="nuevaLicencia.EnlaceDescarga" />
+                        <input type="text" class="form-control rounded-2" @bind="nuevaLicencia.EnlaceDescarga" maxlength="500" />
                     </div>
 
                     <div class="mb-3">
@@ -364,11 +364,20 @@
 
     private async Task GuardarLicencia()
     {
-        if (string.IsNullOrWhiteSpace(nuevaLicencia.CodigoLicencia))
+        var codigoLimpio = (nuevaLicencia.CodigoLicencia ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(codigoLimpio) || codigoLimpio.Length < 5 || codigoLimpio.Length > 50)
         {
-            mensajeAlerta = "El código de licencia es obligatorio.";
+            mensajeAlerta = "Error: El código de licencia debe tener entre 5 y 50 caracteres.";
             return;
         }
+
+        if (!string.IsNullOrWhiteSpace(nuevaLicencia.EnlaceDescarga) && nuevaLicencia.EnlaceDescarga.Length > 500)
+        {
+            mensajeAlerta = "Error: El enlace de descarga no puede superar los 500 caracteres.";
+            return;
+        }
+
+        nuevaLicencia.CodigoLicencia = codigoLimpio;
 
         var libro = catalogoLibros.FirstOrDefault(l => l.Id == libroSeleccionadoId);
         nuevaLicencia.Libro = libro;

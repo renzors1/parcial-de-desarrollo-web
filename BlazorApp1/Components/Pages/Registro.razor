@@ -33,31 +33,37 @@
                 {
                     <EditForm Model="@registerModel" OnValidSubmit="HandleRegister">
                         <DataAnnotationsValidator />
+                        <ValidationSummary class="alert alert-danger py-2 px-3 rounded-2 small mb-3" />
 
                         <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label class="form-label fw-semibold text-secondary small">Nombres</label>
-                                <InputText class="form-control rounded-2 fs-6" placeholder="Juan" @bind-Value="registerModel.FirstName" />
+                                <InputText class="form-control rounded-2 fs-6" placeholder="Juan" @bind-Value="registerModel.FirstName" maxlength="50" />
+                                <ValidationMessage For="() => registerModel.FirstName" class="text-danger small mt-1" />
                             </div>
                             <div class="col-6">
                                 <label class="form-label fw-semibold text-secondary small">Apellidos</label>
-                                <InputText class="form-control rounded-2 fs-6" placeholder="Pérez" @bind-Value="registerModel.LastName" />
+                                <InputText class="form-control rounded-2 fs-6" placeholder="Pérez" @bind-Value="registerModel.LastName" maxlength="50" />
+                                <ValidationMessage For="() => registerModel.LastName" class="text-danger small mt-1" />
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold text-secondary small">Nombre de Usuario (Login)</label>
-                            <InputText class="form-control rounded-2 fs-6" placeholder="juanperez" @bind-Value="registerModel.Login" required />
+                            <label class="form-label fw-semibold text-secondary small">Nombre de Usuario (Login) <span class="text-danger">*</span></label>
+                            <InputText class="form-control rounded-2 fs-6" placeholder="juanperez" @bind-Value="registerModel.Login" maxlength="50" required />
+                            <ValidationMessage For="() => registerModel.Login" class="text-danger small mt-1" />
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold text-secondary small">Correo Electrónico</label>
-                            <InputText type="email" class="form-control rounded-2 fs-6" placeholder="juan@ejemplo.com" @bind-Value="registerModel.Email" required />
+                            <label class="form-label fw-semibold text-secondary small">Correo Electrónico <span class="text-danger">*</span></label>
+                            <InputText type="email" class="form-control rounded-2 fs-6" placeholder="juan@ejemplo.com" @bind-Value="registerModel.Email" maxlength="100" required />
+                            <ValidationMessage For="() => registerModel.Email" class="text-danger small mt-1" />
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-semibold text-secondary small">Contraseña (Mínimo 4 caracteres)</label>
-                            <InputText type="password" class="form-control rounded-2 fs-6" placeholder="Crea tu contraseña" @bind-Value="registerModel.Password" required />
+                            <label class="form-label fw-semibold text-secondary small">Contraseña (Mínimo 4 caracteres) <span class="text-danger">*</span></label>
+                            <InputText type="password" class="form-control rounded-2 fs-6" placeholder="Crea tu contraseña" @bind-Value="registerModel.Password" maxlength="100" required />
+                            <ValidationMessage For="() => registerModel.Password" class="text-danger small mt-1" />
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg w-100 rounded-2 fw-semibold shadow-2xs py-2 mb-3" disabled="@isLoading">

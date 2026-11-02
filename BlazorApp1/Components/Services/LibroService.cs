@@ -119,6 +119,9 @@ public class LibroService
 
     public async Task<List<LibroDto>> GetAll()
     {
+        // Limpieza preventiva de registros con datos fuera de rango o corruptos
+        _librosLocales.RemoveAll(l => l.Precio > 10000m || (l.Isbn != null && l.Isbn.Length > 25));
+
         if (_backendStatus.ModoMemoriaRAM)
         {
             return _librosLocales.Where(l => l.Activo).ToList();
@@ -130,7 +133,8 @@ public class LibroService
             var result = await _http.GetFromJsonAsync<List<LibroDto>>("api/libros");
             if (result != null && result.Count > 0)
             {
-                return result;
+                // Filtrar datos no comerciales o inválidos
+                return result.Where(l => l.Precio <= 10000m && (l.Isbn == null || l.Isbn.Length <= 25)).ToList();
             }
         }
         catch (Exception ex)
@@ -166,6 +170,11 @@ public class LibroService
 
     public async Task<bool> Create(LibroDto libro)
     {
+        // Sanitización rigurosa de límites comerciales
+        libro.Precio = Math.Clamp(libro.Precio, 0.50m, 9999.99m);
+        if (!string.IsNullOrWhiteSpace(libro.Isbn) && libro.Isbn.Length > 20) libro.Isbn = libro.Isbn[..20];
+        if (!string.IsNullOrWhiteSpace(libro.Titulo) && libro.Titulo.Length > 150) libro.Titulo = libro.Titulo[..150];
+
         if (_backendStatus.ModoMemoriaRAM)
         {
             libro.Id = (_librosLocales.Count > 0 ? _librosLocales.Max(l => l.Id ?? 0) : 0) + 1;
@@ -199,6 +208,11 @@ public class LibroService
 
     public async Task<bool> Update(LibroDto libro)
     {
+        // Sanitización rigurosa de límites comerciales
+        libro.Precio = Math.Clamp(libro.Precio, 0.50m, 9999.99m);
+        if (!string.IsNullOrWhiteSpace(libro.Isbn) && libro.Isbn.Length > 20) libro.Isbn = libro.Isbn[..20];
+        if (!string.IsNullOrWhiteSpace(libro.Titulo) && libro.Titulo.Length > 150) libro.Titulo = libro.Titulo[..150];
+
         if (_backendStatus.ModoMemoriaRAM)
         {
             var idxLocal = _librosLocales.FindIndex(l => l.Id == libro.Id);

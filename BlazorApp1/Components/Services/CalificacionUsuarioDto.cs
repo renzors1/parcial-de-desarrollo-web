@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace BlazorApp1.Components.Services;
@@ -8,9 +9,12 @@ public class CalificacionUsuarioDto
     public long? Id { get; set; }
 
     [JsonPropertyName("puntuacion")]
+    [Required(ErrorMessage = "La puntuación es obligatoria.")]
+    [Range(1, 5, ErrorMessage = "La puntuación debe ser entre 1 y 5 estrellas.")]
     public int Puntuacion { get; set; } = 5;
 
     [JsonPropertyName("comentario")]
+    [StringLength(500, ErrorMessage = "El comentario no puede superar los 500 caracteres.")]
     public string? Comentario { get; set; }
 
     [JsonPropertyName("libroId")]
@@ -23,6 +27,7 @@ public class CalificacionUsuarioDto
     public bool Activo { get; set; } = true;
 
     [JsonPropertyName("usuarioCreacion")]
+    [StringLength(50, ErrorMessage = "El usuario no puede superar 50 caracteres.")]
     public string? UsuarioCreacion { get; set; }
 
     [JsonPropertyName("fechaCreacion")]

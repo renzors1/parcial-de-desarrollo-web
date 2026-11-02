@@ -327,7 +327,7 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <textarea class="form-control rounded-2 small" rows="2" placeholder="Escribe un breve comentario u opinión sobre esta obra..." @bind="comentarioCalificacion"></textarea>
+                                <textarea class="form-control rounded-2 small" rows="2" placeholder="Escribe un breve comentario u opinión sobre esta obra (máximo 500 caracteres)..." @bind="comentarioCalificacion" maxlength="500"></textarea>
                             </div>
                             <button class="btn btn-sm btn-primary rounded-2 px-3" disabled="@enviandoCalificacion" @onclick="EnviarCalificacion">
                                 @if (enviandoCalificacion)
@@ -491,10 +491,16 @@
         enviandoCalificacion = true;
         try
         {
+            calificacion = Math.Clamp(calificacion, 1, 5);
+            var comentarioBase = (comentarioCalificacion ?? "").Trim();
+            if (comentarioBase.Length > 500) comentarioBase = comentarioBase[..500];
+
             var cliente = TokenService.CurrentUser?.FirstName ?? TokenService.CurrentUser?.Login ?? "Cliente";
-            var comentario = string.IsNullOrWhiteSpace(comentarioCalificacion)
+            var comentario = string.IsNullOrWhiteSpace(comentarioBase)
                 ? $"Calificación de {calificacion} estrellas para el libro '{licenciaSeleccionada.Libro?.Titulo}'."
-                : $"[{licenciaSeleccionada.Libro?.Titulo}] {comentarioCalificacion}";
+                : $"[{licenciaSeleccionada.Libro?.Titulo}] {comentarioBase}";
+
+            if (comentario.Length > 500) comentario = comentario[..500];
 
             var ok = await CalificacionService.RegistrarOpinion(calificacion, comentario, cliente, licenciaSeleccionada.Libro?.Id);
             if (ok)

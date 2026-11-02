@@ -289,13 +289,13 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold text-muted">Nombre y Apellidos del Titular:</label>
-                        <input type="text" class="form-control rounded-2" placeholder="Ej. Carlos Mendoza Ramos" @bind="nombreTitular" />
+                        <label class="form-label small fw-semibold text-muted">Nombre y Apellidos del Titular: <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control rounded-2" placeholder="Ej. Carlos Mendoza Ramos" @bind="nombreTitular" maxlength="100" required />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold text-muted">Correo Electrónico (para entrega de licencias):</label>
-                        <input type="email" class="form-control rounded-2" placeholder="Ej. carlos.mendoza@gmail.com" @bind="correoCliente" />
+                        <label class="form-label small fw-semibold text-muted">Correo Electrónico (para entrega de licencias): <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control rounded-2" placeholder="Ej. carlos.mendoza@gmail.com" @bind="correoCliente" maxlength="100" required />
                     </div>
 
                     @if (errorMensaje != null)
@@ -442,18 +442,34 @@
 
     private async Task ProcesarCheckout()
     {
-        if (string.IsNullOrWhiteSpace(nombreTitular))
+        var titularLimpio = (nombreTitular ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(titularLimpio) || titularLimpio.Length < 3 || titularLimpio.Length > 100)
         {
-            errorMensaje = "Por favor ingresa tu Nombre y Apellidos.";
+            errorMensaje = "Por favor ingresa un Nombre y Apellidos válidos (entre 3 y 100 caracteres).";
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(correoCliente) || !correoCliente.Contains("@"))
+        var correoLimpio = (correoCliente ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(correoLimpio) || !correoLimpio.Contains("@") || !correoLimpio.Contains(".") || correoLimpio.Length > 100)
         {
             errorMensaje = "Por favor ingresa un Correo Electrónico válido para emitir tu comprobante y licencias digitales.";
             return;
         }
 
+        if (CarritoService.Items.Count == 0)
+        {
+            errorMensaje = "Tu carrito de compras está vacío.";
+            return;
+        }
+
+        if (CarritoService.Items.Any(i => i.Cantidad <= 0 || i.Cantidad > CarritoService.MaxCantidadPorTitulo))
+        {
+            errorMensaje = $"La cantidad permitida por título es de 1 a {CarritoService.MaxCantidadPorTitulo} unidades.";
+            return;
+        }
+
+        nombreTitular = titularLimpio;
+        correoCliente = correoLimpio;
         procesando = true;
         errorMensaje = null;
 

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace BlazorApp1.Components.Services;
@@ -8,15 +9,21 @@ public class PromocionDto
     public long? Id { get; set; }
 
     [JsonPropertyName("nombre")]
+    [Required(ErrorMessage = "El nombre de la promoción es obligatorio.")]
+    [StringLength(100, MinimumLength = 3, ErrorMessage = "El nombre debe tener entre 3 y 100 caracteres.")]
     public string Nombre { get; set; } = string.Empty;
 
     [JsonPropertyName("descripcion")]
+    [StringLength(300, ErrorMessage = "La descripción no puede superar los 300 caracteres.")]
     public string? Descripcion { get; set; }
 
     [JsonPropertyName("porcentajeDescuento")]
+    [Required(ErrorMessage = "El porcentaje de descuento es obligatorio.")]
+    [Range(1, 100, ErrorMessage = "El descuento debe situarse entre 1% y 100%.")]
     public float PorcentajeDescuento { get; set; }
 
     [JsonPropertyName("cantidadDefinida")]
+    [Range(1, 10000, ErrorMessage = "La cantidad asignada debe estar entre 1 y 10,000 cupones.")]
     public int CantidadDefinida { get; set; } = 100;
 
     [JsonPropertyName("cantidadDisponible")]

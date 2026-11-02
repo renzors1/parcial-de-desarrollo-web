@@ -129,19 +129,23 @@
                 <EditForm Model="@libroActual" OnValidSubmit="GuardarLibro">
                     <DataAnnotationsValidator />
                     <div class="modal-body p-4">
+                        <ValidationSummary class="alert alert-danger py-2 px-3 rounded-2 small mb-3" />
+
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <label class="form-label fw-semibold">Título del Libro</label>
-                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Titulo" placeholder="Ej. Clean Architecture" required />
+                                <label class="form-label fw-semibold">Título del Libro <span class="text-danger">*</span></label>
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Titulo" placeholder="Ej. Clean Architecture" maxlength="150" required />
+                                <ValidationMessage For="() => libroActual.Titulo" class="text-danger small mt-1" />
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">ISBN</label>
-                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Isbn" placeholder="978-0134494164" />
+                                <label class="form-label fw-semibold">ISBN <span class="text-danger">*</span></label>
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Isbn" placeholder="978-0134494164" maxlength="20" required />
+                                <ValidationMessage For="() => libroActual.Isbn" class="text-danger small mt-1" />
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Autor (Nombre y Apellidos)</label>
-                                <input type="text" class="form-control rounded-2" @bind="campoAutorTexto" placeholder="Ej. Robert C. Martin" required />
+                                <label class="form-label fw-semibold">Autor (Nombre y Apellidos) <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control rounded-2" @bind="campoAutorTexto" placeholder="Ej. Robert C. Martin" maxlength="100" required />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Editorial</label>
@@ -155,8 +159,9 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold">Precio (S/)</label>
-                                <InputNumber class="form-control rounded-2" @bind-Value="libroActual.Precio" step="0.01" required />
+                                <label class="form-label fw-semibold">Precio (S/) <span class="text-danger">*</span></label>
+                                <InputNumber class="form-control rounded-2" @bind-Value="libroActual.Precio" min="0.50" max="9999.99" step="0.01" required />
+                                <ValidationMessage For="() => libroActual.Precio" class="text-danger small mt-1" />
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Categoría</label>
@@ -170,17 +175,20 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Idioma</label>
-                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Idioma" placeholder="Español" />
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Idioma" placeholder="Español" maxlength="30" />
+                                <ValidationMessage For="() => libroActual.Idioma" class="text-danger small mt-1" />
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label fw-semibold">URL de Portada</label>
-                                <InputText class="form-control rounded-2" @bind-Value="libroActual.PortadaUrl" placeholder="/covers/cover-*.svg" />
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.PortadaUrl" placeholder="/covers/cover-*.svg" maxlength="500" />
+                                <ValidationMessage For="() => libroActual.PortadaUrl" class="text-danger small mt-1" />
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Sinopsis / Resumen</label>
-                                <InputTextArea class="form-control rounded-2" rows="3" @bind-Value="libroActual.Sinopsis" placeholder="Descripción de la obra..."></InputTextArea>
+                                <InputTextArea class="form-control rounded-2" rows="3" @bind-Value="libroActual.Sinopsis" placeholder="Descripción de la obra..." maxlength="1000"></InputTextArea>
+                                <ValidationMessage For="() => libroActual.Sinopsis" class="text-danger small mt-1" />
                             </div>
 
                             <div class="col-12">
@@ -326,13 +334,41 @@
     {
         guardando = true;
 
+        // Validaciones estrictas de negocio y límites comerciales
+        if (string.IsNullOrWhiteSpace(libroActual.Titulo) || libroActual.Titulo.Trim().Length < 2 || libroActual.Titulo.Length > 150)
+        {
+            mensajeAlerta = "Error: El título debe tener entre 2 y 150 caracteres.";
+            guardando = false;
+            return;
+        }
+
+        var autorLimpio = (campoAutorTexto ?? "").Trim();
+        if (string.IsNullOrWhiteSpace(autorLimpio) || autorLimpio.Length < 2 || autorLimpio.Length > 100)
+        {
+            mensajeAlerta = "Error: El nombre del autor debe tener entre 2 y 100 caracteres.";
+            guardando = false;
+            return;
+        }
+
+        if (libroActual.Precio < 0.50m || libroActual.Precio > 9999.99m)
+        {
+            mensajeAlerta = "Error: El precio debe encontrarse entre S/ 0.50 y S/ 9,999.99.";
+            guardando = false;
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(libroActual.Isbn))
         {
             libroActual.Isbn = $"978-{DateTime.UtcNow.Ticks.ToString()[^10..]}";
         }
+        else if (libroActual.Isbn.Trim().Length < 10 || libroActual.Isbn.Trim().Length > 20)
+        {
+            mensajeAlerta = "Error: El ISBN debe tener entre 10 y 20 caracteres.";
+            guardando = false;
+            return;
+        }
 
         // Separación rigurosa de Nombres y Apellidos para evitar concatenaciones duplicadas
-        var autorLimpio = (campoAutorTexto ?? "").Trim();
         if (!string.IsNullOrWhiteSpace(autorLimpio))
         {
             var parts = autorLimpio.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
