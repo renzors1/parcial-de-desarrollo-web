@@ -73,45 +73,9 @@
 
                 <hr class="opacity-25 my-3" />
 
-                <div class="text-center mb-3">
+                <div class="text-center mb-0">
                     <span class="text-muted small">¿Aún no tienes cuenta? </span>
                     <a href="@(string.IsNullOrWhiteSpace(ReturnUrl) ? "/registro" : $"/registro?returnUrl={Uri.EscapeDataString(ReturnUrl)}")" class="fw-semibold text-primary">Crear cuenta de cliente</a>
-                </div>
-
-                <!-- Accesos Rápidos para Demostración -->
-                <div class="mt-4 pt-3 border-top">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="small fw-bold text-uppercase text-muted" style="letter-spacing: 0.05em; font-size: 0.75rem;">
-                            <span class="bi bi-lightning-charge-fill text-warning me-1"></span> Accesos Rápidos para Demostración
-                        </span>
-                        <span class="badge bg-light text-secondary border small">1 Clic</span>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 rounded-2 text-start p-2" disabled="@isLoading" @onclick='() => AccesoRapido("admin", "admin123")'>
-                                <div class="fw-semibold text-dark small"><span class="bi bi-shield-lock-fill text-warning me-1"></span> Admin</div>
-                                <div class="text-muted" style="font-size: 0.72rem;">admin / admin123</div>
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 rounded-2 text-start p-2" disabled="@isLoading" @onclick='() => AccesoRapido("carlos.mendoza", "carlos123")'>
-                                <div class="fw-semibold text-dark small"><span class="bi bi-person-fill text-primary me-1"></span> Carlos M.</div>
-                                <div class="text-muted" style="font-size: 0.72rem;">carlos.mendoza</div>
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 rounded-2 text-start p-2" disabled="@isLoading" @onclick='() => AccesoRapido("ana.torres", "ana123")'>
-                                <div class="fw-semibold text-dark small"><span class="bi bi-person-fill text-info me-1"></span> Ana Torres</div>
-                                <div class="text-muted" style="font-size: 0.72rem;">ana.torres</div>
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 rounded-2 text-start p-2" disabled="@isLoading" @onclick='() => AccesoRapido("user", "user123")'>
-                                <div class="fw-semibold text-dark small"><span class="bi bi-person-check text-success me-1"></span> Cliente Demo</div>
-                                <div class="text-muted" style="font-size: 0.72rem;">user / user123</div>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -167,12 +131,5 @@
         {
             isLoading = false;
         }
-    }
-
-    private async Task AccesoRapido(string user, string pass)
-    {
-        loginModel.Username = user;
-        loginModel.Password = pass;
-        await HandleLogin();
     }
 }

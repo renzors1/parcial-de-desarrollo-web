@@ -157,6 +157,10 @@ frontend_completo.txt
 *.log
 .system_generated/
 
+# Informes y Pruebas Locales (No subir a GitHub)
+INFORME_TECNICO.md
+PRUEBAS_POSTMAN.md
+
 
 ######################
 # .NET / C# / Blazor

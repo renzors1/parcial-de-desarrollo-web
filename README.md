@@ -1,123 +1,112 @@
-# Plataforma de Gestión y Venta de Libros Digitales (`ejemplo01`)
+# Sistema de Venta de Libros Digitales (BookStore)
 
-Proyecto integral desarrollado con **Spring Boot (Java 21)** en el backend y **Blazor Server (.NET 10)** en el frontend, siguiendo una arquitectura limpia por capas, desacoplada y con un sistema de diseño editorial moderno (*Clean Craft & Soft Badges*).
+Proyecto web para la venta de publicaciones tecnicas y distribucion de licencias de lectura digital (DRM). El sistema esta compuesto por un backend en Spring Boot (JHipster) y un frontend interactivo desarrollado en Blazor Server (.NET 10).
 
 ---
 
-## 👥 Guía para Colaboradores (Trabajar en Equipo con GitHub)
+## Requisitos del Sistema
 
-Si eres compañero de equipo y acabas de clonar el proyecto, sigue esta guía para dejarlo funcionando en tu máquina en menos de 5 minutos.
+Para compilar y ejecutar el proyecto en un entorno local se requiere:
 
-### 1. Clonar el repositorio
-Abre tu terminal (PowerShell, Git Bash o CMD) y corre:
+- Java JDK 17 o 21 (variable de entorno JAVA_HOME configurada)
+- .NET SDK 10 (o .NET 8+)
+- Git
+
+---
+
+## Instrucciones de Ejecucion
+
+El sistema requiere iniciar el backend y el frontend en dos terminales independientes:
+
+### 1. Iniciar el Backend (Spring Boot API)
+
+Desde la carpeta raiz del proyecto, ejecutar el wrapper de Maven:
+
+**En Windows (PowerShell / CMD):**
+
 ```bash
-git clone https://github.com/renzors1/parcial-de-desarrollo-web.git
-cd parcial-de-desarrollo-web
+.\mvnw.cmd
 ```
 
----
-
-## ⚙️ Puertos y Configuración del Entorno Local
-
-| Componente | Puerto | URL Local | Descripción |
-| :--- | :---: | :--- | :--- |
-| **Frontend (Blazor .NET 10)** | `5021` | [http://localhost:5021](http://localhost:5021) | Tienda web de libros en C# / Blazor Server con modo RAM y conexión a API. |
-| **Backend (API Spring Boot)**| `9999` | [http://localhost:9999](http://localhost:9999) | Servidor REST API y seguridad JWT. |
-| **Consola Base de Datos**| `9999` | [http://localhost:9999/h2-console](http://localhost:9999/h2-console) | Consola web de la base de datos H2 en memoria. |
-| **Documentación OpenAPI**| `9999` | [http://localhost:9999/swagger-ui](http://localhost:9999/swagger-ui) | Swagger UI para probar endpoints de la API. |
-
----
-
-## 🚀 Requisitos Previos e Instalación
-
-### Requisitos Mínimos:
-1. **Java JDK 21 (LTS)** instalado y en la variable `JAVA_HOME`.
-2. **.NET SDK 10 (o .NET 8+)** para compilar y ejecutar el frontend Blazor.
-3. **Git** instalado.
-
----
-
-### Paso a Paso para Encender el Proyecto:
-
-Para trabajar cómodamente, se recomienda abrir dos terminales separadas dentro de la carpeta del proyecto:
-
-#### 🟢 Terminal 1: Backend (Spring Boot)
-El proyecto cuenta con el ejecutable Maven Wrapper (`mvnw`), por lo que **no necesitas tener Maven instalado globalmente**:
+**En Linux / Mac / Git Bash:**
 
 ```bash
-# En Windows (PowerShell / CMD):
-.\mvnw
-
-# En Linux / Mac / Git Bash:
 ./mvnw
 ```
-> *La primera vez tardará un par de minutos mientras descarga las dependencias y levanta Liquibase con la base de datos H2.*
 
-#### 🟣 Terminal 2: Frontend (Blazor Server - C#)
-Navega a la carpeta de Blazor y ejecuta el proyecto:
+El servidor backend iniciara en el puerto 9999 y levantara automaticamente la base de datos H2 con sus esquemas y datos iniciales.
+
+### 2. Iniciar el Frontend (Blazor Server)
+
+En una segunda terminal, ingresar a la carpeta del cliente y ejecutar:
 
 ```bash
 cd BlazorApp1
 dotnet run
 ```
-> *Abrirá automáticamente o estará disponible en **`http://localhost:5021`**.*
+
+La aplicacion web estara disponible en el navegador en la direccion: `http://localhost:5021`
 
 ---
 
-## 🔑 Credenciales de Acceso (Entorno Local)
+## Puertos y Servicios Locales
 
-Para iniciar sesión en la plataforma y probar los permisos:
-
-| Rol | Usuario | Contraseña | Permisos |
-| :--- | :---: | :---: | :--- |
-| **Administrador** | `admin` | `admin` | Acceso total: CRUD de libros, gestión de ventas, promociones, licencias, usuarios y métricas. |
-| **Usuario Estándar** | `user` | `user` | Catálogo público, visualización y compras de libros. |
-
----
-
-## 🗄️ Acceso a la Base de Datos (H2 Console)
-
-Si necesitas ver las tablas, datos de prueba o hacer consultas SQL directas:
-* **URL:** [http://localhost:9999/h2-console](http://localhost:9999/h2-console)
-* **JDBC URL:** `jdbc:h2:file:./target/h2db/db/ejemplo01` (o en memoria `jdbc:h2:mem:ejemplo01`)
-* **User Name:** `ejemplo01`
-* **Password:** *(dejar vacío)*
+| Servicio                 | Puerto | URL Local                        | Descripcion                                                           |
+| ------------------------ | ------ | -------------------------------- | --------------------------------------------------------------------- |
+| Frontend (Blazor Server) | 5021   | http://localhost:5021            | Aplicacion web: catalogo, carrito, lectura y panel de administracion. |
+| Backend (Spring Boot)    | 9999   | http://localhost:9999            | API RESTful y servicio de autenticacion con JWT.                      |
+| Consola H2 Database      | 9999   | http://localhost:9999/h2-console | Administrador web para consultas directas a la base de datos.         |
+| Documentacion OpenAPI    | 9999   | http://localhost:9999/swagger-ui | Interfaz Swagger UI para consultar y probar endpoints.                |
 
 ---
 
-## 🔄 Flujo de Trabajo en Git para el Equipo
+## Cuentas de Acceso y Usuarios de Prueba
 
-Para evitar conflictos y trabajar ordenados:
+Para ingresar al sistema y evaluar las funcionalidades segun los roles disponibles, se pueden emplear las siguientes credenciales:
 
-1. **Antes de empezar a programar:** Descarga siempre los últimos cambios:
-   ```bash
-   git pull origin main
-   ```
-2. **Crear una rama para tu tarea/feature:**
-   ```bash
-   git checkout -b feature/nombre-de-tu-cambio
-   ```
-3. **Guardar y subir tus cambios:**
-   ```bash
-   git add .
-   git commit -m "feat: descripción clara de lo que hiciste"
-   git push origin feature/nombre-de-tu-cambio
-   ```
-4. **Verificar antes de subir:**
-   * Frontend linter: `npm run lint`
-   * Pruebas completas de regresión: `node qa-full-spectrum-audit.mjs`
+| Perfil           | Usuario        | Contrasena         | Roles                 | Alcance de Permisos                                                                      |
+| ---------------- | -------------- | ------------------ | --------------------- | ---------------------------------------------------------------------------------------- |
+| Administrador    | admin          | admin (o admin123) | ROLE_ADMIN, ROLE_USER | Acceso total: administracion de libros (CRUD), promociones, usuarios, ventas y reportes. |
+| Cliente Lector   | carlos.mendoza | carlos123          | ROLE_USER             | Acceso a compras, carrito, licencias DRM y biblioteca personal de lectura.               |
+| Cliente Lector   | ana.torres     | ana123             | ROLE_USER             | Exploracion de catalogo, adquisicion de libros y biblioteca digital.                     |
+| Cliente Estandar | user           | user (o user123)   | ROLE_USER             | Perfil de usuario comun para navegacion general y compras.                               |
+
+Nota: Tambien es posible registrar un nuevo lector desde el formulario de la aplicacion (`http://localhost:5021/registro`). La sesion se inicia de forma automatica al completar el registro.
 
 ---
 
-## 🛠️ Herramientas de Auditoría y Exportación Incluidas
+## Acceso a la Base de Datos (H2 Console)
 
-* **Exportar todo el código del frontend a un solo archivo de texto:**
-  ```bash
-  npm run export:frontend
-  ```
-  *(Genera `frontend_completo.txt` con el árbol de archivos y contenido completo).*
+Para consultar las tablas del sistema directamente desde el navegador:
 
-* **Ejecutar batería de 47 pruebas automáticas de QA y Seguridad (Headless):**
-  ```bash
-  node qa-full-spectrum-audit.mjs
-  ```
+- URL: http://localhost:9999/h2-console
+- Driver Class: `org.h2.Driver`
+- JDBC URL: `jdbc:h2:file:./target/h2db/db/ejemplo01` (o en memoria `jdbc:h2:mem:ejemplo01`)
+- User Name: `ejemplo01`
+- Password: _(dejar vacio)_
+
+---
+
+## Flujo de Trabajo en Git
+
+Para el trabajo colaborativo en el repositorio:
+
+1. Descargar las ultimas actualizaciones antes de trabajar:
+
+```bash
+git pull origin main
+```
+
+2. Crear una rama para la tarea correspondiente:
+
+```bash
+git checkout -b feature/nombre-de-tarea
+```
+
+3. Confirmar los cambios realizados localmente:
+
+```bash
+git add .
+git commit -m "descripcion clara de los cambios realizados"
+git push origin feature/nombre-de-tarea
+```
