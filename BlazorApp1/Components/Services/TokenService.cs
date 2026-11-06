@@ -37,6 +37,8 @@ public class TokenService
         NotifyStateChanged();
     }
 
+    public (string? Token, UserAccountDto? CurrentUser) GetSession() => (_token, _currentUser);
+
     public void Clear()
     {
         _token = null;

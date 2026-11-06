@@ -70,6 +70,13 @@ public class LibroDto
     [StringLength(500, ErrorMessage = "La URL de portada no puede superar 500 caracteres.")]
     public string? PortadaUrl { get; set; }
 
+    [JsonPropertyName("urlPortada")]
+    public string? UrlPortada
+    {
+        get => PortadaUrl;
+        set => PortadaUrl = value;
+    }
+
     [JsonPropertyName("categoriases")]
     public List<CategoriaDto> Categoriases { get; set; } = new();
 
@@ -90,7 +97,7 @@ public class LibroDto
         {
             var parts = (value ?? string.Empty).Trim().Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
             var nombres = parts.Length > 0 ? parts[0] : string.Empty;
-            var apellidos = parts.Length > 1 ? parts[1] : string.Empty;
+            var apellidos = parts.Length > 1 && !string.IsNullOrWhiteSpace(parts[1]) ? parts[1].Trim() : "Autor";
 
             if (Autoreses.Count > 0)
             {

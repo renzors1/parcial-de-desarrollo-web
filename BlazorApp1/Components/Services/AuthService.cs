@@ -1,5 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
+using Microsoft.JSInterop;
 
 namespace BlazorApp1.Components.Services;
 
@@ -8,6 +10,10 @@ public class AuthService
     private readonly HttpClient _http;
     private readonly TokenService _tokenService;
     private readonly BackendStatusService _backendStatus;
+    private readonly IJSRuntime _js;
+
+    private const string JwtStorageKey = "bookstore_jwt";
+    private const string UserStorageKey = "bookstore_user";
 
     private static readonly List<(string Username, string Password, UserAccountDto Account)> _usuariosLocales = new()
     {
@@ -67,11 +73,12 @@ public class AuthService
         })
     };
 
-    public AuthService(HttpClient http, TokenService tokenService, BackendStatusService backendStatus)
+    public AuthService(HttpClient http, TokenService tokenService, BackendStatusService backendStatus, IJSRuntime js)
     {
         _http = http;
         _tokenService = tokenService;
         _backendStatus = backendStatus;
+        _js = js;
     }
 
     public async Task<bool> Login(string user, string pass)
@@ -83,7 +90,9 @@ public class AuthService
 
             if (matchRam.Account != null)
             {
-                _tokenService.SetSession($"simulated_jwt_token_{matchRam.Account.Login}", matchRam.Account);
+                var ramToken = $"simulated_jwt_token_{matchRam.Account.Login}";
+                _tokenService.SetSession(ramToken, matchRam.Account);
+                await GuardarSesionLocalStorageAsync(ramToken, matchRam.Account);
                 return true;
             }
 
@@ -150,7 +159,9 @@ public class AuthService
 
         if (match.Account != null)
         {
-            _tokenService.SetSession($"simulated_jwt_token_{match.Account.Login}", match.Account);
+            var localToken = $"simulated_jwt_token_{match.Account.Login}";
+            _tokenService.SetSession(localToken, match.Account);
+            await GuardarSesionLocalStorageAsync(localToken, match.Account);
             return true;
         }
 
@@ -525,8 +536,60 @@ public class AuthService
         return false;
     }
 
+        public async Task GuardarSesionLocalStorageAsync(string token, UserAccountDto user)
+    {
+        try
+        {
+            var userJson = JsonSerializer.Serialize(user);
+            await _js.InvokeVoidAsync("localStorage.setItem", JwtStorageKey, token);
+            await _js.InvokeVoidAsync("localStorage.setItem", UserStorageKey, userJson);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al persistir sesiÃ³n en localStorage: {ex.Message}");
+        }
+    }
+
+    public async Task RestaurarSesionAsync()
+    {
+        try
+        {
+            var token = await _js.InvokeAsync<string?>("localStorage.getItem", JwtStorageKey);
+            var userJson = await _js.InvokeAsync<string?>("localStorage.getItem", UserStorageKey);
+
+            if (!string.IsNullOrWhiteSpace(token) && !string.IsNullOrWhiteSpace(userJson))
+            {
+                var user = JsonSerializer.Deserialize<UserAccountDto>(userJson);
+                if (user != null)
+                {
+                    _tokenService.SetSession(token, user);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al restaurar sesiÃ³n desde localStorage: {ex.Message}");
+        }
+    }
+
+    public async Task LogoutAsync()
+    {
+        try
+        {
+            await _js.InvokeVoidAsync("localStorage.removeItem", JwtStorageKey);
+            await _js.InvokeVoidAsync("localStorage.removeItem", UserStorageKey);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al limpiar sesiÃ³n en localStorage: {ex.Message}");
+        }
+
+        _tokenService.Clear();
+    }
+
     public void Logout()
     {
         _tokenService.Clear();
+        _ = LogoutAsync();
     }
 }

@@ -1,6 +1,8 @@
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject TokenService TokenService
+@inject AuthService AuthService
+@inject BackendStatusService BackendStatus
 @inject CarritoService CarritoService
 
 <div class="page">
@@ -18,6 +20,7 @@
 
             <!-- Acciones de Cabecera: Carrito + Sesión de usuario -->
             <div class="d-flex align-items-center gap-2 gap-sm-3">
+
                 <!-- Botón de Carrito en Cabecera -->
                 <a href="carrito" class="btn btn-outline-secondary position-relative px-3 py-1 rounded-2 d-inline-flex align-items-center text-dark text-decoration-none shadow-2xs bg-white" title="Bolsa de Compras">
                     <span class="bi bi-cart3 fs-5 me-1 text-primary"></span>
@@ -42,6 +45,9 @@
                         {
                             <span class="badge bg-warning text-dark small">Admin</span>
                         }
+                        <button class="btn btn-sm btn-link text-danger p-0 ms-1 text-decoration-none" @onclick="CerrarSesion" title="Cerrar Sesión">
+                            <span class="bi bi-box-arrow-right"></span>
+                        </button>
                     </div>
                 }
                 else
@@ -72,9 +78,23 @@
         CarritoService.OnChange += StateHasChanged;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !TokenService.IsAuthenticated)
+        {
+            await AuthService.RestaurarSesionAsync();
+            StateHasChanged();
+        }
+    }
+
     public void Dispose()
     {
         TokenService.OnChange -= StateHasChanged;
         CarritoService.OnChange -= StateHasChanged;
+    }
+
+    private async Task CerrarSesion()
+    {
+        await AuthService.LogoutAsync();
     }
 }

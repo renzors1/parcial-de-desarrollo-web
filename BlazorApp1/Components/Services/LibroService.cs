@@ -120,11 +120,11 @@ public class LibroService
     public async Task<List<LibroDto>> GetAll()
     {
         // Limpieza preventiva de registros con datos fuera de rango o corruptos
-        _librosLocales.RemoveAll(l => l.Precio < 0.50m || l.Precio > 9999.99m || (l.Isbn != null && l.Isbn.Length > 20) || l.Titulo.Equals("matematica", StringComparison.OrdinalIgnoreCase));
+        _librosLocales.RemoveAll(l => l.Precio > 10000m || (l.Isbn != null && l.Isbn.Length > 25));
 
         if (_backendStatus.ModoMemoriaRAM)
         {
-            return _librosLocales.Where(l => l.Activo).ToList();
+            return _librosLocales.Where(l => l.Activo).OrderByDescending(l => l.Id ?? 0).ToList();
         }
 
         SetAuthorizationHeader();
@@ -134,7 +134,38 @@ public class LibroService
             if (result != null && result.Count > 0)
             {
                 // Filtrar datos no comerciales o inválidos
-                return result.Where(l => l.Precio >= 0.50m && l.Precio <= 9999.99m && (l.Isbn == null || l.Isbn.Length <= 20) && !l.Titulo.Equals("matematica", StringComparison.OrdinalIgnoreCase)).ToList();
+                var librosApi = result.Where(l => l.Precio <= 10000m && (l.Isbn == null || l.Isbn.Length <= 25)).ToList();
+
+                // Asegurar que no se pierdan los libros agregados recientemente que aún no estén en la lista del API
+                foreach (var local in _librosLocales.Where(l => l.Activo))
+                {
+                    bool yaExisteEnApi = librosApi.Any(a =>
+                        (a.Id.HasValue && local.Id.HasValue && a.Id == local.Id) ||
+                        (!string.IsNullOrWhiteSpace(a.Isbn) && !string.IsNullOrWhiteSpace(local.Isbn) && string.Equals(a.Isbn.Trim(), local.Isbn.Trim(), StringComparison.OrdinalIgnoreCase))
+                    );
+
+                    if (!yaExisteEnApi)
+                    {
+                        librosApi.Add(local);
+                    }
+                }
+
+                // Sincronizar catálogo local con los libros devueltos por la API
+                foreach (var apiBook in librosApi)
+                {
+                    var existenteLocal = _librosLocales.FirstOrDefault(l =>
+                        (l.Id.HasValue && apiBook.Id.HasValue && l.Id == apiBook.Id) ||
+                        (!string.IsNullOrWhiteSpace(l.Isbn) && !string.IsNullOrWhiteSpace(apiBook.Isbn) && string.Equals(l.Isbn.Trim(), apiBook.Isbn.Trim(), StringComparison.OrdinalIgnoreCase))
+                    );
+
+                    if (existenteLocal == null)
+                    {
+                        _librosLocales.Add(apiBook);
+                    }
+                }
+
+                // Mostrar ordenados por Id descendente (los nuevos primero)
+                return librosApi.OrderByDescending(l => l.Id ?? 0).ToList();
             }
         }
         catch (Exception ex)
@@ -142,7 +173,7 @@ public class LibroService
             Console.WriteLine($"Conexión remota no disponible ({ex.Message}), usando catálogo local.");
         }
 
-        return _librosLocales.Where(l => l.Activo).ToList();
+        return _librosLocales.Where(l => l.Activo).OrderByDescending(l => l.Id ?? 0).ToList();
     }
 
     public Task<List<LibroDto>> GetAllAsync() => GetAll();
@@ -175,6 +206,18 @@ public class LibroService
         if (!string.IsNullOrWhiteSpace(libro.Isbn) && libro.Isbn.Length > 20) libro.Isbn = libro.Isbn[..20];
         if (!string.IsNullOrWhiteSpace(libro.Titulo) && libro.Titulo.Length > 150) libro.Titulo = libro.Titulo[..150];
 
+        // Asegurar apellidos válidos para evitar fallo de validación en Spring Boot
+        if (libro.Autoreses != null)
+        {
+            foreach (var autor in libro.Autoreses)
+            {
+                if (string.IsNullOrWhiteSpace(autor.Apellidos))
+                {
+                    autor.Apellidos = "Autor";
+                }
+            }
+        }
+
         if (_backendStatus.ModoMemoriaRAM)
         {
             libro.Id = (_librosLocales.Count > 0 ? _librosLocales.Max(l => l.Id ?? 0) : 0) + 1;
@@ -188,10 +231,31 @@ public class LibroService
             var response = await _http.PostAsJsonAsync("api/libros", libro);
             if (response.IsSuccessStatusCode)
             {
-                var creado = await response.Content.ReadFromJsonAsync<LibroDto>();
+                LibroDto? creado = null;
+                try
+                {
+                    creado = await response.Content.ReadFromJsonAsync<LibroDto>();
+                }
+                catch
+                {
+                    // Si el cuerpo de respuesta es vacío
+                }
+
                 if (creado != null)
                 {
+                    libro.Id = creado.Id;
+                    _librosLocales.RemoveAll(l => (creado.Id.HasValue && l.Id == creado.Id) || (!string.IsNullOrWhiteSpace(creado.Isbn) && string.Equals(l.Isbn, creado.Isbn, StringComparison.OrdinalIgnoreCase)));
                     _librosLocales.Add(creado);
+                    return true;
+                }
+                else
+                {
+                    if (libro.Id == null || libro.Id == 0)
+                    {
+                        libro.Id = (_librosLocales.Count > 0 ? _librosLocales.Max(l => l.Id ?? 0) : 0) + 1;
+                    }
+                    _librosLocales.RemoveAll(l => (l.Id == libro.Id) || (!string.IsNullOrWhiteSpace(libro.Isbn) && string.Equals(l.Isbn, libro.Isbn, StringComparison.OrdinalIgnoreCase)));
+                    _librosLocales.Add(libro);
                     return true;
                 }
             }
@@ -201,7 +265,12 @@ public class LibroService
             Console.WriteLine($"Error al sincronizar con el servidor ({ex.Message}), guardando localmente.");
         }
 
-        libro.Id = (_librosLocales.Count > 0 ? _librosLocales.Max(l => l.Id ?? 0) : 0) + 1;
+        // Si el backend no está disponible o la petición no pudo completarse, se guarda en el catálogo local
+        if (libro.Id == null || libro.Id == 0)
+        {
+            libro.Id = (_librosLocales.Count > 0 ? _librosLocales.Max(l => l.Id ?? 0) : 0) + 1;
+        }
+        _librosLocales.RemoveAll(l => (l.Id == libro.Id) || (!string.IsNullOrWhiteSpace(libro.Isbn) && string.Equals(l.Isbn, libro.Isbn, StringComparison.OrdinalIgnoreCase)));
         _librosLocales.Add(libro);
         return true;
     }
@@ -213,10 +282,23 @@ public class LibroService
         if (!string.IsNullOrWhiteSpace(libro.Isbn) && libro.Isbn.Length > 20) libro.Isbn = libro.Isbn[..20];
         if (!string.IsNullOrWhiteSpace(libro.Titulo) && libro.Titulo.Length > 150) libro.Titulo = libro.Titulo[..150];
 
+        // Asegurar apellidos válidos para evitar fallo de validación en Spring Boot
+        if (libro.Autoreses != null)
+        {
+            foreach (var autor in libro.Autoreses)
+            {
+                if (string.IsNullOrWhiteSpace(autor.Apellidos))
+                {
+                    autor.Apellidos = "Autor";
+                }
+            }
+        }
+
         if (_backendStatus.ModoMemoriaRAM)
         {
             var idxLocal = _librosLocales.FindIndex(l => l.Id == libro.Id);
             if (idxLocal >= 0) _librosLocales[idxLocal] = libro;
+            else _librosLocales.Add(libro);
             return true;
         }
 
@@ -228,6 +310,7 @@ public class LibroService
             {
                 var idx = _librosLocales.FindIndex(l => l.Id == libro.Id);
                 if (idx >= 0) _librosLocales[idx] = libro;
+                else _librosLocales.Add(libro);
                 return true;
             }
         }
@@ -238,6 +321,7 @@ public class LibroService
 
         var localIdx = _librosLocales.FindIndex(l => l.Id == libro.Id);
         if (localIdx >= 0) _librosLocales[localIdx] = libro;
+        else _librosLocales.Add(libro);
         return true;
     }
 

@@ -78,7 +78,7 @@ public class Libro implements Serializable {
     @JsonIgnoreProperties(value = { "libro", "detalleVenta" }, allowSetters = true)
     private Set<LicenciaDigital> licenciases = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
         name = "rel_libro__categorias",
         joinColumns = @JoinColumn(name = "libro_id"),
@@ -87,7 +87,7 @@ public class Libro implements Serializable {
     @JsonIgnoreProperties(value = { "libroses" }, allowSetters = true)
     private Set<Categoria> categoriases = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
         name = "rel_libro__autores",
         joinColumns = @JoinColumn(name = "libro_id"),

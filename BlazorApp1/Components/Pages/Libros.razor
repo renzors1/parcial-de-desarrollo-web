@@ -30,7 +30,8 @@
 
     @if (!string.IsNullOrEmpty(mensajeAlerta))
     {
-        <div class="alert alert-info alert-dismissible fade show rounded-2" role="alert">
+        <div class="alert @(mensajeAlerta.StartsWith("Error") ? "alert-danger" : "alert-info") alert-dismissible fade show rounded-2" role="alert">
+            <span class="bi @(mensajeAlerta.StartsWith("Error") ? "bi-exclamation-octagon-fill" : "bi-info-circle-fill") me-2"></span>
             @mensajeAlerta
             <button type="button" class="btn-close" @onclick="() => mensajeAlerta = null"></button>
         </div>
@@ -129,6 +130,13 @@
                 <EditForm Model="@libroActual" OnValidSubmit="GuardarLibro">
                     <DataAnnotationsValidator />
                     <div class="modal-body p-4">
+                        @if (!string.IsNullOrEmpty(mensajeAlerta))
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show rounded-2 py-2 px-3 small mb-3" role="alert">
+                                <span class="bi bi-exclamation-triangle-fill me-1"></span> @mensajeAlerta
+                                <button type="button" class="btn-close btn-sm" @onclick="() => mensajeAlerta = null"></button>
+                            </div>
+                        }
                         <ValidationSummary class="alert alert-danger py-2 px-3 rounded-2 small mb-3" />
 
                         <div class="row g-3">
@@ -288,8 +296,10 @@
 
     private void AbrirModalNuevo()
     {
+        mensajeAlerta = null;
         libroActual = new LibroDto
         {
+            Isbn = $"978-{Random.Shared.Next(100, 999)}-{Random.Shared.Next(10000, 99999)}-{Random.Shared.Next(1, 9)}",
             Precio = 50.00m,
             Idioma = "Español",
             Activo = true,
@@ -303,6 +313,7 @@
 
     private void AbrirModalEditar(LibroDto libro)
     {
+        mensajeAlerta = null;
         libroActual = new LibroDto
         {
             Id = libro.Id,
@@ -333,19 +344,27 @@
     private async Task GuardarLibro()
     {
         guardando = true;
+        mensajeAlerta = null;
+
+        if (string.IsNullOrWhiteSpace(campoAutorTexto))
+        {
+            mensajeAlerta = "Error: El nombre del autor es obligatorio y no puede estar vacío.";
+            guardando = false;
+            return;
+        }
+
+        var autorLimpio = campoAutorTexto.Trim();
+        if (autorLimpio.Length < 2 || autorLimpio.Length > 100)
+        {
+            mensajeAlerta = "Error: El nombre del autor debe tener entre 2 y 100 caracteres.";
+            guardando = false;
+            return;
+        }
 
         // Validaciones estrictas de negocio y límites comerciales
         if (string.IsNullOrWhiteSpace(libroActual.Titulo) || libroActual.Titulo.Trim().Length < 2 || libroActual.Titulo.Length > 150)
         {
             mensajeAlerta = "Error: El título debe tener entre 2 y 150 caracteres.";
-            guardando = false;
-            return;
-        }
-
-        var autorLimpio = (campoAutorTexto ?? "").Trim();
-        if (string.IsNullOrWhiteSpace(autorLimpio) || autorLimpio.Length < 2 || autorLimpio.Length > 100)
-        {
-            mensajeAlerta = "Error: El nombre del autor debe tener entre 2 y 100 caracteres.";
             guardando = false;
             return;
         }
@@ -359,7 +378,7 @@
 
         if (string.IsNullOrWhiteSpace(libroActual.Isbn))
         {
-            libroActual.Isbn = $"978-{DateTime.UtcNow.Ticks.ToString()[^10..]}";
+            libroActual.Isbn = $"978-{Random.Shared.Next(100, 999)}-{Random.Shared.Next(10000, 99999)}-{Random.Shared.Next(1, 9)}";
         }
         else if (libroActual.Isbn.Trim().Length < 10 || libroActual.Isbn.Trim().Length > 20)
         {
@@ -369,21 +388,18 @@
         }
 
         // Separación rigurosa de Nombres y Apellidos para evitar concatenaciones duplicadas
-        if (!string.IsNullOrWhiteSpace(autorLimpio))
-        {
-            var parts = autorLimpio.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-            var nombres = parts.Length > 0 ? parts[0] : "";
-            var apellidos = parts.Length > 1 ? parts[1] : "";
+        var parts = autorLimpio.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+        var nombres = parts.Length > 0 ? parts[0].Trim() : autorLimpio;
+        var apellidos = (parts.Length > 1 && !string.IsNullOrWhiteSpace(parts[1])) ? parts[1].Trim() : "Autor";
 
-            if (libroActual.Autoreses.Count > 0)
-            {
-                libroActual.Autoreses[0].Nombres = nombres;
-                libroActual.Autoreses[0].Apellidos = apellidos;
-            }
-            else
-            {
-                libroActual.Autoreses.Add(new AutorDto { Nombres = nombres, Apellidos = apellidos });
-            }
+        if (libroActual.Autoreses.Count > 0)
+        {
+            libroActual.Autoreses[0].Nombres = nombres;
+            libroActual.Autoreses[0].Apellidos = apellidos;
+        }
+        else
+        {
+            libroActual.Autoreses.Add(new AutorDto { Nombres = nombres, Apellidos = apellidos });
         }
 
         // Asignar editorial seleccionada
