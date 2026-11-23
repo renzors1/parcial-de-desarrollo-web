@@ -25,19 +25,6 @@ public class EditorialService
         _backendStatus = backendStatus;
     }
 
-    private void SetAuthorizationHeader()
-    {
-        if (!string.IsNullOrWhiteSpace(_tokenService.Token))
-        {
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _tokenService.Token);
-        }
-        else
-        {
-            _http.DefaultRequestHeaders.Authorization = null;
-        }
-    }
-
     public async Task<List<EditorialDto>> GetAll()
     {
         if (_backendStatus.ModoMemoriaRAM)
@@ -45,7 +32,7 @@ public class EditorialService
             return _editorialesLocales;
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var result = await _http.GetFromJsonAsync<List<EditorialDto>>("api/editorials");

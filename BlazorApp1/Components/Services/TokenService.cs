@@ -47,4 +47,17 @@ public class TokenService
     }
 
     public void NotifyStateChanged() => OnChange?.Invoke();
+
+    public void ApplyBearerToken(HttpClient http)
+    {
+        if (!string.IsNullOrWhiteSpace(_token))
+        {
+            http.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+        }
+        else
+        {
+            http.DefaultRequestHeaders.Authorization = null;
+        }
+    }
 }

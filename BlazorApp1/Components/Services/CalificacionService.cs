@@ -53,19 +53,6 @@ public class CalificacionService
         _backendStatus = backendStatus;
     }
 
-    private void SetAuthorizationHeader()
-    {
-        if (!string.IsNullOrWhiteSpace(_tokenService.Token))
-        {
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _tokenService.Token);
-        }
-        else
-        {
-            _http.DefaultRequestHeaders.Authorization = null;
-        }
-    }
-
     public async Task<List<CalificacionUsuarioDto>> GetAll()
     {
         if (_backendStatus.ModoMemoriaRAM)
@@ -73,7 +60,7 @@ public class CalificacionService
             return _calificacionesLocales.OrderByDescending(c => c.Id).ToList();
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var result = await _http.GetFromJsonAsync<List<CalificacionUsuarioDto>>("api/calificacion-usuarios");
@@ -98,7 +85,7 @@ public class CalificacionService
 
     public async Task<bool> EnviarCalificacion(CalificacionUsuarioDto calificacion)
     {
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         calificacion.Puntuacion = Math.Clamp(calificacion.Puntuacion, 1, 5);
         calificacion.FechaCalificacion = DateTime.UtcNow;
         calificacion.FechaCreacion ??= DateTime.UtcNow;

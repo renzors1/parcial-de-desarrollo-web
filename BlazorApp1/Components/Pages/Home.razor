@@ -5,7 +5,6 @@
 @inject CarritoService CarritoService
 @inject EditorialService EditorialService
 @inject PromocionService PromocionService
-@inject CalificacionService CalificacionService
 
 <PageTitle>BookStore - Catálogo Editorial de Libros Digitales</PageTitle>
 
@@ -123,7 +122,6 @@
                     ? Math.Max(0m, libro.Precio - montoDescuento)
                     : libro.Precio;
                 var vencePronto = EsVigentePorVencer(promo);
-                var metricas = ObtenerMetricas(libro.Id);
 
                 <div class="col">
                     <div class="card h-100 border shadow-sm rounded-2 overflow-hidden bg-white book-card d-flex flex-column">
@@ -137,7 +135,7 @@
                                     @if (vencePronto)
                                     {
                                         <span class="badge bg-warning text-dark border border-warning rounded-2 px-2 py-1 fw-bold shadow-2xs" title="Esta oferta finaliza en menos de 3 días">
-                                            ⏳ ¡Termina pronto!
+                                            Termina pronto
                                         </span>
                                     }
                                     <span class="badge bg-danger text-white rounded-2 px-2 py-1 fw-bold shadow-2xs">
@@ -179,15 +177,9 @@
                                         <div class="small text-secondary mb-2">
                                             <span class="bi bi-building me-1"></span>@libro.NombreEditorial
                                         </div>
-                                    </div>
-
-                                    <!-- Calificación y Reseñas dinámicas -->
-                                    <div class="d-flex align-items-center small mt-auto">
-                                        <div class="text-warning me-1">
-                                            <span class="bi bi-star-fill"></span>
+                                        <div class="small text-muted mt-auto">
+                                            <span class="bi bi-translate me-1"></span>@libro.Idioma
                                         </div>
-                                        <span class="fw-semibold text-dark me-1">@metricas.Rating.ToString("0.0")</span>
-                                        <span class="text-muted">(@metricas.Resenas)</span>
                                     </div>
                                 </div>
                             </div>
@@ -240,7 +232,6 @@
 @code {
     private List<LibroDto> todosLosLibros = new();
     private List<EditorialDto> editorialesDisponibles = new();
-    private List<CalificacionUsuarioDto> listaCalificaciones = new();
     private List<string> categoriasDisponibles = new();
     private List<PromocionDto> todasLasPromocionesActivas = new();
 
@@ -283,7 +274,6 @@
         {
             todosLosLibros = await LibroService.GetAllAsync();
             editorialesDisponibles = await EditorialService.GetAll();
-            try { listaCalificaciones = await CalificacionService.GetAll(); } catch { }
 
             var cats = todosLosLibros
                 .SelectMany(l => l.Categoriases.Select(c => c.NombreCategoria))
@@ -354,19 +344,6 @@
         var fin = promo.FechaFin.Kind == DateTimeKind.Utc ? promo.FechaFin.ToLocalTime() : promo.FechaFin;
         var diasRestantes = (fin.Date - DateTime.Now.Date).TotalDays;
         return diasRestantes >= 0 && diasRestantes <= 3;
-    }
-
-    private (decimal Rating, int Resenas) ObtenerMetricas(long? libroId)
-    {
-        var id = libroId ?? 1;
-        var reviews = listaCalificaciones.Where(c => c.LibroId == id).ToList();
-        if (reviews.Count > 0)
-        {
-            return (Math.Round((decimal)reviews.Average(c => c.Puntuacion), 1), reviews.Count);
-        }
-        var determinista = Math.Round(4.4m + ((id % 5) * 0.1m), 1);
-        var count = 18 + (int)((id * 7) % 45);
-        return (determinista, count);
     }
 
     private void LimpiarFiltros()

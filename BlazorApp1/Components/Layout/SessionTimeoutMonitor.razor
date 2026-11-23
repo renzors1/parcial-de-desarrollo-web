@@ -1,0 +1,103 @@
+@implements IDisposable
+@inject IConfiguration Configuration
+@inject TokenService TokenService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+@if (TokenService.IsAuthenticated)
+{
+    <div class="d-flex align-items-center px-2 py-1 rounded-2 border bg-white small text-secondary" title="Tiempo restante de sesión">
+        <span class="bi bi-clock me-1 @(segundosRestantes <= 30 ? "text-danger" : "text-primary")"></span>
+        <span class="fw-medium @(segundosRestantes <= 30 ? "text-danger" : "text-dark")">@FormatoTiempo(segundosRestantes)</span>
+    </div>
+}
+
+@code {
+    private System.Timers.Timer? _timer;
+    private int segundosRestantes;
+    private int timeoutConfigurado;
+
+    protected override void OnInitialized()
+    {
+        timeoutConfigurado = Configuration.GetValue<int>("SessionSettings:TimeoutSeconds", 300);
+        if (timeoutConfigurado <= 0) timeoutConfigurado = 300;
+        segundosRestantes = timeoutConfigurado;
+
+        TokenService.OnChange += OnAuthChanged;
+
+        if (TokenService.IsAuthenticated)
+        {
+            IniciarTemporizador();
+        }
+    }
+
+    private void OnAuthChanged()
+    {
+        if (TokenService.IsAuthenticated)
+        {
+            segundosRestantes = timeoutConfigurado;
+            IniciarTemporizador();
+        }
+        else
+        {
+            DetenerTemporizador();
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void IniciarTemporizador()
+    {
+        DetenerTemporizador();
+        _timer = new System.Timers.Timer(1000);
+        _timer.Elapsed += async (_, _) => await TickAsync();
+        _timer.AutoReset = true;
+        _timer.Start();
+    }
+
+    private void DetenerTemporizador()
+    {
+        if (_timer != null)
+        {
+            _timer.Stop();
+            _timer.Dispose();
+            _timer = null;
+        }
+    }
+
+    private async Task TickAsync()
+    {
+        if (!TokenService.IsAuthenticated)
+        {
+            DetenerTemporizador();
+            return;
+        }
+
+        if (segundosRestantes > 0)
+        {
+            segundosRestantes--;
+            await InvokeAsync(StateHasChanged);
+        }
+
+        if (segundosRestantes <= 0)
+        {
+            DetenerTemporizador();
+            await InvokeAsync(async () =>
+            {
+                await AuthService.LogoutAsync();
+                Navigation.NavigateTo("/login?expired=true", forceLoad: false);
+            });
+        }
+    }
+
+    private static string FormatoTiempo(int totalSegundos)
+    {
+        var ts = TimeSpan.FromSeconds(Math.Max(0, totalSegundos));
+        return $"{(int)ts.TotalMinutes:D2}:{ts.Seconds:D2}";
+    }
+
+    public void Dispose()
+    {
+        TokenService.OnChange -= OnAuthChanged;
+        DetenerTemporizador();
+    }
+}

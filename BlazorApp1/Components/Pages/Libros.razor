@@ -361,7 +361,7 @@
             return;
         }
 
-        // Validaciones estrictas de negocio y límites comerciales
+        // Validar campos del libro
         if (string.IsNullOrWhiteSpace(libroActual.Titulo) || libroActual.Titulo.Trim().Length < 2 || libroActual.Titulo.Length > 150)
         {
             mensajeAlerta = "Error: El título debe tener entre 2 y 150 caracteres.";
@@ -387,7 +387,7 @@
             return;
         }
 
-        // Separación rigurosa de Nombres y Apellidos para evitar concatenaciones duplicadas
+        // Separar nombre y apellido del autor
         var parts = autorLimpio.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
         var nombres = parts.Length > 0 ? parts[0].Trim() : autorLimpio;
         var apellidos = (parts.Length > 1 && !string.IsNullOrWhiteSpace(parts[1])) ? parts[1].Trim() : "Autor";

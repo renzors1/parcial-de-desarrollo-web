@@ -12,14 +12,15 @@
 
     <main>
         <header class="top-row px-4 d-flex justify-content-between align-items-center">
-            <!-- Título / Miga editorial -->
+            <!-- Titulo -->
             <div class="d-none d-md-flex align-items-center text-muted small">
                 <span class="bi bi-shield-check text-primary me-2"></span>
                 <span class="fw-medium">Plataforma Editorial Digital • Distribución DRM Segura</span>
             </div>
 
-            <!-- Acciones de Cabecera: Carrito + Sesión de usuario -->
+            <!-- Botones de cabecera -->
             <div class="d-flex align-items-center gap-2 gap-sm-3">
+                <SessionTimeoutMonitor />
 
                 <!-- Botón de Carrito en Cabecera -->
                 <a href="carrito" class="btn btn-outline-secondary position-relative px-3 py-1 rounded-2 d-inline-flex align-items-center text-dark text-decoration-none shadow-2xs bg-white" title="Bolsa de Compras">
@@ -68,7 +69,7 @@
 <div id="blazor-error-ui" data-nosnippet>
     Ocurrió un error inesperado en la aplicación.
     <a href="." class="reload">Recargar</a>
-    <span class="dismiss">🗙</span>
+    <span class="dismiss">&times;</span>
 </div>
 
 @code {

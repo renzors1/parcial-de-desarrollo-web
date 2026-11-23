@@ -104,22 +104,9 @@ public class LibroService
         _backendStatus = backendStatus;
     }
 
-    private void SetAuthorizationHeader()
-    {
-        if (!string.IsNullOrWhiteSpace(_tokenService.Token))
-        {
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _tokenService.Token);
-        }
-        else
-        {
-            _http.DefaultRequestHeaders.Authorization = null;
-        }
-    }
-
     public async Task<List<LibroDto>> GetAll()
     {
-        // Limpieza preventiva de registros con datos fuera de rango o corruptos
+        // Quitar registros invalidos
         _librosLocales.RemoveAll(l => l.Precio > 10000m || (l.Isbn != null && l.Isbn.Length > 25));
 
         if (_backendStatus.ModoMemoriaRAM)
@@ -127,16 +114,16 @@ public class LibroService
             return _librosLocales.Where(l => l.Activo).OrderByDescending(l => l.Id ?? 0).ToList();
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var result = await _http.GetFromJsonAsync<List<LibroDto>>("api/libros");
             if (result != null && result.Count > 0)
             {
-                // Filtrar datos no comerciales o inválidos
+                // Filtrar datos invalidos
                 var librosApi = result.Where(l => l.Precio <= 10000m && (l.Isbn == null || l.Isbn.Length <= 25)).ToList();
 
-                // Asegurar que no se pierdan los libros agregados recientemente que aún no estén en la lista del API
+                // Agregar libros locales que falten
                 foreach (var local in _librosLocales.Where(l => l.Activo))
                 {
                     bool yaExisteEnApi = librosApi.Any(a =>
@@ -150,7 +137,7 @@ public class LibroService
                     }
                 }
 
-                // Sincronizar catálogo local con los libros devueltos por la API
+                // Actualizar lista local
                 foreach (var apiBook in librosApi)
                 {
                     var existenteLocal = _librosLocales.FirstOrDefault(l =>
@@ -164,7 +151,7 @@ public class LibroService
                     }
                 }
 
-                // Mostrar ordenados por Id descendente (los nuevos primero)
+                // Ordenar los mas nuevos primero
                 return librosApi.OrderByDescending(l => l.Id ?? 0).ToList();
             }
         }
@@ -185,7 +172,7 @@ public class LibroService
             return _librosLocales.FirstOrDefault(l => l.Id == id);
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var res = await _http.GetFromJsonAsync<LibroDto>($"api/libros/{id}");
@@ -201,12 +188,12 @@ public class LibroService
 
     public async Task<bool> Create(LibroDto libro)
     {
-        // Sanitización rigurosa de límites comerciales
+        // Validar rango de precio y textos
         libro.Precio = Math.Clamp(libro.Precio, 0.50m, 9999.99m);
         if (!string.IsNullOrWhiteSpace(libro.Isbn) && libro.Isbn.Length > 20) libro.Isbn = libro.Isbn[..20];
         if (!string.IsNullOrWhiteSpace(libro.Titulo) && libro.Titulo.Length > 150) libro.Titulo = libro.Titulo[..150];
 
-        // Asegurar apellidos válidos para evitar fallo de validación en Spring Boot
+        // Poner apellido por defecto si falta
         if (libro.Autoreses != null)
         {
             foreach (var autor in libro.Autoreses)
@@ -225,7 +212,7 @@ public class LibroService
             return true;
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var response = await _http.PostAsJsonAsync("api/libros", libro);
@@ -265,7 +252,7 @@ public class LibroService
             Console.WriteLine($"Error al sincronizar con el servidor ({ex.Message}), guardando localmente.");
         }
 
-        // Si el backend no está disponible o la petición no pudo completarse, se guarda en el catálogo local
+        // Guardar en memoria si falla el servidor
         if (libro.Id == null || libro.Id == 0)
         {
             libro.Id = (_librosLocales.Count > 0 ? _librosLocales.Max(l => l.Id ?? 0) : 0) + 1;
@@ -277,12 +264,12 @@ public class LibroService
 
     public async Task<bool> Update(LibroDto libro)
     {
-        // Sanitización rigurosa de límites comerciales
+        // Validar rango de precio y textos
         libro.Precio = Math.Clamp(libro.Precio, 0.50m, 9999.99m);
         if (!string.IsNullOrWhiteSpace(libro.Isbn) && libro.Isbn.Length > 20) libro.Isbn = libro.Isbn[..20];
         if (!string.IsNullOrWhiteSpace(libro.Titulo) && libro.Titulo.Length > 150) libro.Titulo = libro.Titulo[..150];
 
-        // Asegurar apellidos válidos para evitar fallo de validación en Spring Boot
+        // Poner apellido por defecto si falta
         if (libro.Autoreses != null)
         {
             foreach (var autor in libro.Autoreses)
@@ -302,7 +289,7 @@ public class LibroService
             return true;
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var response = await _http.PutAsJsonAsync($"api/libros/{libro.Id}", libro);
@@ -335,7 +322,7 @@ public class LibroService
             return true;
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var response = await _http.DeleteAsync($"api/libros/{id.Value}");

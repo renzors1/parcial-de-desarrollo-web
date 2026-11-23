@@ -19,11 +19,7 @@ public class CarritoService
     public int TotalItems => Items.Sum(i => i.Cantidad);
     public decimal SubtotalBruto => Items.Sum(i => i.Subtotal);
 
-    /// <summary>
-    /// Calcula la porción del subtotal sobre la cual aplica la promoción vigente.
-    /// Si la campaña asigna libros específicos, solo se totalizan esos libros.
-    /// Si es una campaña global, abarca todo el subtotal.
-    /// </summary>
+    // Subtotal de los libros donde aplica la promocion
     public decimal SubtotalAplicable
     {
         get
@@ -41,13 +37,7 @@ public class CarritoService
         }
     }
 
-    /// <summary>
-    /// Descuento monetario calculado respetando:
-    /// 1. Monto mínimo de compra global exigido por la promoción.
-    /// 2. Alcance por libros (solo aplica a ítems autorizados cuando no es global).
-    /// 3. Tipo de descuento (PORCENTAJE o MONTO_FIJO).
-    /// 4. Tope máximo de descuento (si aplica).
-    /// </summary>
+    // Descuento calculado segun tipo, minimo y tope
     public decimal MontoDescuento
     {
         get

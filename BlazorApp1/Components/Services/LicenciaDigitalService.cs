@@ -178,19 +178,6 @@ public class LicenciaDigitalService
         _backendStatus = backendStatus;
     }
 
-    private void SetAuthorizationHeader()
-    {
-        if (!string.IsNullOrWhiteSpace(_tokenService.Token))
-        {
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _tokenService.Token);
-        }
-        else
-        {
-            _http.DefaultRequestHeaders.Authorization = null;
-        }
-    }
-
     public async Task<List<LicenciaDigitalDto>> GetAll()
     {
         if (_backendStatus.ModoMemoriaRAM)
@@ -198,7 +185,7 @@ public class LicenciaDigitalService
             return _licenciasLocales.OrderByDescending(l => l.Id).ToList();
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var result = await _http.GetFromJsonAsync<List<LicenciaDigitalDto>>("api/licencia-digitals");
@@ -256,7 +243,7 @@ public class LicenciaDigitalService
             return true;
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var response = await _http.PostAsJsonAsync("api/licencia-digitals", licencia);
@@ -290,7 +277,7 @@ public class LicenciaDigitalService
             return true;
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var response = await _http.PutAsJsonAsync($"api/licencia-digitals/{licencia.Id.Value}", licencia);
@@ -314,7 +301,7 @@ public class LicenciaDigitalService
             return true;
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var response = await _http.DeleteAsync($"api/licencia-digitals/{id.Value}");

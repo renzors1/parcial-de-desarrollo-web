@@ -118,7 +118,7 @@ public class AuthService
                     _tokenService.Token = result.IdToken;
                     await CargarPerfilUsuarioAsync();
 
-                    // Garantizar perfil válido de usuario si CargarPerfilUsuarioAsync no pobló la cuenta
+                    // Usar datos por defecto si falta el perfil
                     if (_tokenService.CurrentUser == null)
                     {
                         var localMatch = _usuariosLocales.FirstOrDefault(u =>
@@ -134,7 +134,7 @@ public class AuthService
                         };
                     }
 
-                    // Sincronizar credenciales en memoria para respaldar navegación fluida y modo offline
+                    // Guardar usuario en memoria
                     var localIdx = _usuariosLocales.FindIndex(u => string.Equals(u.Username, user, StringComparison.OrdinalIgnoreCase));
                     if (localIdx >= 0)
                     {
@@ -193,7 +193,7 @@ public class AuthService
             return "La contraseña debe tener al menos 4 caracteres.";
         }
 
-        // Si ya existe en la lista local, avisar amigablemente antes de enviar
+        // Verificar si ya existe el usuario
         if (_usuariosLocales.Any(u => string.Equals(u.Username, request.Login, StringComparison.OrdinalIgnoreCase)))
         {
             return "El nombre de usuario ya se encuentra registrado. Por favor elige otro o inicia sesión.";
@@ -234,7 +234,7 @@ public class AuthService
             }
         }
 
-        // Siempre guardar la cuenta registrada en el repositorio de memoria para permitir acceso inmediato
+        // Guardar cuenta nueva en memoria
         var nuevoId = (_usuariosLocales.Count > 0 ? _usuariosLocales.Max(u => u.Account.Id ?? 0) : 0) + 1;
         var nuevaCuenta = new UserAccountDto
         {

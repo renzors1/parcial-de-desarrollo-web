@@ -74,19 +74,6 @@ public class PromocionService
         _backendStatus = backendStatus;
     }
 
-    private void SetAuthorizationHeader()
-    {
-        if (!string.IsNullOrWhiteSpace(_tokenService.Token))
-        {
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _tokenService.Token);
-        }
-        else
-        {
-            _http.DefaultRequestHeaders.Authorization = null;
-        }
-    }
-
     public async Task<List<PromocionDto>> GetAll()
     {
         if (_backendStatus.ModoMemoriaRAM)
@@ -94,7 +81,7 @@ public class PromocionService
             return _promocionesLocales.OrderByDescending(p => p.Activo).ThenBy(p => p.Nombre).ToList();
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var result = await _http.GetFromJsonAsync<List<PromocionDto>>("api/promocions");
@@ -109,7 +96,7 @@ public class PromocionService
                     }
                     else
                     {
-                        // Sincronizar campos manteniendo valores enriquecidos locales si la API JHipster viene básica
+                        // Completar datos locales de promocion
                         existente.Nombre = p.Nombre;
                         existente.Descripcion = p.Descripcion;
                         existente.PorcentajeDescuento = p.PorcentajeDescuento;
@@ -144,7 +131,7 @@ public class PromocionService
 
     public async Task<bool> Crear(PromocionDto promocion)
     {
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var response = await _http.PostAsJsonAsync("api/promocions", promocion);
@@ -153,7 +140,7 @@ public class PromocionService
                 var creada = await response.Content.ReadFromJsonAsync<PromocionDto>();
                 if (creada != null)
                 {
-                    // Preservar propiedades extendidas si el backend JHipster no las persistió
+                    // Mantener datos locales
                     creada.CodigoCupon = promocion.CodigoCupon;
                     creada.TipoDescuento = promocion.TipoDescuento;
                     creada.DescuentoFijo = promocion.DescuentoFijo;
@@ -178,7 +165,7 @@ public class PromocionService
 
     public async Task<bool> Editar(PromocionDto promocion)
     {
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         if (promocion.Id.HasValue)
         {
             try
@@ -209,7 +196,7 @@ public class PromocionService
     public async Task<bool> Eliminar(long? id)
     {
         if (!id.HasValue) return false;
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var response = await _http.DeleteAsync($"api/promocions/{id.Value}");

@@ -231,19 +231,6 @@ public class VentaService
         _backendStatus = backendStatus;
     }
 
-    private void SetAuthorizationHeader()
-    {
-        if (!string.IsNullOrWhiteSpace(_tokenService.Token))
-        {
-            _http.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _tokenService.Token);
-        }
-        else
-        {
-            _http.DefaultRequestHeaders.Authorization = null;
-        }
-    }
-
     public async Task<List<VentaDto>> GetAll()
     {
         if (_backendStatus.ModoMemoriaRAM)
@@ -251,7 +238,7 @@ public class VentaService
             return _ventasLocales.OrderByDescending(v => v.Id).ToList();
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var result = await _http.GetFromJsonAsync<List<VentaDto>>("api/ventas");
@@ -312,7 +299,7 @@ public class VentaService
             return true;
         }
 
-        SetAuthorizationHeader();
+        _tokenService.ApplyBearerToken(_http);
         try
         {
             var response = await _http.PostAsJsonAsync("api/ventas", venta);
