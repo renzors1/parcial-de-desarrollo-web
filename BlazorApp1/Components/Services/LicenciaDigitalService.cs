@@ -27,7 +27,7 @@ public class LicenciaDigitalService
                 Titulo = "C# 13 and .NET 10 – Modern Cross-Platform Development",
                 Isbn = "978-1835081983",
                 Precio = 89.90m,
-                PortadaUrl = "/covers/cover-csharp13.svg",
+                PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781803237800-L.jpg",
                 Categoriases = new() { new CategoriaDto { NombreCategoria = "Programación" } }
             }
         },
@@ -47,7 +47,7 @@ public class LicenciaDigitalService
                 Titulo = "Cloud Native Go: Building Web Applications and Microservices",
                 Isbn = "978-1492076339",
                 Precio = 59.90m,
-                PortadaUrl = "/covers/cover-cloud-go.svg",
+                PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781492076339-L.jpg",
                 Categoriases = new() { new CategoriaDto { NombreCategoria = "Cloud Computing" } }
             }
         },
@@ -67,7 +67,7 @@ public class LicenciaDigitalService
                 Titulo = "Clean Architecture: A Craftsman's Guide to Software Structure",
                 Isbn = "978-0134494166",
                 Precio = 75.50m,
-                PortadaUrl = "/covers/cover-clean-arch.svg",
+                PortadaUrl = "https://covers.openlibrary.org/b/isbn/9780134494166-L.jpg",
                 Categoriases = new() { new CategoriaDto { NombreCategoria = "Arquitectura" } }
             }
         },
@@ -87,7 +87,7 @@ public class LicenciaDigitalService
                 Titulo = "Diseño de Bases de Datos Relacionales y SQL Avanzado",
                 Isbn = "978-8441541234",
                 Precio = 49.00m,
-                PortadaUrl = "/covers/cover-sql-db.svg",
+                PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781492057611-L.jpg",
                 Categoriases = new() { new CategoriaDto { NombreCategoria = "Base de Datos" } }
             }
         },
@@ -107,7 +107,7 @@ public class LicenciaDigitalService
                 Titulo = "Desarrollo Web Full-Stack con Blazor y Spring Boot",
                 Isbn = "978-1617298578",
                 Precio = 95.00m,
-                PortadaUrl = "/covers/cover-blazor-spring.svg",
+                PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781617298578-L.jpg",
                 Categoriases = new() { new CategoriaDto { NombreCategoria = "Desarrollo Web" } }
             }
         },
@@ -127,7 +127,7 @@ public class LicenciaDigitalService
                 Titulo = "C# 13 and .NET 10 – Modern Cross-Platform Development",
                 Isbn = "978-1835081983",
                 Precio = 89.90m,
-                PortadaUrl = "/covers/cover-csharp13.svg",
+                PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781803237800-L.jpg",
                 Categoriases = new() { new CategoriaDto { NombreCategoria = "Programación" } }
             }
         },
@@ -146,7 +146,7 @@ public class LicenciaDigitalService
                 Titulo = "Clean Architecture: A Craftsman's Guide to Software Structure",
                 Isbn = "978-0134494166",
                 Precio = 75.50m,
-                PortadaUrl = "/covers/cover-clean-arch.svg",
+                PortadaUrl = "https://covers.openlibrary.org/b/isbn/9780134494166-L.jpg",
                 Categoriases = new() { new CategoriaDto { NombreCategoria = "Arquitectura" } }
             }
         },
@@ -165,7 +165,7 @@ public class LicenciaDigitalService
                 Titulo = "Patrones de Microservicios y Sistemas Distribuidos",
                 Isbn = "978-1617294549",
                 Precio = 82.50m,
-                PortadaUrl = "/covers/cover-microservices.svg",
+                PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781617294549-L.jpg",
                 Categoriases = new() { new CategoriaDto { NombreCategoria = "Arquitectura" } }
             }
         }

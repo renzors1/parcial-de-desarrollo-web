@@ -17,9 +17,6 @@ public class CalificacionUsuarioDto
     [StringLength(500, ErrorMessage = "El comentario no puede superar los 500 caracteres.")]
     public string? Comentario { get; set; }
 
-    [JsonPropertyName("libroId")]
-    public long? LibroId { get; set; }
-
     [JsonPropertyName("fechaCalificacion")]
     public DateTime FechaCalificacion { get; set; } = DateTime.UtcNow;
 

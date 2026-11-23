@@ -30,6 +30,8 @@ public class LibroDTO implements Serializable {
 
     private String urlPortada;
 
+    private String urlContraportada;
+
     private LocalDate fechaPublicacion;
 
     @NotNull
@@ -96,6 +98,14 @@ public class LibroDTO implements Serializable {
 
     public void setUrlPortada(String urlPortada) {
         this.urlPortada = urlPortada;
+    }
+
+    public String getUrlContraportada() {
+        return urlContraportada;
+    }
+
+    public void setUrlContraportada(String urlContraportada) {
+        this.urlContraportada = urlContraportada;
     }
 
     public LocalDate getFechaPublicacion() {

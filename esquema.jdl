@@ -87,6 +87,7 @@ entity Libro {
     titulo String required,
     sinopsis TextBlob,
     urlPortada String,
+    urlContraportada String,
     fechaPublicacion LocalDate,
     precio Float required min(0),
     idioma String required,

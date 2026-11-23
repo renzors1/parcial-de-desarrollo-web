@@ -42,6 +42,9 @@ public class Libro implements Serializable {
     @Column(name = "url_portada")
     private String urlPortada;
 
+    @Column(name = "url_contraportada")
+    private String urlContraportada;
+
     @Column(name = "fecha_publicacion")
     private LocalDate fechaPublicacion;
 
@@ -169,6 +172,19 @@ public class Libro implements Serializable {
 
     public void setUrlPortada(String urlPortada) {
         this.urlPortada = urlPortada;
+    }
+
+    public String getUrlContraportada() {
+        return this.urlContraportada;
+    }
+
+    public Libro urlContraportada(String urlContraportada) {
+        this.setUrlContraportada(urlContraportada);
+        return this;
+    }
+
+    public void setUrlContraportada(String urlContraportada) {
+        this.urlContraportada = urlContraportada;
     }
 
     public LocalDate getFechaPublicacion() {

@@ -80,7 +80,7 @@
                             <tr>
                                 <td class="ps-3 text-muted small">@libro.Id</td>
                                 <td style="width: 50px;">
-                                    <div style="width: 40px; height: 56px; border-radius: 4px; overflow: hidden; background: #1e293b;" class="border">
+                                    <div style="width: 40px; height: 56px; border-radius: 4px; overflow: hidden; background: #2e2521;" class="border">
                                         @if (!string.IsNullOrWhiteSpace(libro.PortadaUrl))
                                         {
                                             <img src="@libro.PortadaUrl" alt="@libro.Titulo" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.opacity='0'; this.style.display='none';" />
@@ -187,10 +187,16 @@
                                 <ValidationMessage For="() => libroActual.Idioma" class="text-danger small mt-1" />
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label class="form-label fw-semibold">URL de Portada</label>
-                                <InputText class="form-control rounded-2" @bind-Value="libroActual.PortadaUrl" placeholder="/covers/cover-*.svg" maxlength="500" />
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.PortadaUrl" placeholder="https://covers.openlibrary.org/b/isbn/..." maxlength="500" />
                                 <ValidationMessage For="() => libroActual.PortadaUrl" class="text-danger small mt-1" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">URL de Contraportada</label>
+                                <InputText class="form-control rounded-2" @bind-Value="libroActual.UrlContraportada" placeholder="https://covers.openlibrary.org/b/isbn/..." maxlength="500" />
+                                <ValidationMessage For="() => libroActual.UrlContraportada" class="text-danger small mt-1" />
                             </div>
 
                             <div class="col-12">
@@ -303,7 +309,8 @@
             Precio = 50.00m,
             Idioma = "Español",
             Activo = true,
-            PortadaUrl = "/covers/cover-clean-arch.svg"
+            PortadaUrl = "https://covers.openlibrary.org/b/isbn/9780134494166-L.jpg",
+            UrlContraportada = "https://covers.openlibrary.org/b/isbn/9780134494166-M.jpg"
         };
         campoAutorTexto = "";
         editorialSeleccionadaId = editoriales.FirstOrDefault()?.Id ?? 0;
@@ -325,6 +332,7 @@
             Idioma = libro.Idioma,
             Activo = libro.Activo,
             PortadaUrl = libro.PortadaUrl,
+            UrlContraportada = libro.UrlContraportada,
             Editorial = libro.Editorial,
             Categoriases = new List<CategoriaDto>(libro.Categoriases),
             Autoreses = new List<AutorDto>(libro.Autoreses)

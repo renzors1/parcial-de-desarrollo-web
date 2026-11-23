@@ -20,7 +20,8 @@ public class LibroService
             Precio = 89.90m,
             Idioma = "Español",
             Activo = true,
-            PortadaUrl = "/covers/cover-csharp13.svg",
+            PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781803237800-L.jpg",
+            UrlContraportada = "https://covers.openlibrary.org/b/isbn/9781803237800-M.jpg",
             Editorial = new EditorialDto { Id = 2, NombreEditorial = "Packt Publishing", Pais = "Reino Unido" },
             Autoreses = new() { new AutorDto { Id = 1, Nombres = "Mark J.", Apellidos = "Price" } },
             Categoriases = new() { new CategoriaDto { Id = 1, NombreCategoria = "Programación" } }
@@ -34,7 +35,8 @@ public class LibroService
             Precio = 75.50m,
             Idioma = "Español",
             Activo = true,
-            PortadaUrl = "/covers/cover-clean-arch.svg",
+            PortadaUrl = "https://covers.openlibrary.org/b/isbn/9780134494166-L.jpg",
+            UrlContraportada = "https://covers.openlibrary.org/b/isbn/9780134494166-M.jpg",
             Editorial = new EditorialDto { Id = 1, NombreEditorial = "O'Reilly Media", Pais = "Estados Unidos" },
             Autoreses = new() { new AutorDto { Id = 2, Nombres = "Robert C.", Apellidos = "Martin" } },
             Categoriases = new() { new CategoriaDto { Id = 2, NombreCategoria = "Arquitectura" } }
@@ -48,7 +50,8 @@ public class LibroService
             Precio = 59.90m,
             Idioma = "Español",
             Activo = true,
-            PortadaUrl = "/covers/cover-cloud-go.svg",
+            PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781492076339-L.jpg",
+            UrlContraportada = "https://covers.openlibrary.org/b/isbn/9781492076339-M.jpg",
             Editorial = new EditorialDto { Id = 1, NombreEditorial = "O'Reilly Media", Pais = "Estados Unidos" },
             Autoreses = new() { new AutorDto { Id = 3, Nombres = "Matthew", Apellidos = "Titmus" } },
             Categoriases = new() { new CategoriaDto { Id = 3, NombreCategoria = "Cloud Computing" } }
@@ -62,7 +65,8 @@ public class LibroService
             Precio = 49.00m,
             Idioma = "Español",
             Activo = true,
-            PortadaUrl = "/covers/cover-sql-db.svg",
+            PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781492057611-L.jpg",
+            UrlContraportada = "https://covers.openlibrary.org/b/isbn/9781492057611-M.jpg",
             Editorial = new EditorialDto { Id = 4, NombreEditorial = "Planeta Digital", Pais = "España" },
             Autoreses = new() { new AutorDto { Id = 4, Nombres = "C. J.", Apellidos = "Date" } },
             Categoriases = new() { new CategoriaDto { Id = 4, NombreCategoria = "Base de Datos" } }
@@ -76,7 +80,8 @@ public class LibroService
             Precio = 95.00m,
             Idioma = "Español",
             Activo = true,
-            PortadaUrl = "/covers/cover-blazor-spring.svg",
+            PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781617298578-L.jpg",
+            UrlContraportada = "https://covers.openlibrary.org/b/isbn/9781617298578-M.jpg",
             Editorial = new EditorialDto { Id = 3, NombreEditorial = "Manning Publications", Pais = "Estados Unidos" },
             Autoreses = new() { new AutorDto { Id = 5, Nombres = "Martin", Apellidos = "Fowler" } },
             Categoriases = new() { new CategoriaDto { Id = 5, NombreCategoria = "Desarrollo Web" } }
@@ -90,7 +95,8 @@ public class LibroService
             Precio = 82.50m,
             Idioma = "Español",
             Activo = true,
-            PortadaUrl = "/covers/cover-microservices.svg",
+            PortadaUrl = "https://covers.openlibrary.org/b/isbn/9781617294549-L.jpg",
+            UrlContraportada = "https://covers.openlibrary.org/b/isbn/9781617294549-M.jpg",
             Editorial = new EditorialDto { Id = 3, NombreEditorial = "Manning Publications", Pais = "Estados Unidos" },
             Autoreses = new() { new AutorDto { Id = 6, Nombres = "Chris", Apellidos = "Richardson" } },
             Categoriases = new() { new CategoriaDto { Id = 2, NombreCategoria = "Arquitectura" } }

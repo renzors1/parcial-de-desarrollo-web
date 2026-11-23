@@ -76,7 +76,7 @@
         <div class="col-12 col-sm-6 col-lg-3">
             <div class="card border shadow-2xs rounded-2 p-3 bg-white h-100">
                 <div class="d-flex align-items-center">
-                    <div class="rounded-2 bg-light text-info border p-3 me-3">
+                    <div class="rounded-2 bg-light text-primary border p-3 me-3">
                         <span class="bi bi-chat-quote fs-4"></span>
                     </div>
                     <div>
@@ -134,8 +134,8 @@
                     <thead class="table-light">
                         <tr>
                             <th class="ps-4">ID</th>
-                            <th>Título de la Obra</th>
-                            <th>Lector / Cliente</th>
+                            <th>Venta Asociada</th>
+                            <th>Cliente Evaluado</th>
                             <th>Valoración</th>
                             <th>Reseña / Comentario</th>
                             <th>Fecha</th>
@@ -148,14 +148,14 @@
                             <tr>
                                 <td class="ps-4 text-muted small">@cal.Id</td>
                                 <td>
-                                    <div class="fw-semibold text-dark font-editorial small" style="max-width: 220px;">
-                                        @ObtenerTituloLibro(cal.LibroId)
+                                    <div class="fw-semibold text-dark small">
+                                        @(cal.Venta?.NumeroComprobante ?? "Evaluación Directa")
                                     </div>
-                                    <small class="text-muted">ID Obra: #@(cal.LibroId ?? 0)</small>
+                                    <small class="text-muted">Evaluador: @(cal.EvaluadorTienda?.FirstName ?? "Tienda")</small>
                                 </td>
                                 <td>
-                                    <div class="fw-semibold text-dark">@(cal.UsuarioCreacion ?? "Cliente Verificado")</div>
-                                    <small class="text-muted">Compra Verificada</small>
+                                    <div class="fw-semibold text-dark">@(cal.ClienteEvaluado?.FirstName ?? cal.UsuarioCreacion ?? "Cliente Verificado")</div>
+                                    <small class="text-muted">Cliente Registrado</small>
                                 </td>
                                 <td>
                                     <div class="text-warning small">
@@ -190,7 +190,6 @@
 
 @code {
     private List<CalificacionUsuarioDto> calificaciones = new();
-    private List<LibroDto> catalogoLibros = new();
     private bool cargando = true;
     private string busqueda = "";
     private int filtroEstrellas = 0;
@@ -200,7 +199,8 @@
         .Where(c => string.IsNullOrWhiteSpace(busqueda) ||
                     (c.Comentario?.Contains(busqueda, StringComparison.OrdinalIgnoreCase) ?? false) ||
                     (c.UsuarioCreacion?.Contains(busqueda, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    ObtenerTituloLibro(c.LibroId).Contains(busqueda, StringComparison.OrdinalIgnoreCase))
+                    (c.ClienteEvaluado?.FirstName?.Contains(busqueda, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (c.Venta?.NumeroComprobante?.Contains(busqueda, StringComparison.OrdinalIgnoreCase) ?? false))
         .ToList();
 
     protected override async Task OnInitializedAsync()
@@ -208,19 +208,11 @@
         await CargarCalificaciones();
     }
 
-    private string ObtenerTituloLibro(long? libroId)
-    {
-        if (!libroId.HasValue) return "Obra General";
-        var match = catalogoLibros.FirstOrDefault(l => l.Id == libroId.Value);
-        return match?.Titulo ?? $"Obra Editorial #{libroId.Value}";
-    }
-
     private async Task CargarCalificaciones()
     {
         cargando = true;
         try
         {
-            catalogoLibros = await LibroService.GetAllAsync();
             calificaciones = await CalificacionService.GetAll();
         }
         catch (Exception ex)

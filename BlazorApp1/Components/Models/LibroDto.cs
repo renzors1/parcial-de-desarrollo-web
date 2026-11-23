@@ -77,6 +77,10 @@ public class LibroDto
         set => PortadaUrl = value;
     }
 
+    [JsonPropertyName("urlContraportada")]
+    [StringLength(500, ErrorMessage = "La URL de contraportada no puede superar 500 caracteres.")]
+    public string? UrlContraportada { get; set; }
+
     [JsonPropertyName("categoriases")]
     public List<CategoriaDto> Categoriases { get; set; } = new();
 

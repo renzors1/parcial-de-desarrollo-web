@@ -14,34 +14,34 @@ public class CalificacionService
         new()
         {
             Id = 1,
-            LibroId = 1,
             Puntuacion = 5,
-            Comentario = "Excelente experiencia de lectura digital. El visor en línea es rápido y claro.",
+            Comentario = "Cliente puntual y sin incidencias en sus compras digitales.",
             FechaCalificacion = DateTime.UtcNow.AddDays(-3),
             Activo = true,
-            UsuarioCreacion = "carlos.mendoza",
+            UsuarioCreacion = "admin",
+            ClienteEvaluado = new UserAccountDto { Login = "carlos.mendoza", FirstName = "Carlos", LastName = "Mendoza" },
             FechaCreacion = DateTime.UtcNow.AddDays(-3)
         },
         new()
         {
             Id = 2,
-            LibroId = 2,
             Puntuacion = 5,
-            Comentario = "Obra indispensable para arquitectura de software. La clave DRM se activó al instante.",
+            Comentario = "Compra verificada correctamente y activacion inmediata de licencia.",
             FechaCalificacion = DateTime.UtcNow.AddDays(-2),
             Activo = true,
-            UsuarioCreacion = "ana.torres",
+            UsuarioCreacion = "admin",
+            ClienteEvaluado = new UserAccountDto { Login = "ana.torres", FirstName = "Ana", LastName = "Torres" },
             FechaCreacion = DateTime.UtcNow.AddDays(-2)
         },
         new()
         {
             Id = 3,
-            LibroId = 3,
             Puntuacion = 4,
-            Comentario = "Gran contenido sobre desarrollo cloud native y microservicios modernos.",
+            Comentario = "Buen historial de compras en la plataforma.",
             FechaCalificacion = DateTime.UtcNow.AddDays(-1),
             Activo = true,
-            UsuarioCreacion = "user",
+            UsuarioCreacion = "admin",
+            ClienteEvaluado = new UserAccountDto { Login = "user", FirstName = "Usuario", LastName = "Cliente Demo" },
             FechaCreacion = DateTime.UtcNow.AddDays(-1)
         }
     };
@@ -115,16 +115,16 @@ public class CalificacionService
         return true;
     }
 
-    public async Task<bool> RegistrarOpinion(int puntuacion, string comentario, string? cliente = null, long? libroId = null)
+    public async Task<bool> RegistrarOpinion(int puntuacion, string comentario, string? cliente = null)
     {
         var dto = new CalificacionUsuarioDto
         {
-            LibroId = libroId,
             Puntuacion = puntuacion,
             Comentario = comentario,
             FechaCalificacion = DateTime.UtcNow,
             Activo = true,
-            UsuarioCreacion = cliente ?? _tokenService.CurrentUser?.Login ?? "cliente"
+            UsuarioCreacion = _tokenService.CurrentUser?.Login ?? "admin",
+            ClienteEvaluado = string.IsNullOrWhiteSpace(cliente) ? null : new UserAccountDto { Login = cliente, FirstName = cliente }
         };
 
         return await EnviarCalificacion(dto);
