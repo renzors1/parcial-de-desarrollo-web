@@ -13,17 +13,14 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
             <h1 class="h2 fw-bold mb-1 text-dark font-editorial">Calificación de Clientes</h1>
-            <p class="text-muted mb-0">Evaluación manual de clientes registrados por puntualidad de pago y comportamiento en la plataforma digital</p>
+            <p class="text-muted mb-0">Evaluación automática de clientes según su historial de compras y monto acumulado</p>
         </div>
         <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary rounded-2 px-3 shadow-2xs" @onclick="CargarCalificaciones">
                 <span class="bi bi-arrow-clockwise me-1"></span> Actualizar
             </button>
-            <button class="btn btn-outline-primary rounded-2 px-3 shadow-2xs fw-semibold" @onclick="RecalcularMetricas" disabled="@recalculando">
+            <button class="btn btn-primary rounded-2 px-3 shadow-2xs fw-semibold" @onclick="RecalcularMetricas" disabled="@recalculando">
                 <span class="bi bi-calculator me-1"></span> @(recalculando ? "Calculando..." : "Recalcular Métricas")
-            </button>
-            <button class="btn btn-primary rounded-2 px-3 shadow-2xs fw-semibold" @onclick="AbrirModalNueva">
-                <span class="bi bi-plus-lg me-1"></span> Calificar Cliente
             </button>
         </div>
     </div>
