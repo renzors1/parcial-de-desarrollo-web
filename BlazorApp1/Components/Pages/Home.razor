@@ -3,6 +3,8 @@
 @implements IDisposable
 @inject LibroService LibroService
 @inject CarritoService CarritoService
+@inject TokenService TokenService
+@inject NavigationManager Navigation
 @inject EditorialService EditorialService
 @inject PromocionService PromocionService
 
@@ -20,12 +22,21 @@
             <a href="#catalogo" class="btn btn-light px-4 py-2 fw-semibold text-dark shadow-sm rounded-2">
                 <span class="bi bi-book me-2"></span> Explorar Catálogo
             </a>
-            <a href="/carrito" class="btn btn-outline-light px-4 py-2 rounded-2">
-                <span class="bi bi-cart3 me-2"></span> Mi Carrito (@CarritoService.TotalItems)
-            </a>
-            <a href="/mis-libros" class="btn btn-outline-warning px-4 py-2 rounded-2">
-                <span class="bi bi-journal-bookmark me-2"></span> Mis Libros Digitales
-            </a>
+            @if (!TokenService.IsAdmin)
+            {
+                <a href="/carrito" class="btn btn-outline-light px-4 py-2 rounded-2">
+                    <span class="bi bi-cart3 me-2"></span> Mi Carrito (@CarritoService.TotalItems)
+                </a>
+                <a href="/mis-libros" class="btn btn-outline-warning px-4 py-2 rounded-2">
+                    <span class="bi bi-journal-bookmark me-2"></span> Mis Libros Digitales
+                </a>
+            }
+            else
+            {
+                <a href="/libros" class="btn btn-outline-warning px-4 py-2 rounded-2">
+                    <span class="bi bi-grid me-2"></span> Gestionar Catálogo
+                </a>
+            }
         </div>
     </div>
 </div>
@@ -214,7 +225,7 @@
                                         <span class="bi bi-check-lg me-1"></span> ¡Agregado!
                                     </button>
                                 }
-                                else
+                                else if (!TokenService.IsAdmin)
                                 {
                                     <button class="btn btn-primary px-3 py-2 rounded-2 fw-medium shadow-2xs" @onclick="() => ComprarLibro(libro)">
                                         <span class="bi bi-cart-plus me-1"></span> Agregar
@@ -257,6 +268,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (TokenService.IsAdmin)
+        {
+            Navigation.NavigateTo("/libros");
+            return;
+        }
         CarritoService.OnChange += StateHasChanged;
         await CargarDatos();
     }

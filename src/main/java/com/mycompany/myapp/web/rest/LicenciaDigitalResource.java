@@ -174,6 +174,16 @@ public class LicenciaDigitalResource {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLicenciaDigital(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete LicenciaDigital : {}", id);
+        licenciaDigitalRepository.findById(id).ifPresent(lic -> {
+            String est = lic.getEstado() != null ? lic.getEstado().name().toUpperCase() : "";
+            if ("VENDIDA".equals(est) || "ASIGNADA".equals(est)) {
+                throw new BadRequestAlertException(
+                    "No se puede eliminar una licencia que ya fue vendida o asignada a un cliente",
+                    ENTITY_NAME,
+                    "licensesold"
+                );
+            }
+        });
         licenciaDigitalService.delete(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

@@ -1,6 +1,7 @@
 package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.repository.LibroRepository;
+import com.mycompany.myapp.repository.LicenciaDigitalRepository;
 import com.mycompany.myapp.service.LibroService;
 import com.mycompany.myapp.service.dto.LibroDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
@@ -42,9 +43,12 @@ public class LibroResource {
 
     private final LibroRepository libroRepository;
 
-    public LibroResource(LibroService libroService, LibroRepository libroRepository) {
+    private final LicenciaDigitalRepository licenciaDigitalRepository;
+
+    public LibroResource(LibroService libroService, LibroRepository libroRepository, LicenciaDigitalRepository licenciaDigitalRepository) {
         this.libroService = libroService;
         this.libroRepository = libroRepository;
+        this.licenciaDigitalRepository = licenciaDigitalRepository;
     }
 
     /**
@@ -180,6 +184,13 @@ public class LibroResource {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLibro(@PathVariable("id") Long id) {
         LOG.debug("REST request to delete Libro : {}", id);
+        if (licenciaDigitalRepository.existsByLibroId(id)) {
+            throw new BadRequestAlertException(
+                "No se puede eliminar un libro que tiene licencias DRM asociadas",
+                ENTITY_NAME,
+                "haslicenses"
+            );
+        }
         libroService.delete(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

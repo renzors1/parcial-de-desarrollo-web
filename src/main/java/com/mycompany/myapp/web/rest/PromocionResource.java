@@ -60,6 +60,7 @@ public class PromocionResource {
         if (promocionDTO.getId() != null) {
             throw new BadRequestAlertException("A new promocion cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        validarReglasPromocion(promocionDTO);
         promocionDTO = promocionService.save(promocionDTO);
         return ResponseEntity.created(new URI("/api/promocions/" + promocionDTO.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, promocionDTO.getId().toString()))
@@ -92,6 +93,7 @@ public class PromocionResource {
         if (!promocionRepository.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
+        validarReglasPromocion(promocionDTO);
 
         promocionDTO = promocionService.update(promocionDTO);
         return ResponseEntity.ok()
@@ -184,5 +186,17 @@ public class PromocionResource {
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    private void validarReglasPromocion(PromocionDTO dto) {
+        if (dto.getFechaInicio() != null && dto.getFechaFin() != null && dto.getFechaFin().isBefore(dto.getFechaInicio())) {
+            throw new BadRequestAlertException("La fecha de fin no puede ser anterior a la fecha de inicio", ENTITY_NAME, "invaliddate");
+        }
+        if (
+            dto.getPorcentajeDescuento() != null &&
+            (dto.getPorcentajeDescuento().doubleValue() < 0 || dto.getPorcentajeDescuento().doubleValue() > 100)
+        ) {
+            throw new BadRequestAlertException("El porcentaje de descuento debe estar entre 0 y 100", ENTITY_NAME, "invalidpercent");
+        }
     }
 }

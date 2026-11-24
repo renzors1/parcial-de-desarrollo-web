@@ -184,7 +184,14 @@
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <button class="btn btn-sm btn-outline-danger rounded-2 px-2 py-1" title="Eliminar Licencia" @onclick="() => SolicitarEliminarLicencia(lic)">
+                                    @{
+                                        var esVendida = string.Equals(lic.Estado, "VENDIDA", StringComparison.OrdinalIgnoreCase)
+                                            || string.Equals(lic.Estado, "ASIGNADA", StringComparison.OrdinalIgnoreCase);
+                                    }
+                                    <button class="btn btn-sm btn-outline-danger rounded-2 px-2 py-1"
+                                            disabled="@esVendida"
+                                            title="@(esVendida ? "No se puede eliminar una licencia ya asignada a un cliente" : "Eliminar Licencia")"
+                                            @onclick="() => SolicitarEliminarLicencia(lic)">
                                         <span class="bi bi-trash"></span>
                                     </button>
                                 </td>

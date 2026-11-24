@@ -115,7 +115,13 @@
                                     <button class="btn btn-sm btn-outline-secondary rounded-2 me-1" @onclick="() => AbrirModalEditar(libro)">
                                         <span class="bi bi-pencil me-1"></span> Editar
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger rounded-2" title="Eliminar del catálogo" @onclick="() => SolicitarEliminarLibro(libro)">
+                                    @{
+                                        var totLic = licencias.Count(l => l.Libro?.Id == libro.Id);
+                                    }
+                                    <button class="btn btn-sm btn-outline-danger rounded-2"
+                                            disabled="@(totLic > 0)"
+                                            title="@(totLic > 0 ? $"No se puede eliminar: tiene {totLic} licencia(s) DRM asociada(s). Desactívalo en su lugar." : "Eliminar del catálogo")"
+                                            @onclick="() => SolicitarEliminarLibro(libro)">
                                         <span class="bi bi-trash"></span>
                                     </button>
                                 </td>
@@ -169,9 +175,14 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Editorial</label>
+                                <input type="text"
+                                       class="form-control form-control-sm rounded-2 mb-1"
+                                       placeholder="Buscar editorial o país..."
+                                       value="@busquedaEditorialModal"
+                                       @oninput="OnBusquedaEditorialModalInput" />
                                 <select class="form-select rounded-2" @bind="editorialSeleccionadaId">
                                     <option value="0">-- Selecciona Editorial --</option>
-                                    @foreach (var ed in editoriales)
+                                    @foreach (var ed in editorialesModalFiltradas.Take(50))
                                     {
                                         <option value="@ed.Id">@ed.NombreEditorial (@ed.Pais)</option>
                                     }
@@ -295,7 +306,25 @@
     private bool mostrarModal = false;
     private bool mostrarModalEliminar = false;
     private string? mensajeAlerta;
+    private string busquedaEditorialModal = "";
     private List<LicenciaDigitalDto> licencias = new();
+
+    private List<EditorialDto> editorialesModalFiltradas => string.IsNullOrWhiteSpace(busquedaEditorialModal)
+        ? editoriales
+        : editoriales.Where(e =>
+            (e.NombreEditorial?.Contains(busquedaEditorialModal, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (e.Pais?.Contains(busquedaEditorialModal, StringComparison.OrdinalIgnoreCase) ?? false))
+        .ToList();
+
+    private void OnBusquedaEditorialModalInput(ChangeEventArgs e)
+    {
+        busquedaEditorialModal = e.Value?.ToString() ?? "";
+        var filtradas = editorialesModalFiltradas;
+        if (filtradas.Any() && !filtradas.Any(ed => ed.Id == editorialSeleccionadaId))
+        {
+            editorialSeleccionadaId = filtradas.First().Id ?? 0;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

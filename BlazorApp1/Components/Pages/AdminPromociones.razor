@@ -125,23 +125,18 @@
                 </div>
             </div>
             <div class="col-12 col-lg-7 d-flex justify-content-lg-end flex-wrap gap-1">
-                <div class="btn-group flex-wrap" role="group">
-                    <button class="btn btn-sm @(filtroEstado == "TODAS" ? "btn-primary" : "btn-outline-secondary") rounded-2 px-3 me-1 mb-1" @onclick='() => filtroEstado = "TODAS"'>
-                        Todas (@promociones.Count)
-                    </button>
-                    <button class="btn btn-sm @(filtroEstado == "VIGENTES" ? "btn-success" : "btn-outline-secondary") rounded-2 px-3 me-1 mb-1" @onclick='() => filtroEstado = "VIGENTES"'>
-                        Vigentes (@promociones.Count(p => p.EsVigente))
-                    </button>
-                    <button class="btn btn-sm @(filtroEstado == "POR_VENCER" ? "btn-warning text-dark" : "btn-outline-secondary") rounded-2 px-3 me-1 mb-1" @onclick='() => filtroEstado = "POR_VENCER"'>
-                        ⏳ Por Vencer (@TotalAlertas)
-                    </button>
-                    <button class="btn btn-sm @(filtroEstado == "PROGRAMADAS" ? "btn-info text-white" : "btn-outline-secondary") rounded-2 px-3 me-1 mb-1" @onclick='() => filtroEstado = "PROGRAMADAS"'>
-                        Programadas (@promociones.Count(p => p.EsProgramada))
-                    </button>
-                    <button class="btn btn-sm @(filtroEstado == "VENCIDAS_AGOTADAS" ? "btn-secondary" : "btn-outline-secondary") rounded-2 px-3 mb-1" @onclick='() => filtroEstado = "VENCIDAS_AGOTADAS"'>
-                        Vencidas / Agotadas (@promociones.Count(p => !p.EsVigente && !p.EsProgramada))
-                    </button>
-                </div>
+                <button class="btn btn-sm @(filtroEstado == "TODAS" ? "btn-primary" : "btn-outline-secondary") rounded-2 px-3" @onclick='() => filtroEstado = "TODAS"'>
+                    Todas (@promociones.Count)
+                </button>
+                <button class="btn btn-sm @(filtroEstado == "VIGENTES" ? "btn-success" : "btn-outline-secondary") rounded-2 px-3" @onclick='() => filtroEstado = "VIGENTES"'>
+                    Vigentes (@promociones.Count(p => p.EsVigente))
+                </button>
+                <button class="btn btn-sm @(filtroEstado == "POR_VENCER" ? "btn-warning text-dark" : "btn-outline-secondary") rounded-2 px-3" @onclick='() => filtroEstado = "POR_VENCER"'>
+                    Por Vencer (@TotalAlertas)
+                </button>
+                <button class="btn btn-sm @(filtroEstado == "VENCIDAS_AGOTADAS" ? "btn-secondary" : "btn-outline-secondary") rounded-2 px-3" @onclick='() => filtroEstado = "VENCIDAS_AGOTADAS"'>
+                    Vencidas (@promociones.Count(p => !p.EsVigente && !p.EsProgramada))
+                </button>
             </div>
         </div>
     </div>
@@ -298,20 +293,12 @@
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <button class="btn btn-outline-secondary rounded-2 me-1" title="Editar campaña" @onclick="() => AbrirModalEditar(promo)">
-                                            <span class="bi bi-pencil me-1"></span> Editar
-                                        </button>
-                                        <button class="btn btn-outline-secondary rounded-2 me-1" title="Duplicar campaña con un nuevo código" @onclick="() => ClonarCampana(promo.Id)">
-                                            <span class="bi bi-copy me-1"></span> Clonar
-                                        </button>
-                                        <button class="btn btn-outline-success rounded-2 me-1" title="Extender vigencia por 7 días" @onclick="() => Extender7Dias(promo.Id)">
-                                            <span class="bi bi-calendar-plus me-1"></span> +7 Días
-                                        </button>
-                                        <button class="btn btn-outline-danger rounded-2 px-2" title="Eliminar campaña" @onclick="() => AbrirModalEliminar(promo)">
-                                            <span class="bi bi-trash"></span>
-                                        </button>
-                                    </div>
+                                    <button class="btn btn-sm btn-outline-secondary rounded-2 me-1" title="Editar campaña" @onclick="() => AbrirModalEditar(promo)">
+                                        <span class="bi bi-pencil"></span>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-2" title="Eliminar campaña" @onclick="() => AbrirModalEliminar(promo)">
+                                        <span class="bi bi-trash"></span>
+                                    </button>
                                 </td>
                             </tr>
                         }

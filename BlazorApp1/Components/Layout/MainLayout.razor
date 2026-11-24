@@ -22,17 +22,20 @@
             <div class="d-flex align-items-center gap-2 gap-sm-3">
                 <SessionTimeoutMonitor />
 
-                <!-- Botón de Carrito en Cabecera -->
-                <a href="carrito" class="btn btn-outline-secondary position-relative px-3 py-1 rounded-2 d-inline-flex align-items-center text-dark text-decoration-none shadow-2xs bg-white" title="Bolsa de Compras">
-                    <span class="bi bi-cart3 fs-5 me-1 text-primary"></span>
-                    <span class="d-none d-sm-inline fw-semibold small me-1">Carrito</span>
-                    @if (CarritoService.TotalItems > 0)
-                    {
-                        <span class="badge rounded-pill bg-primary ms-1">
-                            @CarritoService.TotalItems
-                        </span>
-                    }
-                </a>
+                @if (!TokenService.IsAdmin)
+                {
+                    <!-- Botón de Carrito en Cabecera -->
+                    <a href="carrito" class="btn btn-outline-secondary position-relative px-3 py-1 rounded-2 d-inline-flex align-items-center text-dark text-decoration-none shadow-2xs bg-white" title="Bolsa de Compras">
+                        <span class="bi bi-cart3 fs-5 me-1 text-primary"></span>
+                        <span class="d-none d-sm-inline fw-semibold small me-1">Carrito</span>
+                        @if (CarritoService.TotalItems > 0)
+                        {
+                            <span class="badge rounded-pill bg-primary ms-1">
+                                @CarritoService.TotalItems
+                            </span>
+                        }
+                    </a>
+                }
 
                 <!-- Perfil / Iniciar Sesión -->
                 @if (TokenService.IsAuthenticated)

@@ -19,34 +19,37 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="nav flex-column py-2">
-        <!-- VISTAS PARA EL CLIENTE -->
-        <div class="nav-category-header">
-            Catálogo & Tienda
-        </div>
+        @if (!TokenService.IsAdmin)
+        {
+            <!-- VISTAS PARA EL CLIENTE -->
+            <div class="nav-category-header">
+                Catálogo Digital
+            </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-book me-2"></span> Catálogo Editorial
-            </NavLink>
-        </div>
+            <div class="nav-item">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-book me-2"></span> Catálogo Editorial
+                </NavLink>
+            </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link" href="carrito">
-                <span class="bi bi-cart3 me-2"></span> Mi Carrito
-                @if (CarritoService.TotalItems > 0)
-                {
-                    <span class="badge bg-primary ms-auto">@CarritoService.TotalItems</span>
-                }
-            </NavLink>
-        </div>
+            <div class="nav-item">
+                <NavLink class="nav-link" href="carrito">
+                    <span class="bi bi-cart3 me-2"></span> Mi Carrito
+                    @if (CarritoService.TotalItems > 0)
+                    {
+                        <span class="badge bg-primary ms-auto">@CarritoService.TotalItems</span>
+                    }
+                </NavLink>
+            </div>
 
-        <div class="nav-item">
-            <NavLink class="nav-link" href="mis-libros">
-                <span class="bi bi-journal-bookmark me-2"></span> Mis Libros Digitales
-            </NavLink>
-        </div>
+            <div class="nav-item">
+                <NavLink class="nav-link" href="mis-libros">
+                    <span class="bi bi-journal-bookmark me-2"></span> Mis Libros Digitales
+                </NavLink>
+            </div>
 
-        <div class="nav-divider"></div>
+            <div class="nav-divider"></div>
+        }
 
         <!-- ACCESO Y CUENTA -->
         <div class="nav-category-header">
@@ -115,7 +118,7 @@
 
                 <div class="nav-item">
                     <NavLink class="nav-link" href="admin/calificaciones">
-                        <span class="bi bi-star me-2"></span> Reseñas & Opiniones
+                        <span class="bi bi-star me-2"></span> Calificación de Clientes
                     </NavLink>
                 </div>
             }
