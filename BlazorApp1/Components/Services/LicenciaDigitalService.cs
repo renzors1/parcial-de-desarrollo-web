@@ -16,7 +16,7 @@ public class LicenciaDigitalService
         {
             Id = 1,
             CodigoLicencia = "LIC-2026-NET10-CM01",
-            EnlaceDescarga = "https://visor.bookstore.com/read/1?token=carlos_net10",
+            EnlaceDescarga = "/lector/1?token=carlos_net10",
             FechaAsignacion = DateTime.UtcNow.AddDays(-3),
             Estado = "VENDIDA",
             UsuarioCreacion = "carlos.mendoza",
@@ -36,7 +36,7 @@ public class LicenciaDigitalService
         {
             Id = 2,
             CodigoLicencia = "LIC-2026-GOLNG-CM02",
-            EnlaceDescarga = "https://visor.bookstore.com/read/3?token=carlos_go",
+            EnlaceDescarga = "/lector/3?token=carlos_go",
             FechaAsignacion = DateTime.UtcNow.AddDays(-3),
             Estado = "VENDIDA",
             UsuarioCreacion = "carlos.mendoza",
@@ -56,7 +56,7 @@ public class LicenciaDigitalService
         {
             Id = 3,
             CodigoLicencia = "LIC-2026-ARCH-AT01",
-            EnlaceDescarga = "https://visor.bookstore.com/read/2?token=ana_cleanarch",
+            EnlaceDescarga = "/lector/2?token=ana_cleanarch",
             FechaAsignacion = DateTime.UtcNow.AddDays(-2),
             Estado = "VENDIDA",
             UsuarioCreacion = "ana.torres",
@@ -76,7 +76,7 @@ public class LicenciaDigitalService
         {
             Id = 4,
             CodigoLicencia = "LIC-2026-SQL-USR01",
-            EnlaceDescarga = "https://visor.bookstore.com/read/4?token=user_sql",
+            EnlaceDescarga = "/lector/4?token=user_sql",
             FechaAsignacion = DateTime.UtcNow.AddDays(-1),
             Estado = "VENDIDA",
             UsuarioCreacion = "user",
@@ -96,7 +96,7 @@ public class LicenciaDigitalService
         {
             Id = 5,
             CodigoLicencia = "LIC-2026-BLAZOR-ADM",
-            EnlaceDescarga = "https://visor.bookstore.com/read/5?token=admin_blazor",
+            EnlaceDescarga = "/lector/5?token=admin_blazor",
             FechaAsignacion = DateTime.UtcNow.AddHours(-4),
             Estado = "VENDIDA",
             UsuarioCreacion = "admin",
@@ -116,7 +116,7 @@ public class LicenciaDigitalService
         {
             Id = 6,
             CodigoLicencia = "STOCK-PACKT-NET10-001",
-            EnlaceDescarga = "https://visor.bookstore.com/read/1",
+            EnlaceDescarga = "/lector/1",
             FechaAsignacion = null,
             Estado = "DISPONIBLE",
             UsuarioCreacion = "admin",
@@ -135,7 +135,7 @@ public class LicenciaDigitalService
         {
             Id = 7,
             CodigoLicencia = "STOCK-OREILLY-ARCH-002",
-            EnlaceDescarga = "https://visor.bookstore.com/read/2",
+            EnlaceDescarga = "/lector/2",
             FechaAsignacion = null,
             Estado = "DISPONIBLE",
             UsuarioCreacion = "admin",
@@ -154,7 +154,7 @@ public class LicenciaDigitalService
         {
             Id = 8,
             CodigoLicencia = "STOCK-MANNING-MICRO-003",
-            EnlaceDescarga = "https://visor.bookstore.com/read/6",
+            EnlaceDescarga = "/lector/6",
             FechaAsignacion = null,
             Estado = "DISPONIBLE",
             UsuarioCreacion = "admin",
@@ -341,7 +341,7 @@ public class LicenciaDigitalService
                     var nueva = new LicenciaDigitalDto
                     {
                         CodigoLicencia = codigo,
-                        EnlaceDescarga = $"https://visor.bookstore.com/read/{libro.Id}?token={Guid.NewGuid().ToString("N")[..12]}",
+                        EnlaceDescarga = $"/lector/{libro.Id}?token={Guid.NewGuid().ToString("N")[..12]}",
                         FechaAsignacion = DateTime.UtcNow,
                         Estado = "VENDIDA",
                         UsuarioCreacion = cliente,

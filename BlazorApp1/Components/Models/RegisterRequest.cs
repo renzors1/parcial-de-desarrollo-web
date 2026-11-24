@@ -22,6 +22,11 @@ public class RegisterRequest
     [StringLength(100, MinimumLength = 4, ErrorMessage = "La contraseña debe tener entre 4 y 100 caracteres.")]
     public string Password { get; set; } = string.Empty;
 
+    [JsonIgnore]
+    [Required(ErrorMessage = "Debes confirmar tu contraseña.")]
+    [Compare(nameof(Password), ErrorMessage = "Las contraseñas no coinciden.")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
     [JsonPropertyName("firstName")]
     [StringLength(50, ErrorMessage = "El nombre no puede superar los 50 caracteres.")]
     public string? FirstName { get; set; }

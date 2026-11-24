@@ -2,6 +2,8 @@
 @rendermode InteractiveServer
 @inject LibroService LibroService
 @inject EditorialService EditorialService
+@inject CatalogoConfigService CatalogoConfig
+@inject LicenciaDigitalService LicenciaService
 @inject TokenService TokenService
 @inject NavigationManager Navigation
 
@@ -70,6 +72,7 @@
                             <th>Autor</th>
                             <th>Editorial</th>
                             <th>Precio</th>
+                            <th>Licencias DRM</th>
                             <th>Estado</th>
                             <th class="text-end pe-3">Acciones</th>
                         </tr>
@@ -94,6 +97,15 @@
                                 <td>@libro.AutorPrincipal</td>
                                 <td><span class="badge bg-light text-secondary border">@libro.NombreEditorial</span></td>
                                 <td><span class="fw-bold text-primary">S/ @libro.Precio.ToString("N2")</span></td>
+                                <td>
+                                    @{
+                                        var disp = licencias.Count(l => l.Libro?.Id == libro.Id && l.Estado == "DISPONIBLE");
+                                        var tot = licencias.Count(l => l.Libro?.Id == libro.Id);
+                                    }
+                                    <span class="badge @(disp > 0 ? "bg-success-subtle text-success border border-success-subtle" : "bg-danger-subtle text-danger border border-danger-subtle") rounded-2">
+                                        @disp disp. / @tot total
+                                    </span>
+                                </td>
                                 <td>
                                     <span class="badge @(libro.Activo ? "bg-success-subtle text-success border border-success-subtle" : "bg-secondary-subtle text-muted") rounded-2">
                                         @(libro.Activo ? "Activo" : "Inactivo")
@@ -168,22 +180,26 @@
 
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Precio (S/) <span class="text-danger">*</span></label>
-                                <InputNumber class="form-control rounded-2" @bind-Value="libroActual.Precio" min="0.50" max="9999.99" step="0.01" required />
+                                <InputNumber class="form-control rounded-2" @bind-Value="libroActual.Precio" ParsingErrorMessage="El precio debe ser un número válido." min="0.50" max="9999.99" step="0.01" required />
                                 <ValidationMessage For="() => libroActual.Precio" class="text-danger small mt-1" />
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Categoría</label>
                                 <select class="form-select rounded-2" @bind="categoriaSeleccionada">
-                                    <option value="Programación">Programación</option>
-                                    <option value="Arquitectura">Arquitectura</option>
-                                    <option value="Cloud Computing">Cloud Computing</option>
-                                    <option value="Desarrollo Web">Desarrollo Web</option>
-                                    <option value="Base de Datos">Base de Datos</option>
+                                    @foreach (var cat in CatalogoConfig.GetCategorias())
+                                    {
+                                        <option value="@cat">@cat</option>
+                                    }
                                 </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Idioma</label>
-                                <InputText class="form-control rounded-2" @bind-Value="libroActual.Idioma" placeholder="Español" maxlength="30" />
+                                <InputSelect class="form-select rounded-2" @bind-Value="libroActual.Idioma">
+                                    @foreach (var idioma in CatalogoConfig.GetIdiomas())
+                                    {
+                                        <option value="@idioma">@idioma</option>
+                                    }
+                                </InputSelect>
                                 <ValidationMessage For="() => libroActual.Idioma" class="text-danger small mt-1" />
                             </div>
 
@@ -279,6 +295,7 @@
     private bool mostrarModal = false;
     private bool mostrarModalEliminar = false;
     private string? mensajeAlerta;
+    private List<LicenciaDigitalDto> licencias = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -297,6 +314,7 @@
     {
         cargando = true;
         libros = await LibroService.GetAll();
+        licencias = await LicenciaService.GetAll();
         cargando = false;
     }
 
@@ -469,6 +487,15 @@
     {
         if (libroAEliminar?.Id != null)
         {
+            var licencias = await LicenciaService.GetAll();
+            var licenciasAsociadas = licencias.Count(l => l.Libro?.Id == libroAEliminar.Id.Value);
+            if (licenciasAsociadas > 0)
+            {
+                mensajeAlerta = $"No se puede eliminar '{libroAEliminar.Titulo}' porque tiene {licenciasAsociadas} licencia(s) DRM asociada(s).";
+                CerrarModalEliminar();
+                return;
+            }
+
             var ok = await LibroService.Delete(libroAEliminar.Id.Value);
             mensajeAlerta = ok ? $"El título '{libroAEliminar.Titulo}' fue retirado del catálogo." : "Error al retirar el título.";
             CerrarModalEliminar();

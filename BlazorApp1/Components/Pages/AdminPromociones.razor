@@ -40,7 +40,7 @@
         </div>
     }
 
-    @if (!string.IsNullOrWhiteSpace(mensajeError))
+    @if (!string.IsNullOrWhiteSpace(mensajeError) && !mostrarModal)
     {
         <div class="alert alert-danger alert-dismissible fade show rounded-2 shadow-2xs mb-4" role="alert">
             <span class="bi bi-exclamation-triangle-fill me-2"></span> @mensajeError
@@ -335,6 +335,13 @@
                     <button type="button" class="btn-close" @onclick="CerrarModal"></button>
                 </div>
                 <div class="modal-body p-4">
+                    @if (!string.IsNullOrWhiteSpace(mensajeError))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show rounded-2 mb-3" role="alert">
+                            <span class="bi bi-exclamation-triangle-fill me-2"></span> @mensajeError
+                            <button type="button" class="btn-close" @onclick="() => mensajeError = null"></button>
+                        </div>
+                    }
                     <div class="row g-3">
                         <!-- Selector de Modalidad: Oferta Directa vs Cupón con Código -->
                         <div class="col-12">

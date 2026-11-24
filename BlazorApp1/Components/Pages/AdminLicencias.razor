@@ -211,13 +211,44 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Título del Catálogo</label>
-                        <select class="form-select rounded-2" @bind="libroSeleccionadoId">
-                            @foreach (var l in catalogoLibros)
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-semibold mb-0">Título del Catálogo</label>
+                            @if (!string.IsNullOrWhiteSpace(busquedaLibroModal))
                             {
-                                <option value="@l.Id">@l.Titulo (ISBN: @l.Isbn)</option>
+                                <small class="text-muted">@librosModalFiltrados.Count resultado(s)</small>
+                            }
+                        </div>
+                        <div class="input-group input-group-sm mb-2">
+                            <span class="input-group-text bg-light"><span class="bi bi-search"></span></span>
+                            <input type="text"
+                                   class="form-control"
+                                   placeholder="Buscar por título, autor o ISBN..."
+                                   value="@busquedaLibroModal"
+                                   @oninput="OnBusquedaLibroModalInput" />
+                            @if (!string.IsNullOrWhiteSpace(busquedaLibroModal))
+                            {
+                                <button type="button" class="btn btn-outline-secondary" @onclick="LimpiarBusquedaLibroModal" title="Limpiar búsqueda">
+                                    <span class="bi bi-x"></span>
+                                </button>
+                            }
+                        </div>
+                        <select class="form-select rounded-2" @bind="libroSeleccionadoId">
+                            @if (!librosModalFiltrados.Any())
+                            {
+                                <option value="0" disabled>No se encontraron libros con ese criterio</option>
+                            }
+                            else
+                            {
+                                @foreach (var l in librosModalFiltrados.Take(50))
+                                {
+                                    <option value="@l.Id">@l.Titulo (ISBN: @l.Isbn)</option>
+                                }
                             }
                         </select>
+                        @if (librosModalFiltrados.Count > 50)
+                        {
+                            <small class="text-muted d-block mt-1">Mostrando los primeros 50 resultados. Escribe para filtrar.</small>
+                        }
                     </div>
 
                     <div class="mb-3">
@@ -302,8 +333,40 @@
     private bool mostrarModal = false;
     private bool mostrarModalEliminar = false;
     private string busquedaTexto = "";
+    private string busquedaLibroModal = "";
     private string filtroEstado = "TODOS";
     private string? mensajeAlerta = null;
+
+    private List<LibroDto> librosModalFiltrados => string.IsNullOrWhiteSpace(busquedaLibroModal)
+        ? catalogoLibros
+        : catalogoLibros.Where(l =>
+            (l.Titulo?.Contains(busquedaLibroModal, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (l.Autor?.Contains(busquedaLibroModal, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (l.Isbn?.Contains(busquedaLibroModal, StringComparison.OrdinalIgnoreCase) ?? false))
+        .ToList();
+
+    private void OnBusquedaLibroModalInput(ChangeEventArgs e)
+    {
+        busquedaLibroModal = e.Value?.ToString() ?? "";
+        var filtrados = librosModalFiltrados;
+        if (filtrados.Any() && !filtrados.Any(l => l.Id == libroSeleccionadoId))
+        {
+            libroSeleccionadoId = filtrados.First().Id ?? 0;
+        }
+        else if (!filtrados.Any())
+        {
+            libroSeleccionadoId = 0;
+        }
+    }
+
+    private void LimpiarBusquedaLibroModal()
+    {
+        busquedaLibroModal = "";
+        if (catalogoLibros.Any() && libroSeleccionadoId == 0)
+        {
+            libroSeleccionadoId = catalogoLibros.First().Id ?? 0;
+        }
+    }
 
     private List<LicenciaDigitalDto> licenciasFiltradas => licencias
         .Where(l => filtroEstado == "TODOS" || l.Estado == filtroEstado)
@@ -347,7 +410,7 @@
         if (catalogoLibros.Count > 0)
         {
             libroSeleccionadoId = catalogoLibros[0].Id ?? 0;
-            nuevaLicencia.EnlaceDescarga = $"https://visor.bookstore.com/read/{libroSeleccionadoId}";
+            nuevaLicencia.EnlaceDescarga = $"/lector/{libroSeleccionadoId}";
         }
         mostrarModal = true;
     }
@@ -384,7 +447,7 @@
 
         if (string.IsNullOrWhiteSpace(nuevaLicencia.EnlaceDescarga))
         {
-            nuevaLicencia.EnlaceDescarga = $"https://visor.bookstore.com/read/{libroSeleccionadoId}";
+            nuevaLicencia.EnlaceDescarga = $"/lector/{libroSeleccionadoId}";
         }
 
         var exito = await LicenciaService.Crear(nuevaLicencia);

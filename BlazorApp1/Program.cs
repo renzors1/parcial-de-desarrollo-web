@@ -26,6 +26,7 @@ builder.Services.AddScoped<CarritoService>();
 builder.Services.AddScoped<LicenciaDigitalService>();
 builder.Services.AddScoped<PromocionService>();
 builder.Services.AddScoped<EditorialService>();
+builder.Services.AddScoped<CatalogoConfigService>();
 builder.Services.AddScoped<CalificacionService>();
 
 var app = builder.Build();
