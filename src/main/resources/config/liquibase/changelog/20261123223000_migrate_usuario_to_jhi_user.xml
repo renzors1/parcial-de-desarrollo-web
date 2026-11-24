@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20261123223000-1" author="renzo">
+        <dropForeignKeyConstraint baseTableName="venta" constraintName="fk_venta__cliente_id"/>
+        <dropForeignKeyConstraint baseTableName="calificacion_usuario" constraintName="fk_calificacion_usuario__cliente_evaluado_id"/>
+        <dropForeignKeyConstraint baseTableName="calificacion_usuario" constraintName="fk_calificacion_usuario__evaluador_tienda_id"/>
+
+        <sql>UPDATE venta SET cliente_id = NULL WHERE cliente_id IS NOT NULL AND cliente_id NOT IN (SELECT id FROM jhi_user);</sql>
+        <sql>UPDATE calificacion_usuario SET cliente_evaluado_id = 2 WHERE cliente_evaluado_id NOT IN (SELECT id FROM jhi_user);</sql>
+        <sql>UPDATE calificacion_usuario SET evaluador_tienda_id = 1 WHERE evaluador_tienda_id IS NOT NULL AND evaluador_tienda_id NOT IN (SELECT id FROM jhi_user);</sql>
+
+        <addForeignKeyConstraint baseColumnNames="cliente_id"
+                                 baseTableName="venta"
+                                 constraintName="fk_venta__cliente_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+
+        <addForeignKeyConstraint baseColumnNames="cliente_evaluado_id"
+                                 baseTableName="calificacion_usuario"
+                                 constraintName="fk_calificacion_usuario__cliente_evaluado_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+
+        <addForeignKeyConstraint baseColumnNames="evaluador_tienda_id"
+                                 baseTableName="calificacion_usuario"
+                                 constraintName="fk_calificacion_usuario__evaluador_tienda_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+
+        <dropTable tableName="usuario" cascadeConstraints="true"/>
+        <dropTable tableName="rol" cascadeConstraints="true"/>
+    </changeSet>
+</databaseChangeLog>

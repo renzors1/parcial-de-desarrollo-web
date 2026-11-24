@@ -1,7 +1,6 @@
 package com.mycompany.myapp.domain;
 
 import static com.mycompany.myapp.domain.CalificacionUsuarioTestSamples.*;
-import static com.mycompany.myapp.domain.UsuarioTestSamples.*;
 import static com.mycompany.myapp.domain.VentaTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,7 +26,8 @@ class CalificacionUsuarioTest {
     @Test
     void clienteEvaluadoTest() {
         CalificacionUsuario calificacionUsuario = getCalificacionUsuarioRandomSampleGenerator();
-        Usuario usuarioBack = getUsuarioRandomSampleGenerator();
+        User usuarioBack = new User();
+        usuarioBack.setId(1L);
 
         calificacionUsuario.setClienteEvaluado(usuarioBack);
         assertThat(calificacionUsuario.getClienteEvaluado()).isEqualTo(usuarioBack);
@@ -39,7 +39,8 @@ class CalificacionUsuarioTest {
     @Test
     void evaluadorTiendaTest() {
         CalificacionUsuario calificacionUsuario = getCalificacionUsuarioRandomSampleGenerator();
-        Usuario usuarioBack = getUsuarioRandomSampleGenerator();
+        User usuarioBack = new User();
+        usuarioBack.setId(1L);
 
         calificacionUsuario.setEvaluadorTienda(usuarioBack);
         assertThat(calificacionUsuario.getEvaluadorTienda()).isEqualTo(usuarioBack);

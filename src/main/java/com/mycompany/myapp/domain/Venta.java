@@ -75,8 +75,7 @@ public class Venta implements Serializable {
     private Set<DetalleVenta> detalleses = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "comprases", "calificacionesRecibidases", "calificacionesEmitidases", "rol" }, allowSetters = true)
-    private Usuario cliente;
+    private User cliente;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -285,16 +284,16 @@ public class Venta implements Serializable {
         return this;
     }
 
-    public Usuario getCliente() {
+    public User getCliente() {
         return this.cliente;
     }
 
-    public void setCliente(Usuario usuario) {
-        this.cliente = usuario;
+    public void setCliente(User user) {
+        this.cliente = user;
     }
 
-    public Venta cliente(Usuario usuario) {
-        this.setCliente(usuario);
+    public Venta cliente(User user) {
+        this.setCliente(user);
         return this;
     }
 

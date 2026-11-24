@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.mycompany.myapp.IntegrationTest;
 import com.mycompany.myapp.domain.CalificacionUsuario;
-import com.mycompany.myapp.domain.Usuario;
+import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.repository.CalificacionUsuarioRepository;
 import com.mycompany.myapp.service.dto.CalificacionUsuarioDTO;
 import com.mycompany.myapp.service.mapper.CalificacionUsuarioMapper;
@@ -102,13 +102,13 @@ class CalificacionUsuarioResourceIT {
             .usuarioModificacion(DEFAULT_USUARIO_MODIFICACION)
             .fechaModificacion(DEFAULT_FECHA_MODIFICACION);
         // Add required entity
-        Usuario usuario;
-        if (TestUtil.findAll(em, Usuario.class).isEmpty()) {
-            usuario = UsuarioResourceIT.createEntity();
+        User usuario;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            usuario = UserResourceIT.createEntity();
             em.persist(usuario);
             em.flush();
         } else {
-            usuario = TestUtil.findAll(em, Usuario.class).getFirst();
+            usuario = TestUtil.findAll(em, User.class).getFirst();
         }
         calificacionUsuario.setClienteEvaluado(usuario);
         return calificacionUsuario;
@@ -131,13 +131,13 @@ class CalificacionUsuarioResourceIT {
             .usuarioModificacion(UPDATED_USUARIO_MODIFICACION)
             .fechaModificacion(UPDATED_FECHA_MODIFICACION);
         // Add required entity
-        Usuario usuario;
-        if (TestUtil.findAll(em, Usuario.class).isEmpty()) {
-            usuario = UsuarioResourceIT.createUpdatedEntity();
+        User usuario;
+        if (TestUtil.findAll(em, User.class).isEmpty()) {
+            usuario = UserResourceIT.createEntity();
             em.persist(usuario);
             em.flush();
         } else {
-            usuario = TestUtil.findAll(em, Usuario.class).getFirst();
+            usuario = TestUtil.findAll(em, User.class).getFirst();
         }
         updatedCalificacionUsuario.setClienteEvaluado(usuario);
         return updatedCalificacionUsuario;

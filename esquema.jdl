@@ -4,34 +4,6 @@ enum EstadoLicencia {
     VENDIDA
 }
 
-
-entity Rol {
-    codigoIdentificador Integer required unique,
-    nombreRol String required unique,
-    descripcion String,
-    activo Boolean required,
-    usuarioCreacion String,
-    fechaCreacion Instant,
-    usuarioModificacion String,
-    fechaModificacion Instant
-}
-
-entity Usuario {
-    nombre String required,
-    apellido String required,
-    email String required unique,
-    contrasena String required,
-    direccion String,
-    celular String,
-    fechaRegistro Instant required,
-    calificacionPromedio Float min(0) max(5),
-    activo Boolean required,
-    usuarioCreacion String,
-    fechaCreacion Instant,
-    usuarioModificacion String,
-    fechaModificacion Instant
-}
-
 entity CalificacionUsuario {
     puntuacion Integer required min(1) max(5),
     comentario String maxlength(500),
@@ -141,15 +113,15 @@ entity DetalleVenta {
 }
 
 
-relationship OneToMany {
-    Rol{usuarios} to Usuario{rol},
+relationship ManyToOne {
+    Venta{cliente(login)} to User with builtInEntity,
+    CalificacionUsuario{clienteEvaluado(login) required} to User with builtInEntity,
+    CalificacionUsuario{evaluadorTienda(login)} to User with builtInEntity
+}
 
+relationship OneToMany {
     Editorial{libros} to Libro{editorial},
 
-    Usuario{compras} to Venta{cliente},
-
-    Usuario{calificacionesRecibidas} to CalificacionUsuario{clienteEvaluado required},
-    Usuario{calificacionesEmitidas} to CalificacionUsuario{evaluadorTienda},
     Venta{calificacionesCliente} to CalificacionUsuario{venta},
 
     Venta{detalles} to DetalleVenta{venta},

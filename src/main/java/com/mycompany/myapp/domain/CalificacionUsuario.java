@@ -56,12 +56,10 @@ public class CalificacionUsuario implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    @JsonIgnoreProperties(value = { "comprases", "calificacionesRecibidases", "calificacionesEmitidases", "rol" }, allowSetters = true)
-    private Usuario clienteEvaluado;
+    private User clienteEvaluado;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = { "comprases", "calificacionesRecibidases", "calificacionesEmitidases", "rol" }, allowSetters = true)
-    private Usuario evaluadorTienda;
+    private User evaluadorTienda;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnoreProperties(value = { "calificacionesClientes", "detalleses", "cliente" }, allowSetters = true)
@@ -186,29 +184,29 @@ public class CalificacionUsuario implements Serializable {
         this.fechaModificacion = fechaModificacion;
     }
 
-    public Usuario getClienteEvaluado() {
+    public User getClienteEvaluado() {
         return this.clienteEvaluado;
     }
 
-    public void setClienteEvaluado(Usuario usuario) {
-        this.clienteEvaluado = usuario;
+    public void setClienteEvaluado(User user) {
+        this.clienteEvaluado = user;
     }
 
-    public CalificacionUsuario clienteEvaluado(Usuario usuario) {
-        this.setClienteEvaluado(usuario);
+    public CalificacionUsuario clienteEvaluado(User user) {
+        this.setClienteEvaluado(user);
         return this;
     }
 
-    public Usuario getEvaluadorTienda() {
+    public User getEvaluadorTienda() {
         return this.evaluadorTienda;
     }
 
-    public void setEvaluadorTienda(Usuario usuario) {
-        this.evaluadorTienda = usuario;
+    public void setEvaluadorTienda(User user) {
+        this.evaluadorTienda = user;
     }
 
-    public CalificacionUsuario evaluadorTienda(Usuario usuario) {
-        this.setEvaluadorTienda(usuario);
+    public CalificacionUsuario evaluadorTienda(User user) {
+        this.setEvaluadorTienda(user);
         return this;
     }
 

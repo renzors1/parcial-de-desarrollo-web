@@ -2,7 +2,6 @@ package com.mycompany.myapp.domain;
 
 import static com.mycompany.myapp.domain.CalificacionUsuarioTestSamples.*;
 import static com.mycompany.myapp.domain.DetalleVentaTestSamples.*;
-import static com.mycompany.myapp.domain.UsuarioTestSamples.*;
 import static com.mycompany.myapp.domain.VentaTestSamples.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -74,7 +73,8 @@ class VentaTest {
     @Test
     void clienteTest() {
         Venta venta = getVentaRandomSampleGenerator();
-        Usuario usuarioBack = getUsuarioRandomSampleGenerator();
+        User usuarioBack = new User();
+        usuarioBack.setId(1L);
 
         venta.setCliente(usuarioBack);
         assertThat(venta.getCliente()).isEqualTo(usuarioBack);

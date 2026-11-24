@@ -115,6 +115,70 @@ public class CalificacionService
         return true;
     }
 
+    public static (int Puntuacion, string Nivel) CalcularPuntuacionPorMetricas(int compras, decimal totalGastado)
+    {
+        if (compras >= 5 || totalGastado >= 250m) return (5, "Cliente VIP");
+        if (compras >= 3 || totalGastado >= 120m) return (4, "Cliente Frecuente");
+        if (compras >= 2 || totalGastado >= 60m) return (3, "Cliente Activo");
+        if (compras == 1) return (2, "Cliente Nuevo");
+        return (1, "Sin Actividad");
+    }
+
+    public async Task<int> RecalcularPorVentasAsync(List<VentaDto> ventas, string? loginObjetivo = null, string? nombreObjetivo = null)
+    {
+        var grupos = ventas
+            .Where(v => !string.IsNullOrWhiteSpace(v.Cliente ?? v.UsuarioCreacion))
+            .GroupBy(v => (v.Cliente ?? v.UsuarioCreacion ?? "cliente").Trim(), StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (!string.IsNullOrWhiteSpace(loginObjetivo))
+        {
+            grupos = grupos.Where(g => g.Key.Equals(loginObjetivo.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        int actualizadas = 0;
+        foreach (var grupo in grupos)
+        {
+            var compras = grupo.Count();
+            var totalGastado = grupo.Sum(v => v.TotalVenta);
+            var (puntuacion, nivel) = CalcularPuntuacionPorMetricas(compras, totalGastado);
+            var nombre = nombreObjetivo
+                ?? grupo.Select(v => v.Cliente).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n))
+                ?? grupo.Key;
+
+            var comentario = $"Cálculo automático ({nivel}): {compras} compra(s) registrada(s) por S/ {totalGastado:N2}.";
+
+            var existente = _calificacionesLocales.FirstOrDefault(c =>
+                string.Equals(c.ClienteEvaluado?.Login ?? c.UsuarioCreacion, grupo.Key, StringComparison.OrdinalIgnoreCase));
+
+            if (existente != null)
+            {
+                existente.Puntuacion = puntuacion;
+                existente.Comentario = comentario;
+                existente.FechaCalificacion = DateTime.UtcNow;
+                actualizadas++;
+            }
+            else
+            {
+                var dto = new CalificacionUsuarioDto
+                {
+                    Puntuacion = puntuacion,
+                    Comentario = comentario,
+                    FechaCalificacion = DateTime.UtcNow,
+                    UsuarioCreacion = grupo.Key,
+                    ClienteEvaluado = new UserAccountDto { FirstName = nombre, Login = grupo.Key },
+                    EvaluadorTienda = new UserAccountDto { FirstName = "Sistema Automático", Login = "admin" }
+                };
+                if (await EnviarCalificacion(dto))
+                {
+                    actualizadas++;
+                }
+            }
+        }
+
+        return actualizadas;
+    }
+
     public async Task<bool> RegistrarOpinion(int puntuacion, string comentario, string? cliente = null)
     {
         var dto = new CalificacionUsuarioDto

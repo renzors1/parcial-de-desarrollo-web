@@ -36,9 +36,9 @@ public class CalificacionUsuarioDTO implements Serializable {
     private Instant fechaModificacion;
 
     @NotNull
-    private UsuarioDTO clienteEvaluado;
+    private UserDTO clienteEvaluado;
 
-    private UsuarioDTO evaluadorTienda;
+    private UserDTO evaluadorTienda;
 
     private VentaDTO venta;
 
@@ -114,19 +114,19 @@ public class CalificacionUsuarioDTO implements Serializable {
         this.fechaModificacion = fechaModificacion;
     }
 
-    public UsuarioDTO getClienteEvaluado() {
+    public UserDTO getClienteEvaluado() {
         return clienteEvaluado;
     }
 
-    public void setClienteEvaluado(UsuarioDTO clienteEvaluado) {
+    public void setClienteEvaluado(UserDTO clienteEvaluado) {
         this.clienteEvaluado = clienteEvaluado;
     }
 
-    public UsuarioDTO getEvaluadorTienda() {
+    public UserDTO getEvaluadorTienda() {
         return evaluadorTienda;
     }
 
-    public void setEvaluadorTienda(UsuarioDTO evaluadorTienda) {
+    public void setEvaluadorTienda(UserDTO evaluadorTienda) {
         this.evaluadorTienda = evaluadorTienda;
     }
 

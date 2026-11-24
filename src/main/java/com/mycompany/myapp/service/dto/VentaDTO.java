@@ -43,7 +43,7 @@ public class VentaDTO implements Serializable {
 
     private Instant fechaModificacion;
 
-    private UsuarioDTO cliente;
+    private UserDTO cliente;
 
     public Long getId() {
         return id;
@@ -133,11 +133,11 @@ public class VentaDTO implements Serializable {
         this.fechaModificacion = fechaModificacion;
     }
 
-    public UsuarioDTO getCliente() {
+    public UserDTO getCliente() {
         return cliente;
     }
 
-    public void setCliente(UsuarioDTO cliente) {
+    public void setCliente(UserDTO cliente) {
         this.cliente = cliente;
     }
 

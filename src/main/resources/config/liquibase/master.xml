@@ -38,6 +38,7 @@
     <include file="config/liquibase/changelog/20261002011825_added_entity_constraints_LicenciaDigital.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261002011826_added_entity_constraints_Promocion.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20261025022530_added_entity_constraints_CalificacionUsuario.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20261123223000_migrate_usuario_to_jhi_user.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>
