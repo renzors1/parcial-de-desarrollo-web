@@ -77,6 +77,18 @@ public class AuthenticateController {
         return ResponseEntity.status(principal == null ? HttpStatus.UNAUTHORIZED : HttpStatus.NO_CONTENT).build();
     }
 
+    @PostMapping("/refresh-token")
+    public ResponseEntity<JWTToken> refreshToken() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String newJwt = this.createToken(authentication, true);
+        var httpHeaders = new HttpHeaders();
+        httpHeaders.setBearerAuth(newJwt);
+        return new ResponseEntity<>(new JWTToken(newJwt), httpHeaders, HttpStatus.OK);
+    }
+
     public String createToken(Authentication authentication, boolean rememberMe) {
         String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(" "));
 

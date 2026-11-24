@@ -1,15 +1,9 @@
-// ==========================================
-// Enumeraciones del Sistema
-// ==========================================
-
+﻿
 enum EstadoLicencia {
     DISPONIBLE,
     VENDIDA
 }
 
-// ==========================================
-// Entidades de Seguridad y Usuarios
-// ==========================================
 
 entity Rol {
     codigoIdentificador Integer required unique,
@@ -49,9 +43,6 @@ entity CalificacionUsuario {
     fechaModificacion Instant
 }
 
-// ==========================================
-// Catálogo Editorial
-// ==========================================
 
 entity Categoria {
     nombreCategoria String required,
@@ -109,9 +100,6 @@ entity LicenciaDigital {
     fechaModificacion Instant
 }
 
-// ==========================================
-// Comercialización y Ventas
-// ==========================================
 
 entity Promocion {
     nombre String required,
@@ -152,9 +140,6 @@ entity DetalleVenta {
     fechaModificacion Instant
 }
 
-// ==========================================
-// Relaciones
-// ==========================================
 
 relationship OneToMany {
     Rol{usuarios} to Usuario{rol},
@@ -186,9 +171,6 @@ relationship ManyToMany {
     Promocion{libros} to Libro{promociones}
 }
 
-// ==========================================
-// Configuración de Capas y Paginación
-// ==========================================
 
 dto * with mapstruct
 service * with serviceImpl

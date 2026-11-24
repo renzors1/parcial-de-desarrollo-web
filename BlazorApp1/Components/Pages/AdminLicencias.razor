@@ -259,13 +259,8 @@
                     </div>
 
                     <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label fw-semibold mb-0">Código / Clave DRM <span class="text-danger">*</span></label>
-                            <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" @onclick="GenerarCodigoAleatorio">
-                                <span class="bi bi-arrow-repeat me-1"></span> Generar aleatorio
-                            </button>
-                        </div>
-                        <input type="text" class="form-control rounded-2 font-monospace" @bind="nuevaLicencia.CodigoLicencia" maxlength="50" required />
+                        <label class="form-label fw-semibold">Código / Clave DRM <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control rounded-2 font-monospace" @bind="nuevaLicencia.CodigoLicencia" placeholder="Ingresa la clave DRM entregada por la editorial" maxlength="50" required />
                     </div>
 
                     <div class="mb-3">
@@ -413,7 +408,7 @@
             Estado = "DISPONIBLE",
             FechaCreacion = DateTime.UtcNow
         };
-        GenerarCodigoAleatorio();
+        nuevaLicencia.CodigoLicencia = string.Empty;
         if (catalogoLibros.Count > 0)
         {
             libroSeleccionadoId = catalogoLibros[0].Id ?? 0;
@@ -438,6 +433,12 @@
         if (string.IsNullOrWhiteSpace(codigoLimpio) || codigoLimpio.Length < 5 || codigoLimpio.Length > 50)
         {
             mensajeAlerta = "Error: El código de licencia debe tener entre 5 y 50 caracteres.";
+            return;
+        }
+
+        if (licencias.Any(l => string.Equals(l.CodigoLicencia?.Trim(), codigoLimpio, StringComparison.OrdinalIgnoreCase)))
+        {
+            mensajeAlerta = $"Error: La clave DRM '{codigoLimpio}' ya existe registrada en el sistema.";
             return;
         }
 
